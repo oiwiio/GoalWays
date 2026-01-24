@@ -53,21 +53,21 @@ export default function CosmicCounter() {
   const increment = () => {
     setCount(prev => prev + 1);
     animateCounter();
-    setMessage('🚀 Взлетаем выше!');
+    
     setTimeout(() => setMessage(''), 2000);
   };
 
   const decrement = () => {
     setCount(prev => prev - 1);
     animateCounter();
-    setMessage('🌌 Уходим в глубины космоса...');
+   
     setTimeout(() => setMessage(''), 2000);
   };
 
   const reset = () => {
     setCount(0);
     animateCounter();
-    setMessage('🛸 Сброс на стартовую позицию');
+    
     setTimeout(() => setMessage(''), 2000);
   };
 
@@ -108,7 +108,7 @@ export default function CosmicCounter() {
 
       {/* Заголовок с вращающейся ракетой */}
       <View style={styles.titleContainer}>
-        <Text style={styles.title}>ГАЛАКТИЧЕСКИЙ СЧЁТЧИК</Text>
+        <Text style={styles.title}>Космотрип</Text>
         <Animated.Text 
           style={[
             styles.emoji, 
