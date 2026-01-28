@@ -115,5 +115,6 @@ dependencies {
         implementation("com.facebook.react:hermes-android")
     } else {
         implementation jscFlavor
-    }
+    } 
+     implementation 'androidx.core:core-splashscreen:1.0.0'
 }

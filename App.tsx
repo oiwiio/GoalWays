@@ -12,23 +12,39 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 import Counter from './components/Counter/Counter';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import LoginScreen from './src/screens/Auth/LoginScreen';
+import RegisterScreen from './src/screens/Auth/RegisterScreen';
 
-const App =()=> {
-  const isDarkMode = useColorScheme() === 'dark';
+// import MainScreen from './src/screens/Main/MainScreen'; // добавиmь позже
 
+const Stack = createNativeStackNavigator();
+
+const App = () => {
   return (
-    <SafeAreaProvider>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-        <Counter />
-    </SafeAreaProvider>
-
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Login">
+        {/* Auth screens */}
+        <Stack.Screen 
+          name="Login" 
+          component={LoginScreen}
+          options={{ title: 'Вход' }}
+        />
+        <Stack.Screen 
+          name="Register" 
+          component={RegisterScreen}
+          options={{ title: 'Регистрация' }}
+        />
+          <Stack.Screen 
+          name="Counter" 
+          component={Counter}
+          options={{ title: 'Счётчик' }}
+        />
+        
+      </Stack.Navigator>
+    </NavigationContainer>
   );
-}
-
-
-
-const styles = StyleSheet.create({
-  
-})
+};
 
 export default App;
