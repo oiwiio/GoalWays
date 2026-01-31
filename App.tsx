@@ -16,6 +16,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from './src/screens/Auth/LoginScreen';
 import RegisterScreen from './src/screens/Auth/RegisterScreen';
+import ForgotPasswordScreen from './src/screens/Auth/ForgotPasswordScreen';
 
 // import MainScreen from './src/screens/Main/MainScreen'; // добавиmь позже
 
@@ -42,6 +43,11 @@ const App = () => {
           options={{ title: 'Счётчик' }}
         />
         
+        <Stack.Screen 
+        name="ForgotPassword"
+        component={ForgotPasswordScreen}
+        options={{ title:'Восстановление пароля'}}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

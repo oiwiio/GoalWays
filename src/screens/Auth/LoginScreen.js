@@ -46,6 +46,12 @@ const LoginScreen = ({ navigation }) => {
       >
         Нет аккаунта? Зарегистрироваться
       </Text>
+      <Text 
+        style={styles.link}
+        onPress={() => navigation.navigate('ForgotPassword')}
+>
+        Забыли пароль?
+      </Text>
     </View>
   );
 };

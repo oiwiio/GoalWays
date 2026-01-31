@@ -25,4 +25,14 @@ export default StyleSheet.create({
     textAlign: 'center',
     marginTop: 20,
   },
+
+  subtitle: {
+  fontSize: 14,
+  color: '#666',
+  textAlign: 'center',
+  marginBottom: 20,
+  paddingHorizontal: 20,
+  },
+
+
 });
