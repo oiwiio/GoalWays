@@ -6,7 +6,7 @@
  */
 
 import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
+import { Settings, StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
 import {
   SafeAreaProvider,
   useSafeAreaInsets,
@@ -17,6 +17,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from './src/screens/Auth/LoginScreen';
 import RegisterScreen from './src/screens/Auth/RegisterScreen';
 import ForgotPasswordScreen from './src/screens/Auth/ForgotPasswordScreen';
+import SettingsScreen from './src/screens/Settings/SettingsScreen';
 
 // import MainScreen from './src/screens/Main/MainScreen'; // добавиmь позже
 
@@ -48,7 +49,15 @@ const App = () => {
         component={ForgotPasswordScreen}
         options={{ title:'Восстановление пароля'}}
         />
+
+        <Stack.Screen 
+        name="Settings"
+        component={SettingsScreen}
+        options={{title:'Настройки'}}
+        />
+
       </Stack.Navigator>
+
     </NavigationContainer>
   );
 };

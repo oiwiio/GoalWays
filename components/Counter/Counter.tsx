@@ -7,10 +7,11 @@ import {
   Dimensions,
   Animated,
   Easing,
+  Button,
 } from 'react-native';
 import { styles } from './Counter.styles';
 
-export default function CosmicCounter() {
+export default function CosmicCounter({ navigation }: any) {
   const [count, setCount] = useState(0);
   const [message, setMessage] = useState('');
   const scaleAnim = new Animated.Value(1);
@@ -181,6 +182,13 @@ export default function CosmicCounter() {
           <Text style={styles.messageText}>{message}</Text>
         </View>
       ) : null}
+    
+      <Button 
+      title="Настройки" 
+      onPress={() => navigation.navigate('Settings')}
+      />
+
     </View>
+  
   );
 }
