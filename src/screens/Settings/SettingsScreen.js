@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import { View, Text, ScrollView, Switch } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import SettingsSection from './SettingsSection';
 import SettingsItem from './SettingsItem';
 
 
+
 const SettingsScreen = () => {
+  const navigation = useNavigation();
     const [notifications, setNotifications] = useState(true);
 
     const handleLogout = () => {
@@ -33,8 +36,24 @@ const SettingsScreen = () => {
           color="red"
         />
       </SettingsSection>
-      
-      {/* для остальных секций */}
+          
+      <SettingsSection title="О приложении">
+        
+        <SettingsItem
+          title="Обратная связь"
+          onPress={() => Linking.openURL('mailto:support@goalways.com')}
+        />
+        <SettingsItem
+          title="Разработчики"
+          onPress={() => navigation.navigate('Developers')}
+        />
+        <SettingsItem
+          title="Версия"
+          rightElement={<Text style={{ color: '#666' }}>1.0.0 (beta)</Text>}
+          onPress={() => Alert.alert('Версия', 'GoalWays 1.0.0\nСборка 42')}
+        />
+</SettingsSection>
+
     </ScrollView>
     );
 };

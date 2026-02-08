@@ -18,6 +18,7 @@ import LoginScreen from './src/screens/Auth/LoginScreen';
 import RegisterScreen from './src/screens/Auth/RegisterScreen';
 import ForgotPasswordScreen from './src/screens/Auth/ForgotPasswordScreen';
 import SettingsScreen from './src/screens/Settings/SettingsScreen';
+import DevelopersScreen from './src/screens/Settings/DevelopersScreen';
 
 // import MainScreen from './src/screens/Main/MainScreen'; // добавиmь позже
 
@@ -55,6 +56,12 @@ const App = () => {
         component={SettingsScreen}
         options={{title:'Настройки'}}
         />
+
+        <Stack.Screen 
+          name="Developers" 
+          component={DevelopersScreen}
+          options={{ title: 'Разработчики' }}
+        />      
 
       </Stack.Navigator>
 
