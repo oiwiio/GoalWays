@@ -13,7 +13,7 @@ const LoginScreen = ({ navigation }) => {
         }
 
         Alert.alert('Успех',`Привет, ${email}!, (логика позже)`);
-             navigation.navigate('Counter');
+             navigation.navigate('Main');
 
     };
 

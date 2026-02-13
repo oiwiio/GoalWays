@@ -19,8 +19,8 @@ import RegisterScreen from './src/screens/Auth/RegisterScreen';
 import ForgotPasswordScreen from './src/screens/Auth/ForgotPasswordScreen';
 import SettingsScreen from './src/screens/Settings/SettingsScreen';
 import DevelopersScreen from './src/screens/Settings/DevelopersScreen';
-
-// import MainScreen from './src/screens/Main/MainScreen'; // добавиmь позже
+import GoalsScreen from './src/screens/tasks/GoalsScreen';
+import MainScreen from './src/screens/main/MainScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -34,11 +34,19 @@ const App = () => {
           component={LoginScreen}
           options={{ title: 'Вход' }}
         />
+
+          <Stack.Screen 
+            name="Main" 
+            component={MainScreen}
+            options={{ title: 'Главная' }}
+          />
+
         <Stack.Screen 
           name="Register" 
           component={RegisterScreen}
           options={{ title: 'Регистрация' }}
         />
+        
           <Stack.Screen 
           name="Counter" 
           component={Counter}
@@ -62,6 +70,15 @@ const App = () => {
           component={DevelopersScreen}
           options={{ title: 'Разработчики' }}
         />      
+
+        <Stack.Screen 
+          name="Goals" 
+          component={GoalsScreen}
+          options={{ 
+          title: 'Мои цели',
+          headerShown: true // Показываем заголовок
+        }}
+        />
 
       </Stack.Navigator>
 
