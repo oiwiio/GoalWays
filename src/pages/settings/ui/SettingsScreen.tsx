@@ -1,22 +1,32 @@
 import React, { useState } from "react";
-import { View, Text, ScrollView, Switch } from 'react-native';
+import { View, Text, ScrollView, Switch, Alert, Linking } from 'react-native'; 
 import { useNavigation } from '@react-navigation/native';
-import SettingsSection from './SettingsSection';
-import SettingsItem from './SettingsItem';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../../types/navigation';
+import { SettingsSection } from '../SettingsSection';
+import { SettingsItem } from '../SettingsItem';
 
 
+type SettingsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Settings'>;
 
-const SettingsScreen = () => {
-  const navigation = useNavigation();
-    const [notifications, setNotifications] = useState(true);
+export const SettingsScreen = () => {
+  const navigation = useNavigation<SettingsScreenNavigationProp>();
+  const [notifications, setNotifications] = useState(true);
 
-    const handleLogout = () => {
-        console.log('Logout pressed');
+  const handleLogout = () => {
+    Alert.alert(
+      'Выход',
+      'Вы уверены?',
+      [
+        { text: 'Отмена', style: 'cancel' },
+        { text: 'Выйти', onPress: () => console.log('Logout pressed') }
+      ]
+    );
+  };
 
-    };
-    return(
-        <ScrollView>
-         <SettingsSection title="Уведомления">
+  return (
+    <ScrollView>
+      <SettingsSection title="Уведомления">
         <SettingsItem
           title="Push-уведомления"
           rightElement={
@@ -28,7 +38,7 @@ const SettingsScreen = () => {
       <SettingsSection title="Управление аккаунтом">
         <SettingsItem
           title="Сменить пароль"
-          onPress={() => navigation.navigate('ChangePassword')}
+          onPress={() => Alert.alert('В разработке', 'Функция появится позже')} // Временно
         />
         <SettingsItem
           title="Выйти"
@@ -38,7 +48,6 @@ const SettingsScreen = () => {
       </SettingsSection>
           
       <SettingsSection title="О приложении">
-        
         <SettingsItem
           title="Обратная связь"
           onPress={() => Linking.openURL('mailto:support@goalways.com')}
@@ -52,10 +61,8 @@ const SettingsScreen = () => {
           rightElement={<Text style={{ color: '#666' }}>1.0.0 (beta)</Text>}
           onPress={() => Alert.alert('Версия', 'GoalWays 1.0.0\nСборка 42')}
         />
-</SettingsSection>
-
+      </SettingsSection>
     </ScrollView>
-    );
+  );
 };
 
-export default SettingsScreen;

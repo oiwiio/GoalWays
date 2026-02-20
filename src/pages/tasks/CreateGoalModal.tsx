@@ -1,4 +1,4 @@
-import React, { use, useState } from "react";
+import React, { useState } from "react"; 
 import {
     Modal,
     View,
@@ -9,28 +9,36 @@ import {
     ScrollView,
     Alert
 } from 'react-native';
+import { Goal } from '../../types/goal';
 
-const CreateGoalModal =({ visible, onCLose, onCreateGoal }) => {
+
+type CreateGoalModalProps = {
+    visible: boolean;
+    onClose: () => void; 
+    onCreateGoal: (goal: Goal) => void;
+};
+
+export const CreateGoalModal = ({ visible, onClose, onCreateGoal }: CreateGoalModalProps) => {
     const [title, setTitle] = useState('');
-    const [description, setDescription] =  useState('');
+    const [description, setDescription] = useState('');
     const [category, setCategory] = useState('');
-    const [ deadline, setDeadline] = useState('');
+    const [deadline, setDeadline] = useState('');
 
     const handleCreate = () => {
-        if(!title.trim()) {
-            Alert.alert('ошибка', 'введите название цели');
+        if (!title.trim()) {
+            Alert.alert('Ошибка', 'Введите название цели');
             return;
         }
 
-        const newGoal = {
-            id:Date.now().toString(),
+        const newGoal: Goal = {
+            id: Date.now().toString(),
             title: title.trim(),
-            description: description.trim,
-            category: category.trim,
+            description: description.trim(), 
+            category: category.trim(), 
             deadline: deadline || null,
             progress: 0,
             createdAt: new Date().toISOString(),
-            status:'active' // архив, актив, выполнена
+            status: 'active'
         };
 
         onCreateGoal(newGoal);
@@ -40,13 +48,12 @@ const CreateGoalModal =({ visible, onCLose, onCreateGoal }) => {
         setCategory('');
         setDeadline('');
 
-        onclose();
-
+        onClose(); 
     };
 
-    const suggestedCategories = ['Работа','Учеба','Здоровье','Личное','Финансы'];
+    const suggestedCategories = ['Работа', 'Учеба', 'Здоровье', 'Личное', 'Финансы'];
 
-    return( 
+    return ( 
         <Modal
             visible={visible}
             animationType="slide"
@@ -256,5 +263,5 @@ const CreateGoalModal =({ visible, onCLose, onCreateGoal }) => {
     },
 });
 
-export default CreateGoalModal;
+
     

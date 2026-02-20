@@ -1,10 +1,14 @@
-// src/screens/Main/MainScreen.js
+// src/screens/Main/MainScreen.tsx
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../../types/navigation'; // Импортируем типы
 
-const MainScreen = () => {
-  const navigation = useNavigation();
+type MainScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Main'>;
+
+export const MainScreen = () => {
+  const navigation = useNavigation<MainScreenNavigationProp>(); // Типизируем navigation
 
   return (
     <SafeAreaView style={styles.container}>
@@ -25,15 +29,7 @@ const MainScreen = () => {
         </TouchableOpacity>
 
         {/* Другие пункты меню */}
-        <TouchableOpacity 
-          style={[styles.menuItem, styles.counterItem]}
-          onPress={() => navigation.navigate('Counter')}
-        >
-          <Text style={styles.menuIcon}>🔢</Text>
-          <Text style={styles.menuTitle}>Счётчик</Text>
-          <Text style={styles.menuDescription}>Просто для теста</Text>
-        </TouchableOpacity>
-
+       
         <TouchableOpacity 
           style={[styles.menuItem, styles.settingsItem]}
           onPress={() => navigation.navigate('Settings')}
@@ -54,6 +50,7 @@ const MainScreen = () => {
     </SafeAreaView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -138,4 +135,3 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MainScreen;

@@ -1,8 +1,12 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, Button, Alert } from 'react-native';
-import styles from './styles'; 
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../../types/navigation';
+import styles from '../styles';
 
-const ForgotPasswordScreen = ({ navigation }) => { 
+type Props = NativeStackScreenProps<RootStackParamList, 'ForgotPassword'>;
+
+export const ForgotPasswordScreen = ({ navigation }: any) => { 
     const [email, setEmail] = useState('');
 
     const handleResetPassword = () => {
@@ -16,7 +20,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
             `На ${email} отправлена инструкция по восстановлению пароля.`
         );
         
-        navigation.navigate('Login'); 
+        navigation.navigate('Login');
     };
 
     return (
@@ -50,4 +54,3 @@ const ForgotPasswordScreen = ({ navigation }) => {
     );
 };
 
-export default ForgotPasswordScreen;

@@ -1,8 +1,12 @@
-import React, { useState } from "react"; // убрал лишний "use"
+import React, { useState } from "react";
 import { View, Text, TextInput, Button, Alert } from 'react-native';
-import styles from './styles';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../../types/navigation'; 
+import styles from '../styles';
 
-const RegisterScreen = ({ navigation }) => { 
+type Props = NativeStackScreenProps<RootStackParamList, 'Register'>;
+
+export const RegisterScreen = ({ navigation }: any) => { 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState(''); 
@@ -19,7 +23,7 @@ const RegisterScreen = ({ navigation }) => {
         }
 
         Alert.alert('Успех', `Аккаунт ${email} создан!`);
-        navigation.navigate('Counter'); // или navigation.navigate('Login')
+        navigation.navigate('Main');
     };
 
     return (
@@ -63,4 +67,3 @@ const RegisterScreen = ({ navigation }) => {
     );
 };
 
-export default RegisterScreen; 

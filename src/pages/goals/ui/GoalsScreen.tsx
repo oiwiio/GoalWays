@@ -1,4 +1,3 @@
-// src/screens/Goals/GoalsScreen.js
 import React, { useState } from 'react';
 import {
     View,
@@ -10,15 +9,21 @@ import {
     Alert
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import GoalCard from './GoalCard';
-import CreateGoalModal from './CreateGoalModal';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../../types/navigation';
+import { GoalCard } from '../../tasks/GoalCard';
+import { CreateGoalModal }  from '../../tasks/CreateGoalModal';
+import { Goal } from '../../../types/goal';
 
-const GoalsScreen = () => {
-    const navigation = useNavigation();
+
+type GoalsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Goals'>;
+
+export const GoalsScreen = () => {
+    const navigation = useNavigation<GoalsScreenNavigationProp>();
     const [modalVisible, setModalVisible] = useState(false);
-    const [activeTab, setActiveTab] = useState('active'); // 'active' или 'archived'
-    const [goals, setGoals] = useState([
-        // Примеры целей для тестирования
+    const [activeTab, setActiveTab] = useState<'active' | 'archived'>('active');
+    const [goals, setGoals] = useState<Goal[]>([
+        
         {
             id: '1',
             title: 'Выучить React Native',
@@ -46,13 +51,14 @@ const GoalsScreen = () => {
             progress: 25,
             status: 'active'
         }
+
     ]);
 
-    const handleCreateGoal = (newGoal) => {
+    const handleCreateGoal = (newGoal: Goal) => {
         setGoals([newGoal, ...goals]);
     };
-
-    const handleArchiveGoal = (goal) => {
+    
+    const handleArchiveGoal = (goal: Goal) => {
         Alert.alert(
             'Архивировать цель',
             `Переместить "${goal.title}" в архив?`,
@@ -63,7 +69,7 @@ const GoalsScreen = () => {
                     onPress: () => {
                         setGoals(goals.map(g => 
                             g.id === goal.id 
-                                ? { ...g, status: 'archived' } 
+                                ? { ...g, status: 'archived' as const } 
                                 : g
                         ));
                     }
@@ -72,8 +78,7 @@ const GoalsScreen = () => {
         );
     };
 
-    const handleGoalPress = (goal) => {
-        // Переход на экран деталей цели (создадим позже)
+    const handleGoalPress = (goal: Goal) => {
         Alert.alert('Цель', `Выбрана цель: ${goal.title}`);
     };
 
@@ -248,4 +253,3 @@ const styles = StyleSheet.create({
     },
 });
 
-export default GoalsScreen;

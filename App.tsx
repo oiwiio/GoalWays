@@ -14,13 +14,13 @@ import {
 import Counter from './components/Counter/Counter';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import LoginScreen from './src/screens/Auth/LoginScreen';
-import RegisterScreen from './src/screens/Auth/RegisterScreen';
-import ForgotPasswordScreen from './src/screens/Auth/ForgotPasswordScreen';
-import SettingsScreen from './src/screens/Settings/SettingsScreen';
-import DevelopersScreen from './src/screens/Settings/DevelopersScreen';
-import GoalsScreen from './src/screens/tasks/GoalsScreen';
-import MainScreen from './src/screens/main/MainScreen';
+import LoginScreen from './src/pages/auth/LoginScreen';
+import RegisterScreen from './src/pages/auth/RegisterScreen';
+import ForgotPasswordScreen from './src/pages/auth/ForgotPasswordScreen';
+import SettingsScreen from './src/pages/settings/SettingsScreen';
+import DevelopersScreen from './src/pages/settings/DevelopersScreen';
+import GoalsScreen from './src/pages/tasks/GoalsScreen';
+import MainScreen from './src/pages/main/MainScreen';
 
 const Stack = createNativeStackNavigator();
 

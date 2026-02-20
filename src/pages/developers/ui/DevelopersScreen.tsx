@@ -1,42 +1,64 @@
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../../types/navigation';
+
+type DevelopersScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Developers'>;
 
 
-const DevelopersScreen = () => {
-  const navigation = useNavigation();
-  const team = [
+type TeamMember = {
+  role: string;
+  name: string;
+  description: string;
+  contact: string;
+  contactUrl?: string; // ? - опционально
+};
+
+export const DevelopersScreen = () => {
+  const navigation = useNavigation<DevelopersScreenNavigationProp>();
+  
+  const team: TeamMember[] = [ 
     {
       role: 'Дизайнер',
       name: 'Щиголев Иосиф',
       description: 'UI/UX, мокапы, пользовательские сценарии',
       contact: '@Iosik123',
-      contactUrl: 'https://t.me/@Iosik123',
+      contactUrl: 'https://t.me/Iosik123', 
     },
     {
       role: 'Фронтенд-разработчик',
       name: 'Колеватов Георгий',
       description: 'React Native, архитектура, навигация',
       contact: '@oiwiio',
-      contactUrl: 'https://t.me/@oiwiio',
+      contactUrl: 'https://t.me/oiwiio',
     },
     {
       role: 'Бэкенд-разработчик',
       name: 'Абичкин Никита',
       description: 'Node.js / Python',
       contact: '@RUSSIAN_BERSERK',
-      contactUrl: 'https://t.me/@RUSSIAN_BERSERK',
+      contactUrl: 'https://t.me/RUSSIAN_BERSERK',
     },
   ];
 
-  const handleContactPress = (url) => {
-    if (url && url !== '—') {
+  const handleContactPress = (url: string) => { 
+    if (url) {
       Linking.openURL(url);
     }
   };
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#f5f5f5', padding: 20 }}>
+    <ScrollView style={{ flex: 1, backgroundColor: '#f5f5f5', padding: 20 }}> 
+
+    <TouchableOpacity 
+        onPress={() => navigation.goBack()}
+        style={{ padding: 20 }}
+      >
+        <Text style={{ fontSize: 16, color: '#007AFF' }}>← Назад</Text>
+      </TouchableOpacity>
+
+
       <Text style={{ 
         fontSize: 28, 
         fontWeight: 'bold', 
@@ -115,7 +137,7 @@ const DevelopersScreen = () => {
             </Text>
             
             {member.contactUrl ? (
-              <TouchableOpacity onPress={() => handleContactPress(member.contactUrl)}>
+              <TouchableOpacity onPress={() => handleContactPress(member.contactUrl!)}>
                 <Text style={{ 
                   fontSize: 15, 
                   color: '#0088cc',
@@ -147,4 +169,3 @@ const DevelopersScreen = () => {
   );
 };
 
-export default DevelopersScreen;

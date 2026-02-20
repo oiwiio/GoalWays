@@ -1,13 +1,18 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Goal } from '../../types/goal';
 
-const GoalCard = ({ goal, onPress, onArchive}) => {
+type GoalCardProps = {
+    goal: Goal;
+    onPress: (goal: Goal) => void;
+    onArchive: (goal: Goal) => void;
+};
 
-    // определение цвета в зависимости от прогресса 
-    const getProgressColor = (progress) => {
+export const GoalCard = ({ goal, onPress, onArchive }: GoalCardProps) => {
+    const getProgressColor = (progress: number): string => {
         if (progress < 30) return '#FF3B30';
-        if (progress <70 ) return '#ff9500'
-        return '#34c759';
+        if (progress < 70) return '#FF9500'; 
+        return '#34C759'; 
     };
 
     return (
@@ -150,4 +155,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default GoalCard;
+
