@@ -1,23 +1,40 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, Button, Alert } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../../types/navigation'; 
+import { RootStackParamList } from '../../../types/navigation';
+import { useAppDispatch, useAppSelector } from '../../../shared/lib/hooks';
+import { loginRequest } from '../../../features/auth/authSlice';
 import styles from '../styles';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 export const LoginScreen = ({ navigation }: any) => {
+    
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    
+    const dispatch = useAppDispatch();
+    const { isLoading, error, user } = useAppSelector(state => state.auth);
+
+    useEffect(() => {
+        if (error) {
+            Alert.alert('Ошибка', error);
+        }
+    }, [error]);
+
+    useEffect(() => {
+        if (user) {
+            navigation.navigate('Main');
+        }
+    }, [user, navigation]);
 
     const handleLogin = () => {
         if (!email || !password) {
             Alert.alert('Ошибка', 'Заполните все поля');
             return;
         }
-
-        Alert.alert('Успех', `Привет, ${email}! (логика позже)`);
-        navigation.navigate('Main');
+        
+        dispatch(loginRequest({ email, password }));
     };
 
     return (
@@ -41,7 +58,11 @@ export const LoginScreen = ({ navigation }: any) => {
                 secureTextEntry
             />
             
-            <Button title="Войти" onPress={handleLogin} />
+            <Button 
+                title={isLoading ? "Вход..." : "Войти"} 
+                onPress={handleLogin}
+                disabled={isLoading}
+            />
             
             <Text 
                 style={styles.link}
@@ -58,4 +79,3 @@ export const LoginScreen = ({ navigation }: any) => {
         </View>
     );
 };
-
