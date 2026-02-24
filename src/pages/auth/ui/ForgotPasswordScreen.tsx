@@ -6,7 +6,7 @@ import styles from '../styles';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ForgotPassword'>;
 
-export const ForgotPasswordScreen = ({ navigation }: any) => { 
+export const ForgotPasswordScreen = ({ navigation }: Props) => { 
     const [email, setEmail] = useState('');
 
     const handleResetPassword = () => {

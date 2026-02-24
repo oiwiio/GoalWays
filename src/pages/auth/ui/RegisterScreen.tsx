@@ -6,7 +6,7 @@ import styles from '../styles';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Register'>;
 
-export const RegisterScreen = ({ navigation }: any) => { 
+export const RegisterScreen = ({ navigation }: Props) => { 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState(''); 

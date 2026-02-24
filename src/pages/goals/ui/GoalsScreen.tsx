@@ -11,8 +11,8 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../types/navigation';
-import { GoalCard } from '../../tasks/GoalCard';
-import { CreateGoalModal }  from '../../tasks/CreateGoalModal';
+import { GoalCard } from '../../tasks/goalCard';
+import { CreateGoalModal }  from '../../tasks/createGoalModal';
 import { Goal } from '../../../types/goal';
 
 

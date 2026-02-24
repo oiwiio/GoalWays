@@ -3,8 +3,8 @@ import { View, Text, ScrollView, Switch, Alert, Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../types/navigation';
-import { SettingsSection } from '../SettingsSection';
-import { SettingsItem } from '../SettingsItem';
+import { SettingsSection } from './settingsSection';
+import { SettingsItem } from './settingsItem';
 
 
 type SettingsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Settings'>;
