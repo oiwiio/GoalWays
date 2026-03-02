@@ -3,7 +3,9 @@ import { View, Text, TextInput, Button, Alert } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../types/navigation';
 import { useAppDispatch, useAppSelector } from '../../../shared/lib/hooks';
-import { loginRequest } from '../../../features/auth/authSlice';
+import { loginRequest } from '../../../features/auth/auth-slice';
+import { useSelector, useDispatch } from 'react-redux';
+import { selectAuthIsLoading, selectAuthError, selectAuthUser } from '../../../features/auth/auth.selectors';
 import styles from '../styles';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
@@ -12,8 +14,7 @@ export const LoginScreen = ({ navigation }: Props) => {
     
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    
-    const dispatch = useAppDispatch();
+    const dispatch = useDispatch();
     const { isLoading, error, user } = useAppSelector(state => state.auth);
 
     useEffect(() => {

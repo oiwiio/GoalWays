@@ -1,17 +1,33 @@
-import React, { useState } from "react";
-import { View, Text, ScrollView, Switch, Alert, Linking } from 'react-native'; 
+import React, { useEffect } from "react";
+import { View, Text, ScrollView, Switch, Alert, Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../types/navigation';
-import { SettingsSection } from './settingsSection';
-import { SettingsItem } from './settingsItem';
-
+import { SettingsSection, SettingsItem } from '../../../features/settings';
+import { 
+  setNotifications, 
+  logoutRequest 
+} from '../../../features/settings/settings.slice';
+import { 
+  selectNotifications,
+  selectSettingsError 
+} from '../../../features/settings/settings.selectors';
 
 type SettingsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Settings'>;
 
 export const SettingsScreen = () => {
   const navigation = useNavigation<SettingsScreenNavigationProp>();
-  const [notifications, setNotifications] = useState(true);
+  const dispatch = useDispatch();
+  
+  const notifications = useSelector(selectNotifications);
+  const error = useSelector(selectSettingsError);
+
+  useEffect(() => {
+    if (error) {
+      Alert.alert('Ошибка', error);
+    }
+  }, [error]);
 
   const handleLogout = () => {
     Alert.alert(
@@ -19,7 +35,10 @@ export const SettingsScreen = () => {
       'Вы уверены?',
       [
         { text: 'Отмена', style: 'cancel' },
-        { text: 'Выйти', onPress: () => console.log('Logout pressed') }
+        { 
+          text: 'Выйти', 
+          onPress: () => dispatch(logoutRequest())
+        }
       ]
     );
   };
@@ -28,11 +47,16 @@ export const SettingsScreen = () => {
     <ScrollView>
       <SettingsSection title="Уведомления">
         <SettingsItem
-          title="Push-уведомления"
+        title="Push-уведомления"
           rightElement={
-            <Switch value={notifications} onValueChange={setNotifications} />
-          }
-        />
+            <Switch 
+              value={notifications} 
+              onValueChange={(value) => {
+              dispatch(setNotifications(value));
+            }} 
+          />
+        }
+      />
       </SettingsSection>
       
       <SettingsSection title="Управление аккаунтом">

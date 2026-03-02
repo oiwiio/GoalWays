@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     View,
     Text,
@@ -9,55 +9,61 @@ import {
     Alert
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../types/navigation';
-import { GoalCard } from '../../tasks/goalCard';
-import { CreateGoalModal }  from '../../tasks/createGoalModal';
+import { GoalCard } from '../../tasks/goal-card';
+import { CreateGoalModal } from '../../../features/goals/ui/create-goal-modal';
 import { Goal } from '../../../types/goal';
-
+import {
+    fetchGoalsRequest,
+    createGoalRequest,
+    archiveGoalRequest,
+    setActiveTab,
+    clearError,
+} from '../../../features/goals/goals.slice';
+import {
+    selectFilteredGoals,
+    selectActiveCount,
+    selectArchivedCount,
+    selectActiveTab,
+    selectGoalsIsLoading,
+    selectGoalsError,
+} from '../../../features/goals/goals.selectors';
 
 type GoalsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Goals'>;
 
 export const GoalsScreen = () => {
     const navigation = useNavigation<GoalsScreenNavigationProp>();
+    const dispatch = useDispatch();
+
     const [modalVisible, setModalVisible] = useState(false);
-    const [activeTab, setActiveTab] = useState<'active' | 'archived'>('active');
-    const [goals, setGoals] = useState<Goal[]>([
-        
-        {
-            id: '1',
-            title: 'Выучить React Native',
-            description: 'Освоить основы и создать несколько проектов',
-            category: 'Учеба',
-            deadline: '2025-06-01',
-            progress: 45,
-            status: 'active'
-        },
-        {
-            id: '2',
-            title: 'Сдать курсовую',
-            description: 'Закончить проект и подготовить отчет',
-            category: 'Учеба',
-            deadline: '2025-05-15',
-            progress: 70,
-            status: 'active'
-        },
-        {
-            id: '3',
-            title: 'Пробежать марафон',
-            description: 'Подготовка к забегу на 10 км',
-            category: 'Здоровье',
-            deadline: '2025-08-20',
-            progress: 25,
-            status: 'active'
+
+    const goals = useSelector(selectFilteredGoals);
+    const activeTab = useSelector(selectActiveTab);
+    const activeCount = useSelector(selectActiveCount);
+    const archivedCount = useSelector(selectArchivedCount);
+    const isLoading = useSelector(selectGoalsIsLoading);
+    const error = useSelector(selectGoalsError);
+
+    // Загрузка целей при монтировании
+    useEffect(() => {
+        dispatch(fetchGoalsRequest());
+    }, [dispatch]);
+
+    // Обработка ошибок
+    useEffect(() => {
+        if (error) {
+            Alert.alert('Ошибка', error);
+            dispatch(clearError());
         }
+    }, [error, dispatch]);
 
-    ]);
-
-    const handleCreateGoal = (newGoal: Goal) => {
-        setGoals([newGoal, ...goals]);
+    const handleCreateGoal = (newGoal: Omit<Goal, 'id' | 'createdAt'>) => {
+        dispatch(createGoalRequest(newGoal));
+        setModalVisible(false);
     };
-    
+
     const handleArchiveGoal = (goal: Goal) => {
         Alert.alert(
             'Архивировать цель',
@@ -66,14 +72,8 @@ export const GoalsScreen = () => {
                 { text: 'Отмена', style: 'cancel' },
                 {
                     text: 'Архивировать',
-                    onPress: () => {
-                        setGoals(goals.map(g => 
-                            g.id === goal.id 
-                                ? { ...g, status: 'archived' as const } 
-                                : g
-                        ));
-                    }
-                }
+                    onPress: () => dispatch(archiveGoalRequest(goal.id)),
+                },
             ]
         );
     };
@@ -82,19 +82,12 @@ export const GoalsScreen = () => {
         Alert.alert('Цель', `Выбрана цель: ${goal.title}`);
     };
 
-    // Фильтруем цели по статусу
-    const filteredGoals = goals.filter(goal => 
-        activeTab === 'active' 
-            ? goal.status === 'active' 
-            : goal.status === 'archived'
-    );
-
     return (
         <SafeAreaView style={styles.container}>
             {/* Заголовок */}
             <View style={styles.header}>
                 <Text style={styles.title}>Мои цели</Text>
-                <TouchableOpacity 
+                <TouchableOpacity
                     style={styles.addButton}
                     onPress={() => setModalVisible(true)}
                 >
@@ -102,31 +95,35 @@ export const GoalsScreen = () => {
                 </TouchableOpacity>
             </View>
 
-            {/* Табы: Активные / Архив */}
+            {/* Табы */}
             <View style={styles.tabContainer}>
                 <TouchableOpacity
                     style={[styles.tab, activeTab === 'active' && styles.activeTab]}
-                    onPress={() => setActiveTab('active')}
+                    onPress={() => dispatch(setActiveTab('active'))}
                 >
                     <Text style={[styles.tabText, activeTab === 'active' && styles.activeTabText]}>
-                        Активные ({goals.filter(g => g.status === 'active').length})
+                        Активные ({activeCount})
                     </Text>
                 </TouchableOpacity>
-                
+
                 <TouchableOpacity
                     style={[styles.tab, activeTab === 'archived' && styles.activeTab]}
-                    onPress={() => setActiveTab('archived')}
+                    onPress={() => dispatch(setActiveTab('archived'))}
                 >
                     <Text style={[styles.tabText, activeTab === 'archived' && styles.activeTabText]}>
-                        Архив ({goals.filter(g => g.status === 'archived').length})
+                        Архив ({archivedCount})
                     </Text>
                 </TouchableOpacity>
             </View>
 
-            {/* Список целей */}
-            {filteredGoals.length > 0 ? (
+            {/* Индикатор загрузки */}
+            {isLoading && goals.length === 0 ? (
+                <View style={styles.emptyContainer}>
+                    <Text style={styles.emptyText}>Загрузка...</Text>
+                </View>
+            ) : goals.length > 0 ? (
                 <FlatList
-                    data={filteredGoals}
+                    data={goals}
                     keyExtractor={(item) => item.id}
                     renderItem={({ item }) => (
                         <GoalCard
@@ -140,12 +137,12 @@ export const GoalsScreen = () => {
             ) : (
                 <View style={styles.emptyContainer}>
                     <Text style={styles.emptyText}>
-                        {activeTab === 'active' 
-                            ? 'У вас пока нет активных целей' 
+                        {activeTab === 'active'
+                            ? 'У вас пока нет активных целей'
                             : 'В архиве пока нет целей'}
                     </Text>
                     {activeTab === 'active' && (
-                        <TouchableOpacity 
+                        <TouchableOpacity
                             style={styles.emptyButton}
                             onPress={() => setModalVisible(true)}
                         >
@@ -155,7 +152,7 @@ export const GoalsScreen = () => {
                 </View>
             )}
 
-            {/* Модальное окно создания цели */}
+            {/* Модалка */}
             <CreateGoalModal
                 visible={modalVisible}
                 onClose={() => setModalVisible(false)}
@@ -252,4 +249,3 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
 });
-

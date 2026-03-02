@@ -1,5 +1,5 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
-import { loginRequest, loginSuccess, loginFailure } from './authSlice';
+import { loginRequest, loginSuccess, loginFailure } from './auth-slice';
 import { PayloadAction } from '@reduxjs/toolkit';
 
 // Типизируем ответ от API
