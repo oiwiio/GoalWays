@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-interface SettingsState {
+export interface SettingsState {
   notifications: boolean;
   isLoading: boolean;
   error: string | null;
@@ -12,7 +12,7 @@ const initialState: SettingsState = {
   error: null,
 };
 
-const settingsSlice = createSlice({
+export const {reducer, name, actions} = createSlice({
   name: 'settings',
   initialState,
   reducers: {
@@ -36,13 +36,3 @@ const settingsSlice = createSlice({
     },
   },
 });
-
-export const {
-  toggleNotifications,
-  setNotifications,
-  logoutRequest,
-  logoutSuccess,
-  logoutFailure,
-} = settingsSlice.actions;
-
-export default settingsSlice.reducer;
