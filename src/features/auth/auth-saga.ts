@@ -1,34 +1,47 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
-import { loginRequest, loginSuccess, loginFailure } from './auth-slice';
 import { PayloadAction } from '@reduxjs/toolkit';
+import { loginRequest, loginSuccess, loginFailure } from './auth-slice';
+import { authApi } from '../../shared/api/auth';
+import { LoginResponse, ApiSuccess, ApiError } from '../../shared/api/types';
 
-// Типизируем ответ от API
-interface ApiResponse {  
-  user: { email: string; id: string };
-  token: string;
-}
+import { AxiosResponse } from 'axios';
 
-// Временная заглушка API
-const fakeApi = {
-  login: (email: string, password: string): Promise<ApiResponse> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          user: { email, id: '123' },
-          token: 'fake-jwt-token',
-        });
-      }, 1000);
-    });
-  },
+type LoginPayload = {
+  username: string;
+  password: string;
 };
 
-function* handleLogin(action: PayloadAction<{ email: string; password: string }>): Generator<any, void, ApiResponse> {
+function* handleLogin(
+  action: PayloadAction<LoginPayload>
+): Generator<any, void, AxiosResponse<ApiSuccess<LoginResponse> | ApiError>> {
   try {
-    const { email, password } = action.payload;
-    const response: ApiResponse = yield call(fakeApi.login, email, password);
-    yield put(loginSuccess({ user: response.user, token: response.token }));  
+    const { username, password } = action.payload;
+    
+    console.log('Получены данные:', { username, password });
+    
+    const response = yield call(
+      () => authApi.login({ username, password })
+    );
+    
+    console.log('Ответ сервера:', response.data);
+    
+    if (response.data.status === 'success') {
+      
+      const data = response.data.data;  
+      console.log('Успешный вход:', data);
+      
+      yield put(loginSuccess({ 
+        user: { username, },
+        token: data.access_token 
+      }));
+    } else {
+      console.log('Ошибка от сервера:', response.data.error);
+      yield put(loginFailure(response.data.error || 'Ошибка входа'));
+    }
   } catch (error: any) {
-    yield put(loginFailure(error.message || 'Login failed'));
+    console.log('Сетевая ошибка:', error.message);
+    console.log('Полная ошибка:', error);
+    yield put(loginFailure(error.message || 'Ошибка сети'));
   }
 }
 

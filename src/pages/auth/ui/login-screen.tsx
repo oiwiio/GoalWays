@@ -15,6 +15,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 export const LoginScreen = ({ navigation }: Props) => {
     
+    const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const dispatch = useDispatch();
@@ -36,26 +37,26 @@ export const LoginScreen = ({ navigation }: Props) => {
     }, [user, navigation]);
 
     const handleLogin = () => {
-        if (!email || !password) {
-            Alert.alert('Ошибка', 'Заполните все поля');
-            return;
-        }
-        
-        dispatch(loginRequest({ email, password }));
-    };
+    if (!username?.trim() || !password?.trim()) { 
+        Alert.alert('Ошибка', 'Заполните все поля');
+        return;
+    }
+    
+    dispatch(loginRequest({ username: username.trim(), password: password.trim() }));
+};
 
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Вход</Text>
-            
+
             <TextInput
-                style={styles.input}
-                placeholder="Email"
-                value={email}
-                onChangeText={setEmail}
-                autoCapitalize="none"
-                keyboardType="email-address"
-            />
+            style={styles.input}
+            placeholder="Имя пользователя"
+            value={username}
+            onChangeText={setUsername}
+            autoCapitalize="none"
+            />          
+            
             
             <TextInput
                 style={styles.input}

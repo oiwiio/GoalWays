@@ -1,47 +1,40 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-interface RegisterState {
+interface ConfirmState {
+  username: string | null;
   isLoading: boolean;
   error: string | null;
   success: boolean;
-  username: string | null;
-  email: string | null;
 }
 
-const initialState: RegisterState = {
+const initialState: ConfirmState = {
+  username: null,
   isLoading: false,
   error: null,
   success: false,
-  username: null,
-  email: null,
 };
 
-const registerSlice = createSlice({
-  name: 'register',
+const confirmSlice = createSlice({
+  name: 'confirm',
   initialState,
   reducers: {
-    registerRequest: (state, action: PayloadAction<{ 
-      username: string;   
-      email: string; 
-      password: string 
+    confirmRequest: (state, action: PayloadAction<{ 
+      username: string; 
+      code: string 
     }>) => {
       state.isLoading = true;
       state.error = null;
       state.success = false;
       state.username = action.payload.username;
-      state.email = action.payload.email;
     },
-    
-    registerSuccess: (state) => {
+    confirmSuccess: (state) => {
       state.isLoading = false;
       state.success = true;
     },
-    
-    registerFailure: (state, action: PayloadAction<string>) => {
+    confirmFailure: (state, action: PayloadAction<string>) => {
       state.isLoading = false;
       state.error = action.payload;
     },
-    
     clearStatus: (state) => {
       state.error = null;
       state.success = false;
@@ -49,11 +42,12 @@ const registerSlice = createSlice({
   },
 });
 
-export const { 
-  registerRequest, 
-  registerSuccess, 
-  registerFailure, 
-  clearStatus 
-} = registerSlice.actions;
 
-export default registerSlice.reducer;
+export const { 
+  confirmRequest, 
+  confirmSuccess, 
+  confirmFailure, 
+  clearStatus 
+} = confirmSlice.actions;
+
+export default confirmSlice.reducer;

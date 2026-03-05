@@ -5,10 +5,12 @@ import { MainScreen } from '../pages/main';
 import { SettingsScreen } from '../pages/settings';
 import { DevelopersScreen } from '../pages/developers';
 import { GoalsScreen } from '../pages/goals';
+import { ConfirmScreen } from '../pages/confirm/ui/confirm.screen';
 
 export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
+  Confirm: { username: string };
   ForgotPassword: undefined;
   Main: undefined;
   Settings: undefined;
@@ -27,6 +29,7 @@ export const RootNavigator = () => {
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{ title: 'Восстановление пароля' }} />
       <Stack.Screen name="Settings" component={SettingsScreen} options={{ title: 'Настройки' }} />
       <Stack.Screen name="Developers" component={DevelopersScreen} options={{ title: 'Разработчики' }} />
+      <Stack.Screen name="Confirm" component={ConfirmScreen} options={{ title: 'Подтверждение' }}/>
       <Stack.Screen name="Goals" component={GoalsScreen} options={{ title: 'Мои цели', headerShown: true }} />
     </Stack.Navigator>
   );

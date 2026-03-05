@@ -1,29 +1,33 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
-import { PayloadAction } from '@reduxjs/toolkit'; 
+import { PayloadAction } from '@reduxjs/toolkit';
 import { registerRequest, registerSuccess, registerFailure } from './register.slice';
+import { authApi } from '../../shared/api/auth';
+import { ApiSuccess, ApiError, RegisterResponse } from '../../shared/api/types'; 
+import { AxiosResponse } from 'axios'; 
 
-// времянка  api
-const fakeApi = {
-  register: (email: string, password: string): Promise<{ id: string; email: string }> => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        if (email && password) {
-          resolve({ id: '123', email });
-        } else {
-          reject(new Error('Ошибка регистрации'));
-        }
-      }, 1000);
-    });
-  },
-};
-
-function* handleRegister(action: PayloadAction<{ email: string; password: string }>) { 
+function* handleRegister(
+  action: PayloadAction<{ username: string; email: string; password: string }>
+) {
   try {
-    const { email, password } = action.payload;
-    yield call(fakeApi.register, email, password);
-    yield put(registerSuccess());
+    const { username, email, password } = action.payload;
+    
+    console.log('Регистрация:', { username, email, password });
+    
+    const response: AxiosResponse<ApiSuccess<RegisterResponse> | ApiError> = yield call(
+      () => authApi.register({ username, email, password })
+    );
+    
+    console.log('Ответ регистрации:', response.data);
+    
+    if (response.data.status === 'success') {
+      yield put(registerSuccess());
+    } else {
+      const errorData = response.data as ApiError;
+      yield put(registerFailure(errorData.error || 'Ошибка регистрации'));
+    }
   } catch (error: any) {
-    yield put(registerFailure(error.message || 'Ошибка регистрации'));
+    console.log('Ошибка регистрации:', error.message);
+    yield put(registerFailure(error.message || 'Ошибка сети'));
   }
 }
 

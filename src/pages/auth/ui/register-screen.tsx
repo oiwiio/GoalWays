@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../types/navigation';
 import { registerRequest, clearStatus } from '../../../features/register/register.slice';
+
 import { 
   selectRegisterIsLoading, 
   selectRegisterError, 
@@ -14,6 +15,7 @@ import styles from '../styles';
 type Props = NativeStackScreenProps<RootStackParamList, 'Register'>;
 
 export const RegisterScreen = ({ navigation }: Props) => {
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -23,7 +25,6 @@ export const RegisterScreen = ({ navigation }: Props) => {
   const error = useSelector(selectRegisterError);
   const success = useSelector(selectRegisterSuccess);
 
-  // обработка ошибок 
   useEffect(() => {
     if (error) {
       Alert.alert('Ошибка', error);
@@ -31,17 +32,17 @@ export const RegisterScreen = ({ navigation }: Props) => {
     }
   }, [error, dispatch]);
 
-  // успех регистрации 
   useEffect(() => {
     if (success) {
-      Alert.alert('Успех', `Аккаунт ${email} создан!`);
+      Alert.alert('Успех', 'Код подтверждения отправлен на email');
       dispatch(clearStatus());
-      navigation.navigate('Main');
+      
+      navigation.navigate('Confirm', { username });
     }
-  }, [success, email, navigation, dispatch]);
+  }, [success, navigation, dispatch, username]);
 
   const handleRegister = () => {
-    if (!email || !password || !confirmPassword) {
+    if (!username || !email || !password || !confirmPassword) {
       Alert.alert('Ошибка', 'Заполните все поля');
       return;
     }
@@ -51,12 +52,20 @@ export const RegisterScreen = ({ navigation }: Props) => {
       return;
     }
 
-    dispatch(registerRequest({ email, password }));
+    dispatch(registerRequest({ username, email, password }));
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Регистрация</Text>
+
+      <TextInput
+        style={styles.input}
+        placeholder="Имя пользователя"
+        value={username}
+        onChangeText={setUsername}
+        autoCapitalize="none"
+      />
 
       <TextInput
         style={styles.input}
