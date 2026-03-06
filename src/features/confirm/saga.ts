@@ -14,7 +14,7 @@ function* handleConfirm(
     console.log('Подтверждение:', { username, code });
 
     if (code === '4821') {
-      console.log('✅ Временный код принят!');
+      console.log('Временный код принят!');
       yield put(confirmSuccess());
       return;
     }

@@ -3,7 +3,6 @@ import createSagaMiddleware from 'redux-saga';
 import authReducer from '../features/auth/auth-slice';
 import { rootSaga } from './saga';
 import registerReducer from '../features/register/register.slice';
-import { registerSaga } from '../features/register/register.saga';
 import forgotPasswordReducer from '../features/forgot-password/forgot-password.slice';
 import settingsReducer from '../features/settings/settings.slice';
 import goalsReducer from '../features/goals/goals.slice';

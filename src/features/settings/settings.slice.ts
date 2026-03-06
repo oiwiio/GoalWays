@@ -12,7 +12,7 @@ const initialState: SettingsState = {
   error: null,
 };
 
-export const {reducer, name, actions} = createSlice({
+const settingsSlice = createSlice({
   name: 'settings',
   initialState,
   reducers: {
@@ -36,3 +36,14 @@ export const {reducer, name, actions} = createSlice({
     },
   },
 });
+
+
+export const { 
+  toggleNotifications,
+  setNotifications,
+  logoutRequest,
+  logoutSuccess,
+  logoutFailure,
+} = settingsSlice.actions;
+
+export default settingsSlice.reducer;  
