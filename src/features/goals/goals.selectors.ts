@@ -9,18 +9,34 @@ export const selectActiveTab = (state: RootState) => state.goals.activeTab;
 // филтр по статусу 
 export const selectFilteredGoals = createSelector(
   [selectGoalsItems, selectActiveTab],
-  (items, activeTab) => items.filter(goal => 
-    activeTab === 'active' ? goal.status === 'active' : goal.status === 'archived'
-  )
+  (items, activeTab) => items.filter(goal => goal.status === activeTab)
 );
 
-// для подсчета 
-export const selectActiveCount = createSelector(
+export const selectInProgressCount = createSelector(
   [selectGoalsItems],
-  (items) => items.filter(g => g.status === 'active').length
+  (items) => items.filter(g => g.status === 'in_progress').length
+);
+
+export const selectCompletedCount = createSelector(
+  [selectGoalsItems],
+  (items) => items.filter(g => g.status === 'completed').length
+);
+
+export const selectFrozenCount = createSelector(
+  [selectGoalsItems],
+  (items) => items.filter(g => g.status === 'frozen').length
 );
 
 export const selectArchivedCount = createSelector(
   [selectGoalsItems],
   (items) => items.filter(g => g.status === 'archived').length
+);
+
+// сортировка по приоритету (важные сверху)
+export const selectSortedGoals = createSelector(
+  [selectFilteredGoals],
+  (items) => [...items].sort((a, b) => {
+    const priorityWeight = { high: 3, medium: 2, low: 1 };
+    return priorityWeight[b.priority] - priorityWeight[a.priority];
+  })
 );

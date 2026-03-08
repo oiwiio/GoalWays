@@ -12,7 +12,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../types/navigation';
-import { GoalCard } from '../../tasks/goal-card';
+import { GoalCard } from '../../../features/goals/ui/goal-card';
 import { CreateGoalModal } from '../../../features/goals/ui/create-goal-modal';
 import { Goal } from '../../../types/goal';
 import {
@@ -21,37 +21,46 @@ import {
     archiveGoalRequest,
     setActiveTab,
     clearError,
+    updateGoalRequest,
+    restoreGoalRequest,
+    deleteGoalRequest,
 } from '../../../features/goals/goals.slice';
 import {
-    selectFilteredGoals,
-    selectActiveCount,
+    selectSortedGoals,
+    selectInProgressCount,
+    selectCompletedCount,
+    selectFrozenCount,
     selectArchivedCount,
     selectActiveTab,
     selectGoalsIsLoading,
     selectGoalsError,
+    
 } from '../../../features/goals/goals.selectors';
+import { colors, spacing, borderRadius, typography, shadows } from '../../../shared/styles/theme';
+import { EditGoalModal } from '../../../features/goals/ui/edit-goal-modal';
+
 
 type GoalsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Goals'>;
 
 export const GoalsScreen = () => {
     const navigation = useNavigation<GoalsScreenNavigationProp>();
     const dispatch = useDispatch();
-
     const [modalVisible, setModalVisible] = useState(false);
-
-    const goals = useSelector(selectFilteredGoals);
+    const goals = useSelector(selectSortedGoals);
     const activeTab = useSelector(selectActiveTab);
-    const activeCount = useSelector(selectActiveCount);
+    const inProgressCount = useSelector(selectInProgressCount);
+    const completedCount = useSelector(selectCompletedCount);
+    const frozenCount = useSelector(selectFrozenCount);
     const archivedCount = useSelector(selectArchivedCount);
     const isLoading = useSelector(selectGoalsIsLoading);
     const error = useSelector(selectGoalsError);
+    const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
+    const [editModalVisible, setEditModalVisible] = useState(false);
 
-    // Загрузка целей при монтировании
     useEffect(() => {
         dispatch(fetchGoalsRequest());
     }, [dispatch]);
 
-    // Обработка ошибок
     useEffect(() => {
         if (error) {
             Alert.alert('Ошибка', error);
@@ -64,6 +73,15 @@ export const GoalsScreen = () => {
         setModalVisible(false);
     };
 
+    const handleEditGoal = (goal: Goal) => {
+    setEditingGoal(goal);
+    setEditModalVisible(true);
+};
+
+    const handleSaveGoal = (updatedGoal: Goal) => {
+    dispatch(updateGoalRequest(updatedGoal));
+    };
+    
     const handleArchiveGoal = (goal: Goal) => {
         Alert.alert(
             'Архивировать цель',
@@ -76,6 +94,24 @@ export const GoalsScreen = () => {
                 },
             ]
         );
+    };
+
+    const handleRestoreGoal = (goal: Goal) => {
+    Alert.alert(
+        'Восстановить цель',
+        `Вернуть "${goal.title}" из архива?`,
+    [
+      { text: 'Отмена', style: 'cancel' },
+      {
+        text: 'Восстановить',
+        onPress: () => dispatch(restoreGoalRequest(goal.id)),
+                },
+            ]
+        );
+    };
+
+    const handleDeleteGoal = (goal: Goal) => { //удаление
+    dispatch(deleteGoalRequest(goal.id));   // диспатчим экшн
     };
 
     const handleGoalPress = (goal: Goal) => {
@@ -98,11 +134,29 @@ export const GoalsScreen = () => {
             {/* Табы */}
             <View style={styles.tabContainer}>
                 <TouchableOpacity
-                    style={[styles.tab, activeTab === 'active' && styles.activeTab]}
-                    onPress={() => dispatch(setActiveTab('active'))}
+                    style={[styles.tab, activeTab === 'in_progress' && styles.activeTab]}
+                    onPress={() => dispatch(setActiveTab('in_progress'))}
                 >
-                    <Text style={[styles.tabText, activeTab === 'active' && styles.activeTabText]}>
-                        Активные ({activeCount})
+                    <Text style={[styles.tabText, activeTab === 'in_progress' && styles.activeTabText]}>
+                        В процессе ({inProgressCount})
+                    </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={[styles.tab, activeTab === 'completed' && styles.activeTab]}
+                    onPress={() => dispatch(setActiveTab('completed'))}
+                >
+                    <Text style={[styles.tabText, activeTab === 'completed' && styles.activeTabText]}>
+                        Завершённые ({completedCount})
+                    </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={[styles.tab, activeTab === 'frozen' && styles.activeTab]}
+                    onPress={() => dispatch(setActiveTab('frozen'))}
+                >
+                    <Text style={[styles.tabText, activeTab === 'frozen' && styles.activeTabText]}>
+                        Замороженные ({frozenCount})
                     </Text>
                 </TouchableOpacity>
 
@@ -116,7 +170,7 @@ export const GoalsScreen = () => {
                 </TouchableOpacity>
             </View>
 
-            {/* Индикатор загрузки */}
+            {/* Список целей */}
             {isLoading && goals.length === 0 ? (
                 <View style={styles.emptyContainer}>
                     <Text style={styles.emptyText}>Загрузка...</Text>
@@ -129,7 +183,10 @@ export const GoalsScreen = () => {
                         <GoalCard
                             goal={item}
                             onPress={handleGoalPress}
+                            onEdit={handleEditGoal}
                             onArchive={handleArchiveGoal}
+                            onRestore={handleRestoreGoal}
+                            onDelete={handleDeleteGoal}
                         />
                     )}
                     contentContainerStyle={styles.listContent}
@@ -137,11 +194,15 @@ export const GoalsScreen = () => {
             ) : (
                 <View style={styles.emptyContainer}>
                     <Text style={styles.emptyText}>
-                        {activeTab === 'active'
+                        {activeTab === 'in_progress'
                             ? 'У вас пока нет активных целей'
+                            : activeTab === 'completed'
+                            ? 'Нет завершённых целей'
+                            : activeTab === 'frozen'
+                            ? 'Нет замороженных целей'
                             : 'В архиве пока нет целей'}
                     </Text>
-                    {activeTab === 'active' && (
+                    {activeTab === 'in_progress' && (
                         <TouchableOpacity
                             style={styles.emptyButton}
                             onPress={() => setModalVisible(true)}
@@ -152,12 +213,21 @@ export const GoalsScreen = () => {
                 </View>
             )}
 
-            {/* Модалка */}
             <CreateGoalModal
                 visible={modalVisible}
                 onClose={() => setModalVisible(false)}
                 onCreateGoal={handleCreateGoal}
             />
+            <EditGoalModal
+            visible={editModalVisible}
+            goal={editingGoal}
+            onClose={() => {
+            setEditModalVisible(false);
+            setEditingGoal(null);
+            }}
+            onSave={handleSaveGoal}
+            />
+            
         </SafeAreaView>
     );
 };
@@ -165,87 +235,84 @@ export const GoalsScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: colors.background,
     },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingHorizontal: 20,
-        paddingVertical: 16,
-        backgroundColor: '#fff',
+        paddingHorizontal: spacing.l,
+        paddingVertical: spacing.m,
+        backgroundColor: colors.surface,
         borderBottomWidth: 1,
-        borderBottomColor: '#eee',
+        borderBottomColor: colors.borderLight,
     },
     title: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        color: '#1a1a1a',
+        ...typography.h1,
     },
     addButton: {
         width: 44,
         height: 44,
-        borderRadius: 22,
-        backgroundColor: '#007AFF',
+        borderRadius: borderRadius.round,
+        backgroundColor: colors.primary,
         justifyContent: 'center',
         alignItems: 'center',
     },
     addButtonText: {
         fontSize: 28,
-        color: '#fff',
+        color: colors.surface,
         fontWeight: '600',
         lineHeight: 32,
     },
     tabContainer: {
         flexDirection: 'row',
-        backgroundColor: '#fff',
-        paddingHorizontal: 20,
-        paddingVertical: 10,
+        backgroundColor: colors.surface,
+        paddingHorizontal: spacing.l,
+        paddingVertical: spacing.s,
         borderBottomWidth: 1,
-        borderBottomColor: '#eee',
+        borderBottomColor: colors.borderLight,
     },
     tab: {
         flex: 1,
-        paddingVertical: 10,
+        paddingVertical: spacing.s,
         alignItems: 'center',
         borderBottomWidth: 2,
         borderBottomColor: 'transparent',
     },
     activeTab: {
-        borderBottomColor: '#007AFF',
+        borderBottomColor: colors.primary,
     },
     tabText: {
-        fontSize: 16,
-        color: '#999',
-        fontWeight: '500',
+        ...typography.body,
+        color: colors.textSecondary,
     },
     activeTabText: {
-        color: '#007AFF',
+        color: colors.primary,
+        fontWeight: '600',
     },
     listContent: {
-        paddingVertical: 8,
+        paddingVertical: spacing.s,
     },
     emptyContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        paddingHorizontal: 40,
+        paddingHorizontal: spacing.xl,
     },
     emptyText: {
-        fontSize: 16,
-        color: '#999',
+        ...typography.body,
+        color: colors.textSecondary,
         textAlign: 'center',
-        marginBottom: 20,
+        marginBottom: spacing.l,
     },
     emptyButton: {
-        backgroundColor: '#007AFF',
-        paddingHorizontal: 30,
-        paddingVertical: 12,
-        borderRadius: 25,
+        backgroundColor: colors.primary,
+        paddingHorizontal: spacing.xl,
+        paddingVertical: spacing.m,
+        borderRadius: borderRadius.round,
     },
     emptyButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: '600',
+        ...typography.button,
+        color: colors.surface,
     },
 });

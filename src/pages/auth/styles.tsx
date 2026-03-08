@@ -34,5 +34,17 @@ export default StyleSheet.create({
   paddingHorizontal: 20,
   },
 
+  inputError: {
+  borderColor: '#ff3b30',
+  borderWidth: 1,
+},
+errorText: {
+  color: '#ff3b30',
+  fontSize: 12,
+  marginTop: -10,
+  marginBottom: 10,
+  marginLeft: 15,
+},
+
 
 });

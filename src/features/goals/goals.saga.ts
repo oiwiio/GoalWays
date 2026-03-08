@@ -8,12 +8,21 @@ import {
   createGoalRequest,
   createGoalSuccess,
   createGoalFailure,
+  updateGoalRequest,
+  updateGoalSuccess,
+  updateGoalFailure,
   archiveGoalRequest,
   archiveGoalSuccess,
   archiveGoalFailure,
+  restoreGoalRequest,
+  restoreGoalSuccess,
+  restoreGoalFailure,
+  deleteGoalRequest,
+  deleteGoalSuccess,
+  deleteGoalFailure,
 } from './goals.slice';
 
-// времянка api
+
 const fakeApi = {
   fetchGoals: (): Promise<Goal[]> => {
     return new Promise((resolve) => {
@@ -26,7 +35,8 @@ const fakeApi = {
             category: 'Учеба',
             deadline: '2025-06-01',
             progress: 45,
-            status: 'active',
+            priority: 'high',
+            status: 'in_progress',
             createdAt: new Date().toISOString(),
           },
           {
@@ -36,7 +46,8 @@ const fakeApi = {
             category: 'Учеба',
             deadline: '2025-05-15',
             progress: 70,
-            status: 'active',
+            priority: 'medium',
+            status: 'in_progress',
             createdAt: new Date().toISOString(),
           },
           {
@@ -46,7 +57,8 @@ const fakeApi = {
             category: 'Здоровье',
             deadline: '2025-08-20',
             progress: 25,
-            status: 'active',
+            priority: 'low',
+            status: 'in_progress',
             createdAt: new Date().toISOString(),
           },
         ]);
@@ -66,7 +78,31 @@ const fakeApi = {
     });
   },
 
+  updateGoal: (goal: Goal): Promise<Goal> => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(goal);
+      }, 500);
+    });
+  },
+
   archiveGoal: (id: string): Promise<string> => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(id);
+      }, 300);
+    });
+  },
+
+  restoreGoal: (id: string): Promise<string> => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(id);
+      }, 300);
+    });
+  },
+
+  deleteGoal: (id: string): Promise<string> => {
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve(id);
@@ -93,6 +129,15 @@ function* handleCreateGoal(action: PayloadAction<Omit<Goal, 'id' | 'createdAt'>>
   }
 }
 
+function* handleUpdateGoal(action: PayloadAction<Goal>) {
+  try {
+    const updatedGoal: Goal = yield call(fakeApi.updateGoal, action.payload);
+    yield put(updateGoalSuccess(updatedGoal));
+  } catch (error: any) {
+    yield put(updateGoalFailure(error.message || 'Ошибка обновления цели'));
+  }
+}
+
 function* handleArchiveGoal(action: PayloadAction<string>) {
   try {
     const id: string = yield call(fakeApi.archiveGoal, action.payload);
@@ -102,8 +147,29 @@ function* handleArchiveGoal(action: PayloadAction<string>) {
   }
 }
 
+function* handleRestoreGoal(action: PayloadAction<string>) {
+  try {
+    const id: string = yield call(fakeApi.restoreGoal, action.payload);
+    yield put(restoreGoalSuccess(id));
+  } catch (error: any) {
+    yield put(restoreGoalFailure(error.message || 'Ошибка восстановления'));
+  }
+}
+
+function* handleDeleteGoal(action: PayloadAction<string>) {
+  try {
+    const id: string = yield call(fakeApi.deleteGoal, action.payload);
+    yield put(deleteGoalSuccess(id));
+  } catch (error: any) {
+    yield put(deleteGoalFailure(error.message || 'Ошибка удаления'));
+  }
+}
+
 export function* goalsSaga() {
   yield takeLatest(fetchGoalsRequest.type, handleFetchGoals);
   yield takeLatest(createGoalRequest.type, handleCreateGoal);
+  yield takeLatest(updateGoalRequest.type, handleUpdateGoal);
   yield takeLatest(archiveGoalRequest.type, handleArchiveGoal);
+  yield takeLatest(restoreGoalRequest.type, handleRestoreGoal);
+  yield takeLatest(deleteGoalRequest.type, handleDeleteGoal);
 }

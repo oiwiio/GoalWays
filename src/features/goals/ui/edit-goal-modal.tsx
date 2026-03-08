@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     Modal,
     View,
@@ -11,44 +11,67 @@ import {
 } from 'react-native';
 import { Goal } from '../../../types/goal';
 
-interface CreateGoalModalProps {
+interface EditGoalModalProps {
     visible: boolean;
+    goal: Goal | null;
     onClose: () => void;
-    onCreateGoal: (goal: Omit<Goal, 'id' | 'createdAt'>) => void;
+    onSave: (updatedGoal: Goal) => void;
 }
 
-export const CreateGoalModal = ({ visible, onClose, onCreateGoal }: CreateGoalModalProps) => {
+export const EditGoalModal = ({ visible, goal, onClose, onSave }: EditGoalModalProps) => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState('');
     const [deadline, setDeadline] = useState('');
     const [priority, setPriority] = useState<'high' | 'medium' | 'low'>('medium');
+    const [progress, setProgress] = useState('0');
+    const [status, setStatus] = useState<'in_progress' | 'completed' | 'frozen' | 'archived'>('in_progress');
 
-    const handleCreate = () => {
+    // Заполняем форму данными цели при открытии
+    useEffect(() => {
+        if (goal) {
+            setTitle(goal.title || '');
+            setDescription(goal.description || '');
+            setCategory(goal.category || '');
+            setDeadline(goal.deadline || '');
+            setPriority(goal.priority || 'medium');
+            setProgress(goal.progress?.toString() || '0');
+            setStatus(goal.status || 'in_progress');
+        }
+    }, [goal]);
+
+    const handleSave = () => {
         if (!title.trim()) {
             Alert.alert('Ошибка', 'Введите название цели');
             return;
         }
 
-        onCreateGoal({
+        if (!goal) return;
+
+        const progressNum = parseInt(progress, 10);
+        if (isNaN(progressNum) || progressNum < 0 || progressNum > 100) {
+            Alert.alert('Ошибка', 'Прогресс должен быть числом от 0 до 100');
+            return;
+        }
+
+        const updatedGoal: Goal = {
+            ...goal,
             title: title.trim(),
             description: description.trim(),
             category: category.trim() || 'Без категории',
             deadline: deadline || null,
-            progress: 0,
             priority: priority,
-            status: 'in_progress',
-        });
+            progress: progressNum,
+            status: status,
+        };
 
-        setTitle('');
-        setDescription('');
-        setCategory('');
-        setDeadline('');
-        setPriority('medium');
+        onSave(updatedGoal);
         onClose();
     };
 
     const suggestedCategories = ['Работа', 'Учеба', 'Здоровье', 'Личное', 'Финансы'];
+
+    if (!goal) return null;
 
     return (
         <Modal
@@ -59,7 +82,7 @@ export const CreateGoalModal = ({ visible, onClose, onCreateGoal }: CreateGoalMo
         >
             <View style={styles.modalOverlay}>
                 <View style={styles.modalContent}>
-                    <Text style={styles.modalTitle}>Новая цель</Text>
+                    <Text style={styles.modalTitle}>Редактировать цель</Text>
 
                     <ScrollView showsVerticalScrollIndicator={false}>
                         {/* Название */}
@@ -164,6 +187,77 @@ export const CreateGoalModal = ({ visible, onClose, onCreateGoal }: CreateGoalMo
                             </View>
                         </View>
 
+                        {/* Прогресс */}
+                        <View style={styles.inputGroup}>
+                            <Text style={styles.label}>Прогресс (0-100%)</Text>
+                            <TextInput
+                                style={styles.input}
+                                value={progress}
+                                onChangeText={setProgress}
+                                placeholder="0-100"
+                                keyboardType="numeric"
+                                maxLength={3}
+                            />
+                        </View>
+
+                        {/* Статус */}
+                        <View style={styles.inputGroup}>
+                            <Text style={styles.label}>Статус</Text>
+                            <View style={styles.statusContainer}>
+                                <TouchableOpacity
+                                    style={[
+                                        styles.statusButton,
+                                        status === 'in_progress' && styles.statusButtonActive
+                                    ]}
+                                    onPress={() => setStatus('in_progress')}
+                                >
+                                    <Text style={[
+                                        styles.statusButtonText,
+                                        status === 'in_progress' && styles.statusButtonTextActive
+                                    ]}>▶️ В процессе</Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                    style={[
+                                        styles.statusButton,
+                                        status === 'completed' && styles.statusButtonActive
+                                    ]}
+                                    onPress={() => setStatus('completed')}
+                                >
+                                    <Text style={[
+                                        styles.statusButtonText,
+                                        status === 'completed' && styles.statusButtonTextActive
+                                    ]}>✅ Завершено</Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                    style={[
+                                        styles.statusButton,
+                                        status === 'frozen' && styles.statusButtonActive
+                                    ]}
+                                    onPress={() => setStatus('frozen')}
+                                >
+                                    <Text style={[
+                                        styles.statusButtonText,
+                                        status === 'frozen' && styles.statusButtonTextActive
+                                    ]}>❄️ Заморожено</Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                    style={[
+                                        styles.statusButton,
+                                        status === 'archived' && styles.statusButtonActive
+                                    ]}
+                                    onPress={() => setStatus('archived')}
+                                >
+                                    <Text style={[
+                                        styles.statusButtonText,
+                                        status === 'archived' && styles.statusButtonTextActive
+                                    ]}>📦 В архив</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+
                         {/* Дедлайн */}
                         <View style={styles.inputGroup}>
                             <Text style={styles.label}>Дедлайн (опционально)</Text>
@@ -187,10 +281,10 @@ export const CreateGoalModal = ({ visible, onClose, onCreateGoal }: CreateGoalMo
                         </TouchableOpacity>
 
                         <TouchableOpacity
-                            style={[styles.button, styles.createButton]}
-                            onPress={handleCreate}
+                            style={[styles.button, styles.saveButton]}
+                            onPress={handleSave}
                         >
-                            <Text style={styles.createButtonText}>Создать</Text>
+                            <Text style={styles.saveButtonText}>Сохранить</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -210,7 +304,7 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         padding: 20,
-        minHeight: '70%',
+        minHeight: '80%',
         maxHeight: '90%',
     },
     modalTitle: {
@@ -292,6 +386,27 @@ const styles = StyleSheet.create({
     priorityButtonTextActive: {
         color: '#fff',
     },
+    statusContainer: {
+        marginTop: 8,
+    },
+    statusButton: {
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        backgroundColor: '#f0f0f0',
+        borderRadius: 8,
+        marginBottom: 8,
+        alignItems: 'center',
+    },
+    statusButtonActive: {
+        backgroundColor: '#007AFF',
+    },
+    statusButtonText: {
+        fontSize: 14,
+        color: '#333',
+    },
+    statusButtonTextActive: {
+        color: '#fff',
+    },
     buttonsContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -310,7 +425,7 @@ const styles = StyleSheet.create({
     cancelButton: {
         backgroundColor: '#f0f0f0',
     },
-    createButton: {
+    saveButton: {
         backgroundColor: '#007AFF',
     },
     cancelButtonText: {
@@ -318,7 +433,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '600',
     },
-    createButtonText: {
+    saveButtonText: {
         color: '#fff',
         fontSize: 16,
         fontWeight: '600',

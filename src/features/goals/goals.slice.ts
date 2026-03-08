@@ -5,14 +5,14 @@ interface GoalsState {
   items: Goal[];
   isLoading: boolean;
   error: string | null;
-  activeTab: 'active' | 'archived';
+  activeTab: 'in_progress' | 'completed' | 'frozen' | 'archived';
 }
 
 const initialState: GoalsState = {
   items: [],
   isLoading: false,
   error: null,
-  activeTab: 'active',
+  activeTab: 'in_progress',
 };
 
 const goalsSlice = createSlice({
@@ -20,7 +20,7 @@ const goalsSlice = createSlice({
   initialState,
   reducers: {
     
-    // загрузка
+    // загрузка целей
     fetchGoalsRequest: (state) => {
       state.isLoading = true;
       state.error = null;
@@ -34,7 +34,7 @@ const goalsSlice = createSlice({
       state.error = action.payload;
     },
 
-    // создание 
+    // создание цели
     createGoalRequest: (state, action: PayloadAction<Omit<Goal, 'id' | 'createdAt'>>) => {
       state.isLoading = true;
       state.error = null;
@@ -48,7 +48,23 @@ const goalsSlice = createSlice({
       state.error = action.payload;
     },
 
-    // архивация
+    // редактирование цели
+    updateGoalRequest: (state, action: PayloadAction<Goal>) => {
+      state.isLoading = true;
+      state.error = null;
+    },
+    updateGoalSuccess: (state, action: PayloadAction<Goal>) => {
+      state.isLoading = false;
+      state.items = state.items.map(goal =>
+        goal.id === action.payload.id ? action.payload : goal
+      );
+    },
+    updateGoalFailure: (state, action: PayloadAction<string>) => {
+      state.isLoading = false;
+      state.error = action.payload;
+    },
+
+    // архивирование цели
     archiveGoalRequest: (state, action: PayloadAction<string>) => {
       state.isLoading = true;
       state.error = null;
@@ -66,12 +82,44 @@ const goalsSlice = createSlice({
       state.error = action.payload;
     },
 
-    // переключение таба 
-    setActiveTab: (state, action: PayloadAction<'active' | 'archived'>) => {
+    // восстановление из архива
+    restoreGoalRequest: (state, action: PayloadAction<string>) => {
+      state.isLoading = true;
+      state.error = null;
+    },
+    restoreGoalSuccess: (state, action: PayloadAction<string>) => {
+      state.isLoading = false;
+      state.items = state.items.map(goal =>
+        goal.id === action.payload
+          ? { ...goal, status: 'in_progress' }
+          : goal
+      );
+    },
+    restoreGoalFailure: (state, action: PayloadAction<string>) => {
+      state.isLoading = false;
+      state.error = action.payload;
+    },
+
+    //  удаление цели
+    deleteGoalRequest: (state, action: PayloadAction<string>) => {
+      state.isLoading = true;
+      state.error = null;
+    },
+    deleteGoalSuccess: (state, action: PayloadAction<string>) => {
+      state.isLoading = false;
+      state.items = state.items.filter(goal => goal.id !== action.payload);
+    },
+    deleteGoalFailure: (state, action: PayloadAction<string>) => {
+      state.isLoading = false;
+      state.error = action.payload;
+    },
+
+    // переключение таба
+    setActiveTab: (state, action: PayloadAction<'in_progress' | 'completed' | 'frozen' | 'archived'>) => {
       state.activeTab = action.payload;
     },
 
-    // клеар ошибки 
+    // очистка ошибки
     clearError: (state) => {
       state.error = null;
     },
@@ -85,9 +133,18 @@ export const {
   createGoalRequest,
   createGoalSuccess,
   createGoalFailure,
+  updateGoalRequest,
+  updateGoalSuccess,
+  updateGoalFailure,
   archiveGoalRequest,
   archiveGoalSuccess,
   archiveGoalFailure,
+  restoreGoalRequest,
+  restoreGoalSuccess,
+  restoreGoalFailure,
+  deleteGoalRequest,
+  deleteGoalSuccess,
+  deleteGoalFailure,
   setActiveTab,
   clearError,
 } = goalsSlice.actions;
