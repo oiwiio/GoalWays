@@ -9,16 +9,29 @@ import {
     ScrollView,
     Alert
 } from 'react-native';
-import { Goal } from '../../../types/goal';
+import { Goal, Task } from '../../../types/goal';
 
-interface EditGoalModalProps {
+interface GoalDetailModalProps {
     visible: boolean;
-    goal: Goal | null;
+    mode: 'goal' | 'task';              
+    item: Goal | Task | null;            
     onClose: () => void;
-    onSave: (updatedGoal: Goal) => void;
+    onSave: (updatedItem: Goal | Task) => void;
+    onAddTask?: () => void;              
+    onTaskPress?: (task: Task) => void; 
 }
 
-export const EditGoalModal = ({ visible, goal, onClose, onSave }: EditGoalModalProps) => {
+
+
+export const GoalDetailModal = ({ 
+    visible, 
+    mode,
+    item, 
+    onClose, 
+    onSave,
+    onAddTask,
+    onTaskPress 
+}: GoalDetailModalProps) => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState('');
@@ -27,26 +40,42 @@ export const EditGoalModal = ({ visible, goal, onClose, onSave }: EditGoalModalP
     const [progress, setProgress] = useState('0');
     const [status, setStatus] = useState<'in_progress' | 'completed' | 'frozen' | 'archived'>('in_progress');
 
-    // Заполняем форму данными цели при открытии
+        
+    
+    // для цели — список задач
+    const [tasks, setTasks] = useState<Task[]>([]);
+
+    
+
     useEffect(() => {
-        if (goal) {
-            setTitle(goal.title || '');
-            setDescription(goal.description || '');
-            setCategory(goal.category || '');
-            setDeadline(goal.deadline || '');
-            setPriority(goal.priority || 'medium');
-            setProgress(goal.progress?.toString() || '0');
-            setStatus(goal.status || 'in_progress');
+        if (item) {
+            setTitle(item.title || '');
+            setDescription(item.description || '');
+            
+            // Общие поля для цели и задачи
+            if ('priority' in item) setPriority(item.priority);
+            if ('progress' in item) setProgress(item.progress?.toString() || '0');
+            if ('deadline' in item) setDeadline(item.deadline || '');
+            
+            // Поля только для цели
+            if (mode === 'goal') {
+                const goal = item as Goal;
+                setCategory(goal.category || '');
+                setStatus(goal.status);
+                setTasks(goal.tasks || []);
+            }
         }
-    }, [goal]);
+    }, [item, mode]);
+
+    
 
     const handleSave = () => {
         if (!title.trim()) {
-            Alert.alert('Ошибка', 'Введите название цели');
+            Alert.alert('Ошибка', 'Введите название');
             return;
         }
 
-        if (!goal) return;
+        if (!item) return;
 
         const progressNum = parseInt(progress, 10);
         if (isNaN(progressNum) || progressNum < 0 || progressNum > 100) {
@@ -54,24 +83,35 @@ export const EditGoalModal = ({ visible, goal, onClose, onSave }: EditGoalModalP
             return;
         }
 
-        const updatedGoal: Goal = {
-            ...goal,
+        const baseFields = {
+            ...item,
             title: title.trim(),
             description: description.trim(),
-            category: category.trim() || 'Без категории',
-            deadline: deadline || null,
-            priority: priority,
+            priority,
             progress: progressNum,
-            status: status,
+            deadline: deadline || null,
         };
 
-        onSave(updatedGoal);
+        let updatedItem: Goal | Task;
+
+        if (mode === 'goal') {
+            updatedItem = {
+                ...baseFields,
+                category: category.trim() || 'Без категории',
+                status,
+                tasks,
+            } as Goal;
+        } else {
+            updatedItem = baseFields as Task;
+        }
+
+        onSave(updatedItem);
         onClose();
     };
 
     const suggestedCategories = ['Работа', 'Учеба', 'Здоровье', 'Личное', 'Финансы'];
 
-    if (!goal) return null;
+    if (!item) return null;
 
     return (
         <Modal
@@ -82,7 +122,9 @@ export const EditGoalModal = ({ visible, goal, onClose, onSave }: EditGoalModalP
         >
             <View style={styles.modalOverlay}>
                 <View style={styles.modalContent}>
-                    <Text style={styles.modalTitle}>Редактировать цель</Text>
+                    <Text style={styles.modalTitle}>
+                        {mode === 'goal' ? 'Редактировать цель' : 'Редактировать задачу'}
+                    </Text>
 
                     <ScrollView showsVerticalScrollIndicator={false}>
                         {/* Название */}
@@ -92,7 +134,7 @@ export const EditGoalModal = ({ visible, goal, onClose, onSave }: EditGoalModalP
                                 style={styles.input}
                                 value={title}
                                 onChangeText={setTitle}
-                                placeholder="Введите название цели"
+                                placeholder="Введите название"
                                 maxLength={50}
                             />
                         </View>
@@ -104,45 +146,14 @@ export const EditGoalModal = ({ visible, goal, onClose, onSave }: EditGoalModalP
                                 style={[styles.input, styles.textArea]}
                                 value={description}
                                 onChangeText={setDescription}
-                                placeholder="Опишите вашу цель"
+                                placeholder="Опишите"
                                 multiline
                                 numberOfLines={3}
                                 maxLength={200}
                             />
                         </View>
 
-                        {/* Категория */}
-                        <View style={styles.inputGroup}>
-                            <Text style={styles.label}>Категория</Text>
-                            <TextInput
-                                style={styles.input}
-                                value={category}
-                                onChangeText={setCategory}
-                                placeholder="Выберите или введите категорию"
-                            />
-
-                            <View style={styles.categoriesContainer}>
-                                {suggestedCategories.map((cat) => (
-                                    <TouchableOpacity
-                                        key={cat}
-                                        style={[
-                                            styles.categoryChip,
-                                            category === cat && styles.categoryChipSelected
-                                        ]}
-                                        onPress={() => setCategory(cat)}
-                                    >
-                                        <Text style={[
-                                            styles.categoryChipText,
-                                            category === cat && styles.categoryChipTextSelected
-                                        ]}>
-                                            {cat}
-                                        </Text>
-                                    </TouchableOpacity>
-                                ))}
-                            </View>
-                        </View>
-
-                        {/* Приоритет */}
+                        {/* Приоритет (общее поле) */}
                         <View style={styles.inputGroup}>
                             <Text style={styles.label}>Приоритет</Text>
                             <View style={styles.priorityContainer}>
@@ -187,7 +198,7 @@ export const EditGoalModal = ({ visible, goal, onClose, onSave }: EditGoalModalP
                             </View>
                         </View>
 
-                        {/* Прогресс */}
+                        {/* Прогресс (общее поле) */}
                         <View style={styles.inputGroup}>
                             <Text style={styles.label}>Прогресс (0-100%)</Text>
                             <TextInput
@@ -200,67 +211,9 @@ export const EditGoalModal = ({ visible, goal, onClose, onSave }: EditGoalModalP
                             />
                         </View>
 
-                        {/* Статус */}
+                        {/* Дедлайн (общее поле) */}
                         <View style={styles.inputGroup}>
-                            <Text style={styles.label}>Статус</Text>
-                            <View style={styles.statusContainer}>
-                                <TouchableOpacity
-                                    style={[
-                                        styles.statusButton,
-                                        status === 'in_progress' && styles.statusButtonActive
-                                    ]}
-                                    onPress={() => setStatus('in_progress')}
-                                >
-                                    <Text style={[
-                                        styles.statusButtonText,
-                                        status === 'in_progress' && styles.statusButtonTextActive
-                                    ]}>▶️ В процессе</Text>
-                                </TouchableOpacity>
-
-                                <TouchableOpacity
-                                    style={[
-                                        styles.statusButton,
-                                        status === 'completed' && styles.statusButtonActive
-                                    ]}
-                                    onPress={() => setStatus('completed')}
-                                >
-                                    <Text style={[
-                                        styles.statusButtonText,
-                                        status === 'completed' && styles.statusButtonTextActive
-                                    ]}>✅ Завершено</Text>
-                                </TouchableOpacity>
-
-                                <TouchableOpacity
-                                    style={[
-                                        styles.statusButton,
-                                        status === 'frozen' && styles.statusButtonActive
-                                    ]}
-                                    onPress={() => setStatus('frozen')}
-                                >
-                                    <Text style={[
-                                        styles.statusButtonText,
-                                        status === 'frozen' && styles.statusButtonTextActive
-                                    ]}>❄️ Заморожено</Text>
-                                </TouchableOpacity>
-
-                                <TouchableOpacity
-                                    style={[
-                                        styles.statusButton,
-                                        status === 'archived' && styles.statusButtonActive
-                                    ]}
-                                    onPress={() => setStatus('archived')}
-                                >
-                                    <Text style={[
-                                        styles.statusButtonText,
-                                        status === 'archived' && styles.statusButtonTextActive
-                                    ]}>📦 В архив</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-
-                        {/* Дедлайн */}
-                        <View style={styles.inputGroup}>
-                            <Text style={styles.label}>Дедлайн (опционально)</Text>
+                            <Text style={styles.label}>Дедлайн</Text>
                             <TextInput
                                 style={styles.input}
                                 value={deadline}
@@ -269,6 +222,114 @@ export const EditGoalModal = ({ visible, goal, onClose, onSave }: EditGoalModalP
                             />
                             <Text style={styles.hint}>Формат: 2025-12-31</Text>
                         </View>
+
+                        {/* Поля только для цели */}
+                        {mode === 'goal' && (
+                            <>
+                                {/* Категория */}
+                                <View style={styles.inputGroup}>
+                                    <Text style={styles.label}>Категория</Text>
+                                    <TextInput
+                                        style={styles.input}
+                                        value={category}
+                                        onChangeText={setCategory}
+                                        placeholder="Выберите или введите категорию"
+                                    />
+
+                                    <View style={styles.categoriesContainer}>
+                                        {suggestedCategories.map((cat) => (
+                                            <TouchableOpacity
+                                                key={cat}
+                                                style={[
+                                                    styles.categoryChip,
+                                                    category === cat && styles.categoryChipSelected
+                                                ]}
+                                                onPress={() => setCategory(cat)}
+                                            >
+                                                <Text style={[
+                                                    styles.categoryChipText,
+                                                    category === cat && styles.categoryChipTextSelected
+                                                ]}>
+                                                    {cat}
+                                                </Text>
+                                            </TouchableOpacity>
+                                        ))}
+                                    </View>
+                                </View>
+
+                                {/* Статус цели */}
+                                <View style={styles.inputGroup}>
+                                    <Text style={styles.label}>Статус</Text>
+                                    <View style={styles.statusContainer}>
+                                        <TouchableOpacity
+                                            style={[
+                                                styles.statusButton,
+                                                status === 'in_progress' && styles.statusButtonActive
+                                            ]}
+                                            onPress={() => setStatus('in_progress')}
+                                        >
+                                            <Text style={[
+                                                styles.statusButtonText,
+                                                status === 'in_progress' && styles.statusButtonTextActive
+                                            ]}>▶️ В процессе</Text>
+                                        </TouchableOpacity>
+
+                                        <TouchableOpacity
+                                            style={[
+                                                styles.statusButton,
+                                                status === 'completed' && styles.statusButtonActive
+                                            ]}
+                                            onPress={() => setStatus('completed')}
+                                        >
+                                            <Text style={[
+                                                styles.statusButtonText,
+                                                status === 'completed' && styles.statusButtonTextActive
+                                            ]}>✅ Завершено</Text>
+                                        </TouchableOpacity>
+
+                                        <TouchableOpacity
+                                            style={[
+                                                styles.statusButton,
+                                                status === 'frozen' && styles.statusButtonActive
+                                            ]}
+                                            onPress={() => setStatus('frozen')}
+                                        >
+                                            <Text style={[
+                                                styles.statusButtonText,
+                                                status === 'frozen' && styles.statusButtonTextActive
+                                            ]}>❄️ Заморожено</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+
+                                {/* Список задач */}
+                                <View style={styles.inputGroup}>
+                                    <View style={styles.tasksHeader}>
+                                        <Text style={styles.label}>Задачи</Text>
+                                        {onAddTask && (
+                                            <TouchableOpacity onPress={onAddTask}>
+                                                <Text style={styles.addButton}>+ Добавить</Text>
+                                            </TouchableOpacity>
+                                        )}
+                                    </View>
+                                    
+                                    {tasks.length === 0 ? (
+                                        <Text style={styles.emptyText}>Нет задач</Text>
+                                    ) : (
+                                        tasks.map((task) => (
+                                            <TouchableOpacity
+                                                key={task.id}
+                                                style={styles.taskItem}
+                                                onPress={() => onTaskPress?.(task)}
+                                            >
+                                                <Text style={styles.taskTitle}>{task.title}</Text>
+                                                <Text style={styles.taskProgress}>{task.progress}%</Text>
+                                            </TouchableOpacity>
+                                        ))
+                                    )}
+                                </View>
+                            </>
+                        )}
                     </ScrollView>
 
                     {/* Кнопки */}
@@ -437,5 +498,43 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 16,
         fontWeight: '600',
+    },
+
+    tasksHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+    addButton: {
+        color: '#007AFF',
+        fontSize: 14,
+        fontWeight: '600',
+    },
+    emptyText: {
+        color: '#999',
+        fontSize: 14,
+        textAlign: 'center',
+        paddingVertical: 20,
+    },
+    taskItem: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        backgroundColor: '#f9f9f9',
+        borderRadius: 8,
+        marginBottom: 8,
+    },
+    taskTitle: {
+        fontSize: 16,
+        color: '#333',
+        flex: 1,
+    },
+    taskProgress: {
+        fontSize: 14,
+        color: '#666',
+        marginLeft: 8,
     },
 });

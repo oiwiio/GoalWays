@@ -37,8 +37,9 @@ import {
     
 } from '../../../features/goals/goals.selectors';
 import { colors, spacing, borderRadius, typography, shadows } from '../../../shared/styles/theme';
-import { EditGoalModal } from '../../../features/goals/ui/edit-goal-modal';
-
+import { GoalDetailModal } from '../../../features/goals/ui/goal-detail-modal';
+import {  Task } from '../../../types/goal';
+ 
 
 type GoalsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Goals'>;
 
@@ -115,12 +116,26 @@ export const GoalsScreen = () => {
     };
 
     const handleGoalPress = (goal: Goal) => {
-        Alert.alert('Цель', `Выбрана цель: ${goal.title}`);
-    };
+    console.log('Нажали на цель:', goal.title);
+    
+    setEditingGoal(goal);
+    setEditModalVisible(true);
+};
+
+    const handleSaveItem = (updatedItem: Goal | Task) => {
+    if ('tasks' in updatedItem) {
+        // это Goal
+        dispatch(updateGoalRequest(updatedItem as Goal));
+    } else {
+        // это Task
+        // dispatch(updateTaskRequest(updatedItem as Task));
+        console.log('Сохраняем задачу:', updatedItem);
+    }
+};
 
     return (
         <SafeAreaView style={styles.container}>
-            {/* Заголовок */}
+            {/* заголовок */}
             <View style={styles.header}>
                 <Text style={styles.title}>Мои цели</Text>
                 <TouchableOpacity
@@ -131,7 +146,7 @@ export const GoalsScreen = () => {
                 </TouchableOpacity>
             </View>
 
-            {/* Табы */}
+            {/* табы */}
             <View style={styles.tabContainer}>
                 <TouchableOpacity
                     style={[styles.tab, activeTab === 'in_progress' && styles.activeTab]}
@@ -170,7 +185,7 @@ export const GoalsScreen = () => {
                 </TouchableOpacity>
             </View>
 
-            {/* Список целей */}
+            {/* список целей */}
             {isLoading && goals.length === 0 ? (
                 <View style={styles.emptyContainer}>
                     <Text style={styles.emptyText}>Загрузка...</Text>
@@ -218,14 +233,17 @@ export const GoalsScreen = () => {
                 onClose={() => setModalVisible(false)}
                 onCreateGoal={handleCreateGoal}
             />
-            <EditGoalModal
+
+            
+            <GoalDetailModal
             visible={editModalVisible}
-            goal={editingGoal}
+            mode="goal"                  
+            item={editingGoal}            
             onClose={() => {
             setEditModalVisible(false);
             setEditingGoal(null);
             }}
-            onSave={handleSaveGoal}
+            onSave={handleSaveItem}
             />
             
         </SafeAreaView>
