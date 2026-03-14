@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../types/navigation';
-import { SettingsSection, SettingsItem } from '../../../features/settings';
+import { Settings } from '../../../features/settings';
 import { 
   setNotifications, 
   logoutRequest 
@@ -12,7 +12,9 @@ import {
 import { 
   selectNotifications,
   selectSettingsError 
-} from '../../../features/settings/settings.selectors';
+} from '../../../features/settings/settings.selectors'; 
+
+const { SettingsSection, SettingsItem } = Settings.ui;
 
 type SettingsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Settings'>;
 

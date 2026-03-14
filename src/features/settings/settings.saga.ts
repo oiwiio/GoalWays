@@ -26,3 +26,4 @@ function* handleLogout() {
 export function* settingsSaga() {
   yield takeLatest(logoutRequest.type, handleLogout);
 }
+export const init = settingsSaga;

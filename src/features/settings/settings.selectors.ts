@@ -1,19 +1,13 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { RootState } from '../../app/store';
-import { name, SettingsState } from './settings.slice';
+import { SettingsState } from './settings.slice';
 
-interface State {
-    [name]: SettingsState
-}
+const root = (state: RootState) => state.settings;
 
-const root = (state: State) => state.settings
+export const selectNotifications = createSelector(
+  [root],
+  (rootState) => rootState.notifications
+);
 
-const selectNotifications = createSelector([root], rootState => rootState.notifications)
-const selectSettingsIsLoading = (state: RootState) => state.settings.isLoading;
-const selectSettingsError = (state: RootState) => state.settings.error;
-
-export const selectors = {
-    selectNotifications,
-    selectSettingsIsLoading,
-    selectSettingsError,
-}
+export const selectSettingsIsLoading = (state: RootState) => state.settings.isLoading;
+export const selectSettingsError = (state: RootState) => state.settings.error;
