@@ -7,7 +7,8 @@ import { SettingsScreen } from '../pages/settings';
 import { DevelopersScreen } from '../pages/developers';
 import { GoalsScreen } from '../pages/goals';
 import { ConfirmScreen } from '../pages/confirm/ui/confirm.screen';
-import { ProfileScreen } from '../pages/profile/ui/profile-screen';
+import { ProfileScreen } from '../pages/profile/ui/profile.screen';
+
 
 export type RootStackParamList = {
   Login: undefined;
@@ -16,7 +17,8 @@ export type RootStackParamList = {
   Confirm: { username: string };
   Main: undefined;
   Settings: undefined;
-  Developers: undefined;
+  Developers: undefined; 
+  Profile: undefined;
 };
 
 export type TabParamList = {
@@ -53,6 +55,7 @@ export const RootNavigator = () => {
       <Stack.Screen name="Main" component={TabNavigator} options={{ headerShown: false }} />
       <Stack.Screen name="Settings" component={SettingsScreen} options={{ title: 'Настройки' }} />
       <Stack.Screen name="Developers" component={DevelopersScreen} options={{ title: 'Разработчики' }} />
+      <Stack.Screen name="Profile" component={ProfileScreen} />
     </Stack.Navigator>
   );
 };

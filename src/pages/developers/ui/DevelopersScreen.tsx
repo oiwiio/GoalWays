@@ -40,6 +40,13 @@ export const DevelopersScreen = () => {
       contact: '@RUSSIAN_BERSERK',
       contactUrl: 'https://t.me/RUSSIAN_BERSERK',
     },
+    {
+      role: 'Проджект Менеджер',
+      name: 'Веревкина Дарья',
+      description: 'Управление проектом',
+      contact: '@Bbi_ji',
+      contactUrl: 'https://t.me/@Bbi_ji', 
+    },
   ];
 
   const handleContactPress = (url: string) => { 

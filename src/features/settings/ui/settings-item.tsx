@@ -1,20 +1,32 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
-
-type SettingsItemProps = {
+interface SettingsItemProps {
   title: string;
-  onPress?: () => void; 
-  rightElement?: React.ReactNode; 
+  subtitle?: string;  
+  onPress?: () => void;
+  rightElement?: React.ReactNode;
   color?: string;
-};
+  showChevron?: boolean;
+}
 
-export const SettingsItem = ({ title, onPress, rightElement, color = '#000' }: SettingsItemProps) => {
+export const SettingsItem = ({ 
+  title, 
+  subtitle,  
+  onPress, 
+  rightElement, 
+  color = '#000',
+  showChevron = true 
+}: SettingsItemProps) => {
   const Content = () => (
     <View style={styles.container}>
-      <Text style={[styles.title, { color }]}>{title}</Text>
+      <View style={styles.textContainer}>
+        <Text style={[styles.title, { color }]}>{title}</Text>
+        {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}  
+      </View>
       <View style={styles.rightContainer}>
-        {rightElement ? rightElement : <Text style={styles.chevron}>›</Text>}
+        {rightElement}
+        {showChevron && !rightElement && <Text style={styles.chevron}>›</Text>}
       </View>
     </View>
   );
@@ -40,8 +52,16 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
   },
+  textContainer: {
+    flex: 1,
+  },
   title: {
     fontSize: 16,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 4,
   },
   rightContainer: {
     marginLeft: 10,
@@ -51,4 +71,3 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
 });
-
