@@ -121,7 +121,7 @@ export const SettingsScreen = () => {
           />
           <SettingsItem
             title="Версия"
-            subtitle="v1.0.0"
+            subtitle="v1.0.1"
             showChevron={false}
           />
         </SettingsSection>
@@ -150,6 +150,7 @@ export const SettingsScreen = () => {
       {/* модалка смены email */}
       <Modal visible={emailModalVisible} transparent animationType="slide">
         <ChangeEmailModal
+          visible={emailModalVisible}  
           onClose={() => setEmailModalVisible(false)}
           onSave={handleChangeEmail}
           currentEmail={userData.email}
@@ -159,6 +160,7 @@ export const SettingsScreen = () => {
       {/* модалка смены пароля */}
       <Modal visible={passwordModalVisible} transparent animationType="slide">
         <ChangePasswordModal
+          visible={passwordModalVisible}
           onClose={() => setPasswordModalVisible(false)}
           onSave={handleChangePassword}
         />
@@ -167,8 +169,9 @@ export const SettingsScreen = () => {
       {/* модалка смены никнейма */}
       <Modal visible={nicknameModalVisible} transparent animationType="slide">
         <ChangeNicknameModal
-          onClose={() => setNicknameModalVisible(false)}
-          onSave={handleChangeNickname}
+          visible={nicknameModalVisible} 
+            onClose={() => setNicknameModalVisible(false)}
+            onSave={handleChangeNickname}
           currentNickname={userData.nickname}
         />
       </Modal>
@@ -176,6 +179,7 @@ export const SettingsScreen = () => {
       {/* модалка удаления аккаунта */}
       <Modal visible={deleteModalVisible} transparent animationType="fade">
         <DeleteAccountModal
+          visible={deleteModalVisible} 
           onClose={() => setDeleteModalVisible(false)}
           onConfirm={handleDeleteAccount}
         />
