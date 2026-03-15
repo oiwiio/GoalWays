@@ -20,8 +20,7 @@ interface GoalDetailModalProps {
     onAddTask?: () => void;              
     onTaskPress?: (task: Task) => void; 
 }
-
-
+import { styles } from './goal.detail.modal.styles'
 
 export const GoalDetailModal = ({ 
     visible, 
@@ -39,7 +38,9 @@ export const GoalDetailModal = ({
     const [priority, setPriority] = useState<'high' | 'medium' | 'low'>('medium');
     const [progress, setProgress] = useState('0');
     const [status, setStatus] = useState<'in_progress' | 'completed' | 'frozen' | 'archived'>('in_progress');
-
+    const [resultModalVisible, setResultModalVisible] = useState(false);
+    const [resultText, setResultText] = useState('');
+    const [results, setResults] = useState<string[]>([]);
         
     
     // для цели — список задач
@@ -67,7 +68,20 @@ export const GoalDetailModal = ({
         }
     }, [item, mode]);
 
-    
+        const handleAddTextResult = () => {
+            if (resultText.trim()) {
+                setResults([...results, resultText.trim()]);
+                setResultText('');
+                setResultModalVisible(false);
+             }
+        };
+
+        const handleAddPhotoResult = () => {
+            Alert.alert(
+             'Функция в разработке',
+             'Загрузка фото будет доступна позже'
+            );
+        };
 
     const handleSave = () => {
         if (!title.trim()) {
@@ -127,7 +141,7 @@ export const GoalDetailModal = ({
                     </Text>
 
                     <ScrollView showsVerticalScrollIndicator={false}>
-                        {/* Название */}
+                        {/* название */}
                         <View style={styles.inputGroup}>
                             <Text style={styles.label}>Название *</Text>
                             <TextInput
@@ -139,7 +153,7 @@ export const GoalDetailModal = ({
                             />
                         </View>
 
-                        {/* Описание */}
+                        {/* описание */}
                         <View style={styles.inputGroup}>
                             <Text style={styles.label}>Описание</Text>
                             <TextInput
@@ -153,7 +167,7 @@ export const GoalDetailModal = ({
                             />
                         </View>
 
-                        {/* Приоритет (общее поле) */}
+                        {/* приоритет (общее поле) */}
                         <View style={styles.inputGroup}>
                             <Text style={styles.label}>Приоритет</Text>
                             <View style={styles.priorityContainer}>
@@ -198,7 +212,7 @@ export const GoalDetailModal = ({
                             </View>
                         </View>
 
-                        {/* Прогресс (общее поле) */}
+                        {/* прогресс (общее поле) */}
                         <View style={styles.inputGroup}>
                             <Text style={styles.label}>Прогресс (0-100%)</Text>
                             <TextInput
@@ -211,7 +225,7 @@ export const GoalDetailModal = ({
                             />
                         </View>
 
-                        {/* Дедлайн (общее поле) */}
+                        {/* дедлайн (общее поле) */}
                         <View style={styles.inputGroup}>
                             <Text style={styles.label}>Дедлайн</Text>
                             <TextInput
@@ -223,10 +237,10 @@ export const GoalDetailModal = ({
                             <Text style={styles.hint}>Формат: 2025-12-31</Text>
                         </View>
 
-                        {/* Поля только для цели */}
+                        {/* поля только для цели */}
                         {mode === 'goal' && (
                             <>
-                                {/* Категория */}
+                                {/* категория */}
                                 <View style={styles.inputGroup}>
                                     <Text style={styles.label}>Категория</Text>
                                     <TextInput
@@ -257,7 +271,7 @@ export const GoalDetailModal = ({
                                     </View>
                                 </View>
 
-                                {/* Статус цели */}
+                                {/* статус цели */}
                                 <View style={styles.inputGroup}>
                                     <Text style={styles.label}>Статус</Text>
                                     <View style={styles.statusContainer}>
@@ -302,7 +316,7 @@ export const GoalDetailModal = ({
                                     </View>
                                 </View>
 
-                                {/* Список задач */}
+                                {/* список задач */}
                                 <View style={styles.inputGroup}>
                                     <View style={styles.tasksHeader}>
                                         <Text style={styles.label}>Задачи</Text>
@@ -330,9 +344,67 @@ export const GoalDetailModal = ({
                                 </View>
                             </>
                         )}
-                    </ScrollView>
+                    </ScrollView> 
 
-                    {/* Кнопки */}
+                    {/* результаты */}
+                    <View style={styles.inputGroup}>
+                        <Text style={styles.label}>Результаты</Text>
+  
+                    {results.map((res, idx) => (
+                        <Text key={idx} style={styles.resultItem}>• {res}</Text>
+                    ))}
+
+                         <View style={styles.resultButtons}>
+                            <TouchableOpacity 
+                            style={styles.resultButton}
+                            onPress={() => setResultModalVisible(true)}
+                            >
+                            <Text style={styles.resultButtonText}>➕ Текст</Text>
+                        </TouchableOpacity>
+    
+                        <TouchableOpacity 
+                          style={styles.resultButton}
+                          onPress={handleAddPhotoResult}
+                        >
+                        <Text style={styles.resultButtonText}>📷 Фото</Text>
+                        </TouchableOpacity>
+                    </View>
+                    </View>
+
+                        {/* модалка для результата */}
+                        <Modal visible={resultModalVisible} transparent animationType="slide">
+                            <View style={styles.modalOverlay}>
+                                <View style={styles.modalContent}>
+                                    <Text style={styles.modalTitle}>Добавить результат</Text>
+
+                        <TextInput
+                        style={[styles.input, styles.textArea]}
+                        multiline
+                        placeholder="Введите текст..."
+                        value={resultText}
+                        onChangeText={setResultText}
+                        />
+
+                        <View style={styles.row}>
+                            <TouchableOpacity 
+                            style={[styles.button, styles.cancelButton]} 
+                            onPress={() => setResultModalVisible(false)}
+                            >
+                                <Text style={styles.cancelButtonText}>Отмена</Text>
+                            </TouchableOpacity>
+
+                               <TouchableOpacity 
+                                 style={[styles.button, styles.saveButton]} 
+                                 onPress={handleAddTextResult}
+                                >
+                                 <Text style={styles.saveButtonText}>Сохранить</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                        </View>
+                    </Modal>
+
+                    {/* кнопки */}
                     <View style={styles.buttonsContainer}>
                         <TouchableOpacity
                             style={[styles.button, styles.cancelButton]}
@@ -354,187 +426,3 @@ export const GoalDetailModal = ({
     );
 };
 
-const styles = StyleSheet.create({
-    modalOverlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        justifyContent: 'flex-end',
-    },
-    modalContent: {
-        backgroundColor: '#fff',
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-        padding: 20,
-        minHeight: '80%',
-        maxHeight: '90%',
-    },
-    modalTitle: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#1a1a1a',
-        marginBottom: 20,
-        textAlign: 'center',
-    },
-    inputGroup: {
-        marginBottom: 20,
-    },
-    label: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#333',
-        marginBottom: 8,
-    },
-    input: {
-        borderWidth: 1,
-        borderColor: '#ddd',
-        borderRadius: 10,
-        padding: 12,
-        fontSize: 16,
-        backgroundColor: '#f9f9f9',
-    },
-    textArea: {
-        minHeight: 80,
-        textAlignVertical: 'top',
-    },
-    hint: {
-        fontSize: 12,
-        color: '#999',
-        marginTop: 4,
-    },
-    categoriesContainer: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        marginTop: 10,
-    },
-    categoryChip: {
-        backgroundColor: '#f0f0f0',
-        paddingHorizontal: 15,
-        paddingVertical: 8,
-        borderRadius: 20,
-        marginRight: 10,
-        marginBottom: 10,
-    },
-    categoryChipSelected: {
-        backgroundColor: '#007AFF',
-    },
-    categoryChipText: {
-        color: '#666',
-        fontSize: 14,
-    },
-    categoryChipTextSelected: {
-        color: '#fff',
-    },
-    priorityContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginTop: 8,
-    },
-    priorityButton: {
-        flex: 1,
-        paddingVertical: 12,
-        backgroundColor: '#f0f0f0',
-        borderRadius: 8,
-        marginHorizontal: 4,
-        alignItems: 'center',
-    },
-    priorityButtonActive: {
-        backgroundColor: '#007AFF',
-    },
-    priorityButtonText: {
-        fontSize: 14,
-        color: '#333',
-    },
-    priorityButtonTextActive: {
-        color: '#fff',
-    },
-    statusContainer: {
-        marginTop: 8,
-    },
-    statusButton: {
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        backgroundColor: '#f0f0f0',
-        borderRadius: 8,
-        marginBottom: 8,
-        alignItems: 'center',
-    },
-    statusButtonActive: {
-        backgroundColor: '#007AFF',
-    },
-    statusButtonText: {
-        fontSize: 14,
-        color: '#333',
-    },
-    statusButtonTextActive: {
-        color: '#fff',
-    },
-    buttonsContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginTop: 20,
-        paddingTop: 20,
-        borderTopWidth: 1,
-        borderTopColor: '#eee',
-    },
-    button: {
-        flex: 1,
-        paddingVertical: 15,
-        borderRadius: 10,
-        alignItems: 'center',
-        marginHorizontal: 5,
-    },
-    cancelButton: {
-        backgroundColor: '#f0f0f0',
-    },
-    saveButton: {
-        backgroundColor: '#007AFF',
-    },
-    cancelButtonText: {
-        color: '#666',
-        fontSize: 16,
-        fontWeight: '600',
-    },
-    saveButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: '600',
-    },
-
-    tasksHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 12,
-    },
-    addButton: {
-        color: '#007AFF',
-        fontSize: 14,
-        fontWeight: '600',
-    },
-    emptyText: {
-        color: '#999',
-        fontSize: 14,
-        textAlign: 'center',
-        paddingVertical: 20,
-    },
-    taskItem: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        backgroundColor: '#f9f9f9',
-        borderRadius: 8,
-        marginBottom: 8,
-    },
-    taskTitle: {
-        fontSize: 16,
-        color: '#333',
-        flex: 1,
-    },
-    taskProgress: {
-        fontSize: 14,
-        color: '#666',
-        marginLeft: 8,
-    },
-});

@@ -12,8 +12,8 @@ import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../types/navigation';
-import { GoalCard } from '../../../features/goals/ui/goal-card';
-import { CreateGoalModal } from '../../../features/goals/ui/create-goal-modal';
+import { GoalCard } from '../../../features/goals/ui/goal.card';
+import { CreateGoalModal } from '../../../features/goals/ui/create.goal.modal';
 import { Goal } from '../../../types/goal';
 import {
     fetchGoalsRequest,
@@ -37,7 +37,7 @@ import {
     
 } from '../../../features/goals/goals.selectors';
 import { colors, spacing, borderRadius, typography, shadows } from '../../../shared/styles/theme';
-import { GoalDetailModal } from '../../../features/goals/ui/goal-detail-modal';
+import { GoalDetailModal } from '../../../features/goals/ui/goal.detail.modal';
 import {  Task } from '../../../types/goal';
  
 

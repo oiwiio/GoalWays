@@ -37,9 +37,9 @@ const MessageScreen = () => <MainScreen />; // временно
 const TabNavigator = () => {
   return (
     <Tab.Navigator>
-      <Tab.Screen name="Сообщение" component={MessageScreen} />
-      <Tab.Screen name="Цели" component={GoalsScreen} />
-      <Tab.Screen name="Вы" component={ProfileScreen} />
+      <Tab.Screen name="Сообщение" component={MessageScreen} options={{ headerShown: false }} />
+      <Tab.Screen name="Цели" component={GoalsScreen} options={{ headerShown: false }} />
+      <Tab.Screen name="Вы" component={ProfileScreen} options={{ headerShown: false }} />
     </Tab.Navigator>
   );
 };
@@ -48,14 +48,14 @@ const TabNavigator = () => {
 export const RootNavigator = () => {
   return (
     <Stack.Navigator initialRouteName="Login">
-      <Stack.Screen name="Login" component={LoginScreen} options={{ title: 'Вход' }} />
-      <Stack.Screen name="Register" component={RegisterScreen} options={{ title: 'Регистрация' }} />
-      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{ title: 'Восстановление пароля' }} />
-      <Stack.Screen name="Confirm" component={ConfirmScreen} options={{ title: 'Подтверждение' }} />
+      <Stack.Screen name="Login" component={LoginScreen} options={{  headerShown: false}}  />
+      <Stack.Screen name="Register" component={RegisterScreen} options={{  headerShown: false}} />
+      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{  headerShown: false}} />
+      <Stack.Screen name="Confirm" component={ConfirmScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Main" component={TabNavigator} options={{ headerShown: false }} />
-      <Stack.Screen name="Settings" component={SettingsScreen} options={{ title: 'Настройки' }} />
-      <Stack.Screen name="Developers" component={DevelopersScreen} options={{ title: 'Разработчики' }} />
-      <Stack.Screen name="Profile" component={ProfileScreen} />
+      <Stack.Screen name="Settings" component={SettingsScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Developers" component={DevelopersScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Profile" component={ProfileScreen} options={{headerShown: false}}  />
     </Stack.Navigator>
   );
 };

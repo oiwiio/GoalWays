@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Modal, Alert } from 'react-native';
 import { Goal } from '../../../types/goal';
+import { styles } from './goal.card.styles';
 
 interface GoalCardProps {
     goal: Goal;
@@ -94,6 +95,18 @@ export const GoalCard = ({
                     </Text>
                 )}
 
+                <View style={styles.progressContainer}>
+                    <View style={styles.progressBar}>
+                        <View 
+                            style={[
+                            styles.progressFill, 
+                            { width: `${goal.progress}%` }
+                            ]} 
+                         />
+                </View>
+                    <Text style={styles.progressText}>{goal.progress}%</Text>
+                </View>
+
                 <View style={styles.footer}>
                     {goal.deadline && (
                         <Text style={styles.date}>
@@ -104,7 +117,7 @@ export const GoalCard = ({
                         {goal.status !== 'in_progress' && (
                             <Text style={styles.statusBadge}>{getStatusText(goal.status)}</Text>
                         )}
-                        <Text style={styles.progress}>{goal.progress}%</Text>
+                        
                     </View>
                 </View>
             </TouchableOpacity>
@@ -151,100 +164,3 @@ export const GoalCard = ({
     );
 };
 
-const styles = StyleSheet.create({
-    card: {
-        backgroundColor: '#ffffff',
-        padding: 16,
-        marginHorizontal: 16,
-        marginVertical: 8,
-        borderBottomWidth: 1,
-        borderBottomColor: '#e0e0e0',
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 8,
-    },
-    titleContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        flex: 1,
-    },
-    priorityIcon: {
-        fontSize: 16,
-        marginRight: 8,
-    },
-    title: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#000000',
-        flex: 1,
-    },
-    menuButton: {
-        fontSize: 24,
-        padding: 4,
-        color: '#666666',
-    },
-    description: {
-        fontSize: 14,
-        color: '#666666',
-        marginBottom: 12,
-        lineHeight: 20,
-    },
-    footer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    date: {
-        fontSize: 13,
-        color: '#666666',
-    },
-    rightFooter: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    statusBadge: {
-        fontSize: 12,
-        color: '#666666',
-        marginRight: 8,
-        backgroundColor: '#f0f0f0',
-        paddingHorizontal: 8,
-        paddingVertical: 2,
-        borderRadius: 4,
-    },
-    progress: {
-        fontSize: 14,
-        fontWeight: '500',
-        color: '#000000',
-    },
-    modalOverlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    menuContainer: {
-        backgroundColor: '#ffffff',
-        borderRadius: 12,
-        padding: 8,
-        minWidth: 200,
-    },
-    menuItem: {
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        borderRadius: 8,
-    },
-    menuItemText: {
-        fontSize: 16,
-        color: '#333',
-    },
-    deleteItem: {
-        borderTopWidth: 1,
-        borderTopColor: '#f0f0f0',
-    },
-    deleteText: {
-        color: '#ff3b30',
-    },
-});
