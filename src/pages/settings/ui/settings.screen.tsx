@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../types/navigation';
-import { Settings } from '../../../features/settings';
+import { SettingsSection, SettingsItem } from '../../../features/settings';
 import { 
   setNotifications, 
   logoutRequest 
@@ -18,7 +18,8 @@ import { ChangePasswordModal } from '../../../features/settings/ui/change.passwo
 import { ChangeNicknameModal } from '../../../features/settings/ui/change.nickname.modal';
 import { DeleteAccountModal } from '../../../features/settings/ui/delete.account.modal';
 
-const { SettingsSection, SettingsItem } = Settings.ui;
+
+
 type SettingsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Settings'>;
 
 export const SettingsScreen = () => {

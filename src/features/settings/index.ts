@@ -1,16 +1,7 @@
-import * as settingsSlice from "./settings.slice";  
-import { init } from "./settings.saga";
-import * as settingsSelectors from "./settings.selectors";
-import { SettingsItem } from "./ui/settings-item";
-import { SettingsSection } from "./ui/settings-section";
+export { SettingsSection } from './ui/settings.section';  
+export { SettingsItem } from './ui/settings.item';        
 
-export const Settings = {
-    actions: settingsSlice,  
-    sagas: { init },
-    reducer: { settings: settingsSlice.default },  
-    selectors: settingsSelectors,
-    ui: {
-        SettingsItem,
-        SettingsSection
-    }
-}
+export { default as settingsReducer } from './settings.slice';
+export { settingsSaga } from './settings.saga';
+export * from './settings.selectors';
+export * from './settings.slice';

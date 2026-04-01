@@ -1,6 +1,6 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
 import { PayloadAction } from '@reduxjs/toolkit';
-import { loginRequest, loginSuccess, loginFailure } from './auth-slice';
+import { loginRequest, loginSuccess, loginFailure } from './slice';
 import { authApi } from '../../shared/api/auth';
 import { LoginResponse, ApiSuccess, ApiError } from '../../shared/api/types';
 

@@ -1,6 +1,6 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
 import { PayloadAction } from '@reduxjs/toolkit';
-import { registerRequest, registerSuccess, registerFailure } from './register.slice';
+import { registerRequest, registerSuccess, registerFailure } from './slice';
 import { authApi } from '../../shared/api/auth';
 import { ApiSuccess, ApiError, RegisterResponse } from '../../shared/api/types'; 
 import { AxiosResponse } from 'axios'; 

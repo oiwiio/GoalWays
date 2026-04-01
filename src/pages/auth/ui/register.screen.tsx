@@ -3,12 +3,12 @@ import { View, Text, TextInput, Button, Alert } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../types/navigation';
-import { registerRequest, clearStatus } from '../../../features/register/register.slice';
+import { registerRequest, clearStatus } from '../../../features/register/slice';
 import { 
   selectRegisterIsLoading, 
   selectRegisterError, 
   selectRegisterSuccess 
-} from '../../../features/register/register.selectors';
+} from '../../../features/register/selectors';
 import styles from '../styles';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Register'>;

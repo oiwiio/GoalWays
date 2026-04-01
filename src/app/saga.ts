@@ -1,19 +1,15 @@
+// app/rootSaga.ts
 import { all } from 'redux-saga/effects';
-import { authSaga } from '../features/auth/auth-saga';
-import { registerSaga } from '../features/register/register.saga';
-import { forgotPasswordSaga } from '../features/forgot-password/forgot-password.saga';
-import { settingsSaga } from '../features/settings/settings.saga';
-import { goalsSaga } from '../features/goals/goals.saga';
-import { confirmSaga } from '../features/confirm/saga';
-
+import { authSaga } from '../features/auth';
+import { registerSaga } from '../features/register';
+import { goalsSaga } from '../features/goals';
+import { settingsSaga } from '../features/settings';
 
 export function* rootSaga() {
   yield all([
     authSaga(),
     registerSaga(),
-    forgotPasswordSaga(),
-    settingsSaga(),
     goalsSaga(),
-    confirmSaga(),
+    settingsSaga(),
   ]);
 }

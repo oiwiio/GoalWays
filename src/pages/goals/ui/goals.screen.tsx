@@ -24,7 +24,7 @@ import {
     updateGoalRequest,
     restoreGoalRequest,
     deleteGoalRequest,
-} from '../../../features/goals/goals.slice';
+} from '../../../features/goals/slice';
 import {
     selectSortedGoals,
     selectInProgressCount,
@@ -35,7 +35,7 @@ import {
     selectGoalsIsLoading,
     selectGoalsError,
     
-} from '../../../features/goals/goals.selectors';
+} from '../../../features/goals/selectors';
 import { colors, spacing, borderRadius, typography, shadows } from '../../../shared/styles/theme';
 import { GoalDetailModal } from '../../../features/goals/ui/goal.detail.modal';
 import {  Task } from '../../../types/goal';

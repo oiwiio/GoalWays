@@ -1,6 +1,6 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
 import { PayloadAction } from '@reduxjs/toolkit'; // 👈 добавить импорт
-import { resetPasswordRequest, resetPasswordSuccess, resetPasswordFailure } from './forgot-password.slice';
+import { resetPasswordRequest, resetPasswordSuccess, resetPasswordFailure } from './slice';
 
 // Временное api
 const fakeApi = {

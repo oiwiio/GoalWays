@@ -1,1 +1,1 @@
-export { DevelopersScreen } from './ui/developersScreen';
+export { DevelopersScreen } from './ui/developers.screen';

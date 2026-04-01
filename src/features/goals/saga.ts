@@ -20,7 +20,7 @@ import {
   deleteGoalRequest,
   deleteGoalSuccess,
   deleteGoalFailure,
-} from './goals.slice';
+} from './slice';
 
 
 const fakeApi = {

@@ -1,1 +1,1 @@
-export { MainScreen } from './ui/main-screen';
+export { MainScreen } from './ui/main.screen';
