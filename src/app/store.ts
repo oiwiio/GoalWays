@@ -1,13 +1,12 @@
-// app/store.ts
 import { configureStore } from '@reduxjs/toolkit';
 import createSagaMiddleware from 'redux-saga';
 import { authReducer } from '../features/auth';
 import { registerReducer } from '../features/register';
-import { forgotPasswordReducer } from '../features/forgot-password';  
-import { confirmReducer } from '../features/confirm';                  
+import { forgotPasswordReducer } from '../features/forgot-password';
+import { confirmReducer } from '../features/confirm';
 import { goalsReducer } from '../features/goals';
 import { settingsReducer } from '../features/settings';
-import { rootSaga } from './saga';
+import { rootSaga } from './saga';  
 
 const sagaMiddleware = createSagaMiddleware();
 
@@ -15,8 +14,8 @@ export const store = configureStore({
   reducer: {
     auth: authReducer,
     register: registerReducer,
-    forgotPassword: forgotPasswordReducer,   
-    confirm: confirmReducer,                 
+    forgotPassword: forgotPasswordReducer,
+    confirm: confirmReducer,
     goals: goalsReducer,
     settings: settingsReducer,
   },
