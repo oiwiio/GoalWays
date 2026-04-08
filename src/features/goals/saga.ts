@@ -21,147 +21,176 @@ import {
   deleteGoalSuccess,
   deleteGoalFailure,
 } from './slice';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { goalsApi } from '../../shared/api/goals';
+import { AxiosResponse } from 'axios';
+import { ApiResponse } from '../../shared/api/types';
 
+// тип для ответа с пагинацией (как в документации)
+interface PageResponse<T> {
+  content: T[];
+  totalPages: number;
+  totalElements: number;
+  number: number;
+  size: number;
+  first: boolean;
+  last: boolean;
+  empty: boolean;
+}
 
-const fakeApi = {
-  fetchGoals: (): Promise<Goal[]> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve([
-          {
-            id: '1',
-            title: 'Выучить React Native',
-            description: 'Освоить основы и создать несколько проектов',
-            category: 'Учеба',
-            deadline: '2025-06-01',
-            progress: 45,
-            priority: 'high',
-            status: 'in_progress',
-            createdAt: new Date().toISOString(),
-          },
-          {
-            id: '2',
-            title: 'Сдать курсовую',
-            description: 'Закончить проект и подготовить отчет',
-            category: 'Учеба',
-            deadline: '2025-05-15',
-            progress: 70,
-            priority: 'medium',
-            status: 'in_progress',
-            createdAt: new Date().toISOString(),
-          },
-          {
-            id: '3',
-            title: 'Пробежать марафон',
-            description: 'Подготовка к забегу на 10 км',
-            category: 'Здоровье',
-            deadline: '2025-08-20',
-            progress: 25,
-            priority: 'low',
-            status: 'in_progress',
-            createdAt: new Date().toISOString(),
-          },
-        ]);
-      }, 500);
-    });
-  },
+type GoalsResponse = AxiosResponse<ApiResponse<PageResponse<Goal>>>;
+type SingleGoalResponse = AxiosResponse<ApiResponse<Goal>>;
 
-  createGoal: (goal: Omit<Goal, 'id' | 'createdAt'>): Promise<Goal> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          ...goal,
-          id: Date.now().toString(),
-          createdAt: new Date().toISOString(),
-        } as Goal);
-      }, 500);
-    });
-  },
-
-  updateGoal: (goal: Goal): Promise<Goal> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(goal);
-      }, 500);
-    });
-  },
-
-  archiveGoal: (id: string): Promise<string> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(id);
-      }, 300);
-    });
-  },
-
-  restoreGoal: (id: string): Promise<string> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(id);
-      }, 300);
-    });
-  },
-
-  deleteGoal: (id: string): Promise<string> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(id);
-      }, 300);
-    });
-  },
-};
-
-function* handleFetchGoals() {
+function* handleFetchGoals(): any{
   try {
-    const goals: Goal[] = yield call(fakeApi.fetchGoals);
-    yield put(fetchGoalsSuccess(goals));
+    const token = yield call([AsyncStorage, 'getItem'], 'access_token');
+    console.log('Токен перед запросом целей:', token);
+    
+    const response = (yield call(goalsApi.fetchGoals, { page: 0, size: 10 })) as GoalsResponse;
+    
+     console.log('Полный ответ сервера (цели):', JSON.stringify(response.data, null, 2));
+
+    if (response.data.status === 'success') {
+      yield put(fetchGoalsSuccess(response.data.data.content));
+    } else {
+      yield put(fetchGoalsFailure(response.data.error || 'Ошибка загрузки целей'));
+    }
   } catch (error: any) {
-    yield put(fetchGoalsFailure(error.message || 'Ошибка загрузки целей'));
+    console.log('Ошибка загрузки целей:', error.message);
+    yield put(fetchGoalsFailure(error.message || 'Ошибка сети'));
   }
 }
 
-function* handleCreateGoal(action: PayloadAction<Omit<Goal, 'id' | 'createdAt'>>) {
+function* handleCreateGoal(action: PayloadAction<any>) {
   try {
-    const newGoal: Goal = yield call(fakeApi.createGoal, action.payload);
-    yield put(createGoalSuccess(newGoal));
+    console.log('Получены данные для создания цели:', JSON.stringify(action.payload, null, 2));
+    
+    let backendPriority = 'MEDIUM';
+    switch (action.payload.priority) {
+      case 'high':
+        backendPriority = 'HIGH';
+        break;
+      case 'medium':
+        backendPriority = 'MEDIUM';
+        break;
+      case 'low':
+        backendPriority = 'LOW';
+        break;
+    }
+
+    const payload = {
+      title: action.payload.title,
+      description: action.payload.description || '',
+      priority: backendPriority,
+      start_date: action.payload.startdate || new Date().toISOString().split('T')[0],
+      deadline: action.payload.deadline || null,
+      daily_time_minutes: action.payload.daily_time_minutes || 60,
+      stages: action.payload.stages || [
+        {
+          title: 'Базовая задача',
+          priority: 'MEDIUM',
+          estimatedMinutes: 60,
+          startsAt: new Date().toISOString().split('T')[0]
+        }
+      ]
+    };
+
+    console.log('Отправляем на сервер:', JSON.stringify(payload, null, 2));
+    
+    const response = (yield call(goalsApi.createGoal, payload)) as SingleGoalResponse;
+    
+    console.log('Ответ сервера:', response.data);
+    
+    if (response.data.status === 'success') {
+    console.log('Цель создана:', response.data.data);
+    yield put(createGoalSuccess(response.data.data));
+    yield put(fetchGoalsRequest()); 
+  }   else {
+       console.log('Ошибка от сервера:', response.data.error);
+       yield put(createGoalFailure(response.data.error || 'Ошибка создания цели'));
+}
   } catch (error: any) {
-    yield put(createGoalFailure(error.message || 'Ошибка создания цели'));
+    console.log('Критическая ошибка:', error.message);
+    console.log('Полный объект ошибки:', error);
+    yield put(createGoalFailure(error.message || 'Ошибка сети'));
   }
 }
 
 function* handleUpdateGoal(action: PayloadAction<Goal>) {
   try {
-    const updatedGoal: Goal = yield call(fakeApi.updateGoal, action.payload);
-    yield put(updateGoalSuccess(updatedGoal));
+    const updateData = {
+      title: action.payload.title,
+      description: action.payload.description,
+      priority: action.payload.priority,
+      start_date: action.payload.startdate,
+      deadline: action.payload.deadline,
+      daily_time_minutes: action.payload.daily_time_minutes,
+      stages: action.payload.stages
+    };
+    
+    const response = (yield call(
+      goalsApi.updateGoal,
+      Number(action.payload.id),
+      updateData
+    )) as SingleGoalResponse;
+    
+    if (response.data.status === 'success') {
+      yield put(updateGoalSuccess(response.data.data));
+    } else {
+      yield put(updateGoalFailure(response.data.error || 'Ошибка обновления цели'));
+    }
   } catch (error: any) {
-    yield put(updateGoalFailure(error.message || 'Ошибка обновления цели'));
+    yield put(updateGoalFailure(error.message || 'Ошибка сети'));
   }
 }
 
 function* handleArchiveGoal(action: PayloadAction<string>) {
   try {
-    const id: string = yield call(fakeApi.archiveGoal, action.payload);
-    yield put(archiveGoalSuccess(id));
+    const response = (yield call(
+      goalsApi.updateGoal,
+      Number(action.payload),
+      { status: 'ARCHIVED' }
+    )) as SingleGoalResponse;
+    
+    if (response.data.status === 'success') {
+      yield put(archiveGoalSuccess(action.payload));
+    } else {
+      yield put(archiveGoalFailure(response.data.error || 'Ошибка архивирования'));
+    }
   } catch (error: any) {
-    yield put(archiveGoalFailure(error.message || 'Ошибка архивирования'));
+    yield put(archiveGoalFailure(error.message || 'Ошибка сети'));
   }
 }
 
 function* handleRestoreGoal(action: PayloadAction<string>) {
   try {
-    const id: string = yield call(fakeApi.restoreGoal, action.payload);
-    yield put(restoreGoalSuccess(id));
+    const response = (yield call(
+      goalsApi.updateGoal,
+      Number(action.payload),
+      { status: 'IN_PROGRESS' }
+    )) as SingleGoalResponse;
+    
+    if (response.data.status === 'success') {
+      yield put(restoreGoalSuccess(action.payload));
+    } else {
+      yield put(restoreGoalFailure(response.data.error || 'Ошибка восстановления'));
+    }
   } catch (error: any) {
-    yield put(restoreGoalFailure(error.message || 'Ошибка восстановления'));
+    yield put(restoreGoalFailure(error.message || 'Ошибка сети'));
   }
 }
 
 function* handleDeleteGoal(action: PayloadAction<string>) {
   try {
-    const id: string = yield call(fakeApi.deleteGoal, action.payload);
-    yield put(deleteGoalSuccess(id));
+    const response = (yield call(goalsApi.deleteGoal, Number(action.payload))) as AxiosResponse<ApiResponse<{ message: string }>>;
+    
+    if (response.data.status === 'success') {
+      yield put(deleteGoalSuccess(action.payload));
+    } else {
+      yield put(deleteGoalFailure(response.data.error || 'Ошибка удаления'));
+    }
   } catch (error: any) {
-    yield put(deleteGoalFailure(error.message || 'Ошибка удаления'));
+    yield put(deleteGoalFailure(error.message || 'Ошибка сети'));
   }
 }
 

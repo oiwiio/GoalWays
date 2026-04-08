@@ -42,6 +42,7 @@ const goalsSlice = createSlice({
     createGoalSuccess: (state, action: PayloadAction<Goal>) => {
       state.isLoading = false;
       state.items = [action.payload, ...state.items];
+      
     },
     createGoalFailure: (state, action: PayloadAction<string>) => {
       state.isLoading = false;

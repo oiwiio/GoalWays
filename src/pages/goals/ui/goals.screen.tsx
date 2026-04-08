@@ -11,7 +11,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../../types/navigation';
+import { RootStackParamList } from '../../../app/navigation';
 import { GoalCard } from '../../../features/goals/ui/goal.card';
 import { CreateGoalModal } from '../../../features/goals/ui/create.goal.modal';
 import { Goal } from '../../../types/goal';
@@ -39,7 +39,7 @@ import {
 import { colors, spacing, borderRadius, typography, shadows } from '../../../shared/styles/theme';
 import { GoalDetailModal } from '../../../features/goals/ui/goal.detail.modal';
 import {  Task } from '../../../types/goal';
- 
+import { RootState } from '../../../app/store';
 
 type GoalsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Goals'>;
 
@@ -47,7 +47,7 @@ export const GoalsScreen = () => {
     const navigation = useNavigation<GoalsScreenNavigationProp>();
     const dispatch = useDispatch();
     const [modalVisible, setModalVisible] = useState(false);
-    const goals = useSelector(selectSortedGoals);
+    const goals = useSelector((state: RootState) => state.goals.items);
     const activeTab = useSelector(selectActiveTab);
     const inProgressCount = useSelector(selectInProgressCount);
     const completedCount = useSelector(selectCompletedCount);
@@ -70,9 +70,14 @@ export const GoalsScreen = () => {
     }, [error, dispatch]);
 
     const handleCreateGoal = (newGoal: Omit<Goal, 'id' | 'createdAt'>) => {
-        dispatch(createGoalRequest(newGoal));
-        setModalVisible(false);
-    };
+    dispatch(createGoalRequest(newGoal));
+    setModalVisible(false);
+ 
+    setTimeout(() => {
+    dispatch(fetchGoalsRequest());
+  }, 500); 
+  console.log('Обновление списка целей...');
+};
 
     const handleEditGoal = (goal: Goal) => {
     setEditingGoal(goal);

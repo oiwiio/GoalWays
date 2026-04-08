@@ -57,4 +57,15 @@ export interface ConfirmResponse {
   message: string;
 }
 
+export interface PageResponse<T> {
+  content: T[];
+  totalPages: number;
+  totalElements: number;
+  number: number;
+  size: number;
+  first: boolean;
+  last: boolean;
+  empty: boolean;
+}
+
 export type ApiResponse<T> = ApiSuccess<T> | ApiError;

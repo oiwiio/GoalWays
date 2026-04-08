@@ -27,27 +27,39 @@ export const CreateGoalModal = ({ visible, onClose, onCreateGoal }: CreateGoalMo
     const handleCreate = () => {
         if (!title.trim()) {
             Alert.alert('Ошибка', 'Введите название цели');
-            return;
-        }
+    return;
+  }
 
-        onCreateGoal({
-            title: title.trim(),
-            description: description.trim(),
-            category: category.trim() || 'Без категории',
-            deadline: deadline || null,
-            progress: 0,
-            priority: priority,
-            status: 'in_progress',
-        });
+   const goalData = {
+        title: title.trim(),
+        description: description.trim(),
+        priority: priority,
+        startdate: new Date().toISOString().split('T')[0],
+        deadline: deadline || null,
+        daily_time_minutes: 60,
+        progress: 0,
+        status: 'in_progress' as const,
+        stages: [
+    {
+         title: 'Изучить основы',
+         priority: priority === 'high' ? 'HIGH' : priority === 'medium' ? 'MEDIUM' : 'LOW',
+         estimatedMinutes: 60,
+         startsAt: new Date().toISOString().split('T')[0],
+         deadline: new Date().toISOString().split('T')[0]  
+    }
+  ]
+};
+    console.log('Вызываю onCreateGoal с данными:', goalData);  
+    onCreateGoal(goalData);
 
-        setTitle('');
-        setDescription('');
-        setCategory('');
-        setDeadline('');
-        setPriority('medium');
-        onClose();
+    // очистка
+    setTitle('');
+    setDescription('');
+    setCategory('');
+    setDeadline('');
+    setPriority('medium');
+    onClose();
     };
-
     const suggestedCategories = ['Работа', 'Учеба', 'Здоровье', 'Личное', 'Финансы'];
 
     return (
@@ -197,7 +209,7 @@ export const CreateGoalModal = ({ visible, onClose, onCreateGoal }: CreateGoalMo
             </View>
         </Modal>
     );
-};
+}
 
 const styles = StyleSheet.create({
     modalOverlay: {
