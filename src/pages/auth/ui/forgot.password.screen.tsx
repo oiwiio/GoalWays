@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, Button, Alert } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../../types/navigation';
+import { RootStackParamList } from '../../../app/navigation';
 import { resetPasswordRequest, clearStatus } from '../../../features/forgot-password/slice';
 import { selectForgotPasswordIsLoading, selectForgotPasswordError, selectForgotPasswordSuccess } from '../../../features/forgot-password/selectors';
 import styles from '../styles';

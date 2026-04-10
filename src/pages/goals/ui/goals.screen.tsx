@@ -76,7 +76,7 @@ export const GoalsScreen = () => {
     setTimeout(() => {
     dispatch(fetchGoalsRequest());
   }, 500); 
-  console.log('Обновление списка целей...');
+  console.log('Обновление списка целей..');
 };
 
     const handleEditGoal = (goal: Goal) => {

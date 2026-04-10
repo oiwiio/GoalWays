@@ -1,18 +1,18 @@
-import { all } from 'redux-saga/effects';
-import { authSaga } from '../features/auth';
-import { registerSaga } from '../features/register';
-import { forgotPasswordSaga } from '../features/forgot-password';
-import { confirmSaga } from '../features/confirm';
-import { goalsSaga } from '../features/goals';
-import { settingsSaga } from '../features/settings';
+import { fork, all } from 'redux-saga/effects';
+import { authSaga } from '../features/auth/saga';
+import { registerSaga } from '../features/register/saga';
+import { forgotPasswordSaga } from '../features/forgot-password/saga';
+import { confirmSaga } from '../features/confirm/saga';
+import { goalsSaga } from '../features/goals/saga';
+import { settingsSaga } from '../features/settings/saga';
 
-export function* rootSaga() {
+export function* rootSaga(api: any) {
   yield all([
-    authSaga(),
-    registerSaga(),
-    forgotPasswordSaga(),
-    confirmSaga(),
-    goalsSaga(),
-    settingsSaga(),
+    fork(authSaga, api),
+    fork(registerSaga, api),
+    fork(forgotPasswordSaga, api),
+    fork(confirmSaga, api),
+    fork(goalsSaga, api),
+    fork(settingsSaga, api),
   ]);
 }

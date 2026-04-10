@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { RootState } from '../../app/store';
-import { SettingsState } from './settings.slice';
+import { SettingsState } from './slice';
 
 const root = (state: RootState) => state.settings;
 

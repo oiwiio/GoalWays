@@ -21,61 +21,29 @@ import {
   deleteGoalSuccess,
   deleteGoalFailure,
 } from './slice';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { goalsApi } from '../../shared/api/goals';
-import { AxiosResponse } from 'axios';
-import { ApiResponse } from '../../shared/api/types';
 
-// тип для ответа с пагинацией (как в документации)
-interface PageResponse<T> {
-  content: T[];
-  totalPages: number;
-  totalElements: number;
-  number: number;
-  size: number;
-  first: boolean;
-  last: boolean;
-  empty: boolean;
-}
-
-type GoalsResponse = AxiosResponse<ApiResponse<PageResponse<Goal>>>;
-type SingleGoalResponse = AxiosResponse<ApiResponse<Goal>>;
-
-function* handleFetchGoals(): any{
+function* handleFetchGoals(api: any): any {
   try {
-    const token = yield call([AsyncStorage, 'getItem'], 'access_token');
-    console.log('Токен перед запросом целей:', token);
+    const response = yield call(() => api.goalsApi.fetchGoals({ page: 0, size: 10 }));
     
-    const response = (yield call(goalsApi.fetchGoals, { page: 0, size: 10 })) as GoalsResponse;
-    
-     console.log('Полный ответ сервера (цели):', JSON.stringify(response.data, null, 2));
-
     if (response.data.status === 'success') {
       yield put(fetchGoalsSuccess(response.data.data.content));
     } else {
       yield put(fetchGoalsFailure(response.data.error || 'Ошибка загрузки целей'));
     }
   } catch (error: any) {
-    console.log('Ошибка загрузки целей:', error.message);
+    console.log('❌ Ошибка загрузки целей:', error.message);
     yield put(fetchGoalsFailure(error.message || 'Ошибка сети'));
   }
 }
 
-function* handleCreateGoal(action: PayloadAction<any>) {
+function* handleCreateGoal(api: any, action: PayloadAction<any>): any {
   try {
-    console.log('Получены данные для создания цели:', JSON.stringify(action.payload, null, 2));
-    
     let backendPriority = 'MEDIUM';
     switch (action.payload.priority) {
-      case 'high':
-        backendPriority = 'HIGH';
-        break;
-      case 'medium':
-        backendPriority = 'MEDIUM';
-        break;
-      case 'low':
-        backendPriority = 'LOW';
-        break;
+      case 'high': backendPriority = 'HIGH'; break;
+      case 'medium': backendPriority = 'MEDIUM'; break;
+      case 'low': backendPriority = 'LOW'; break;
     }
 
     const payload = {
@@ -85,38 +53,35 @@ function* handleCreateGoal(action: PayloadAction<any>) {
       start_date: action.payload.startdate || new Date().toISOString().split('T')[0],
       deadline: action.payload.deadline || null,
       daily_time_minutes: action.payload.daily_time_minutes || 60,
-      stages: action.payload.stages || [
-        {
-          title: 'Базовая задача',
-          priority: 'MEDIUM',
-          estimatedMinutes: 60,
-          startsAt: new Date().toISOString().split('T')[0]
-        }
-      ]
+      stages: action.payload.stages || [{
+        title: 'Базовая задача',
+        priority: 'MEDIUM',
+        estimatedMinutes: 60,
+        startsAt: new Date().toISOString().split('T')[0]
+      }]
     };
 
     console.log('Отправляем на сервер:', JSON.stringify(payload, null, 2));
     
-    const response = (yield call(goalsApi.createGoal, payload)) as SingleGoalResponse;
+    const response = yield call(() => api.goalsApi.createGoal(payload));
     
     console.log('Ответ сервера:', response.data);
     
     if (response.data.status === 'success') {
-    console.log('Цель создана:', response.data.data);
-    yield put(createGoalSuccess(response.data.data));
-    yield put(fetchGoalsRequest()); 
-  }   else {
-       console.log('Ошибка от сервера:', response.data.error);
-       yield put(createGoalFailure(response.data.error || 'Ошибка создания цели'));
-}
+      console.log('Цель создана:', response.data.data);
+      yield put(createGoalSuccess(response.data.data));
+      yield put(fetchGoalsRequest());
+    } else {
+      console.log('Ошибка от сервера:', response.data.error);
+      yield put(createGoalFailure(response.data.error || 'Ошибка создания цели'));
+    }
   } catch (error: any) {
     console.log('Критическая ошибка:', error.message);
-    console.log('Полный объект ошибки:', error);
     yield put(createGoalFailure(error.message || 'Ошибка сети'));
   }
 }
 
-function* handleUpdateGoal(action: PayloadAction<Goal>) {
+function* handleUpdateGoal(api: any, action: PayloadAction<Goal>): any {
   try {
     const updateData = {
       title: action.payload.title,
@@ -128,11 +93,7 @@ function* handleUpdateGoal(action: PayloadAction<Goal>) {
       stages: action.payload.stages
     };
     
-    const response = (yield call(
-      goalsApi.updateGoal,
-      Number(action.payload.id),
-      updateData
-    )) as SingleGoalResponse;
+    const response = yield call(() => api.goalsApi.updateGoal(Number(action.payload.id), updateData));
     
     if (response.data.status === 'success') {
       yield put(updateGoalSuccess(response.data.data));
@@ -144,13 +105,9 @@ function* handleUpdateGoal(action: PayloadAction<Goal>) {
   }
 }
 
-function* handleArchiveGoal(action: PayloadAction<string>) {
+function* handleArchiveGoal(api: any, action: PayloadAction<string>): any {
   try {
-    const response = (yield call(
-      goalsApi.updateGoal,
-      Number(action.payload),
-      { status: 'ARCHIVED' }
-    )) as SingleGoalResponse;
+    const response = yield call(() => api.goalsApi.updateGoal(Number(action.payload), { status: 'ARCHIVED' }));
     
     if (response.data.status === 'success') {
       yield put(archiveGoalSuccess(action.payload));
@@ -162,13 +119,9 @@ function* handleArchiveGoal(action: PayloadAction<string>) {
   }
 }
 
-function* handleRestoreGoal(action: PayloadAction<string>) {
+function* handleRestoreGoal(api: any, action: PayloadAction<string>): any {
   try {
-    const response = (yield call(
-      goalsApi.updateGoal,
-      Number(action.payload),
-      { status: 'IN_PROGRESS' }
-    )) as SingleGoalResponse;
+    const response = yield call(() => api.goalsApi.updateGoal(Number(action.payload), { status: 'IN_PROGRESS' }));
     
     if (response.data.status === 'success') {
       yield put(restoreGoalSuccess(action.payload));
@@ -180,9 +133,9 @@ function* handleRestoreGoal(action: PayloadAction<string>) {
   }
 }
 
-function* handleDeleteGoal(action: PayloadAction<string>) {
+function* handleDeleteGoal(api: any, action: PayloadAction<string>): any {
   try {
-    const response = (yield call(goalsApi.deleteGoal, Number(action.payload))) as AxiosResponse<ApiResponse<{ message: string }>>;
+    const response = yield call(() => api.goalsApi.deleteGoal(Number(action.payload)));
     
     if (response.data.status === 'success') {
       yield put(deleteGoalSuccess(action.payload));
@@ -194,11 +147,11 @@ function* handleDeleteGoal(action: PayloadAction<string>) {
   }
 }
 
-export function* goalsSaga() {
-  yield takeLatest(fetchGoalsRequest.type, handleFetchGoals);
-  yield takeLatest(createGoalRequest.type, handleCreateGoal);
-  yield takeLatest(updateGoalRequest.type, handleUpdateGoal);
-  yield takeLatest(archiveGoalRequest.type, handleArchiveGoal);
-  yield takeLatest(restoreGoalRequest.type, handleRestoreGoal);
-  yield takeLatest(deleteGoalRequest.type, handleDeleteGoal);
+export function* goalsSaga(api: any) {
+  yield takeLatest(fetchGoalsRequest.type, handleFetchGoals, api);
+  yield takeLatest(createGoalRequest.type, handleCreateGoal, api);
+  yield takeLatest(updateGoalRequest.type, handleUpdateGoal, api);
+  yield takeLatest(archiveGoalRequest.type, handleArchiveGoal, api);
+  yield takeLatest(restoreGoalRequest.type, handleRestoreGoal, api);
+  yield takeLatest(deleteGoalRequest.type, handleDeleteGoal, api);
 }

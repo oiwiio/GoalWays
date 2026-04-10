@@ -1,7 +1,6 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { loginRequest, loginSuccess, loginFailure } from './slice';
-import { authApi } from '../../shared/api/auth';
 import { LoginResponse, ApiSuccess, ApiError } from '../../shared/api/types';
 import { AxiosResponse } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -12,13 +11,14 @@ type LoginPayload = {
 };
 
 function* handleLogin(
+  api: any,
   action: PayloadAction<LoginPayload>
 ): Generator<any, void, AxiosResponse<ApiSuccess<LoginResponse> | ApiError>> {
   try {
     const { username, password } = action.payload;
     console.log('Получены данные:', { username, password });
     
-    const response = yield call(() => authApi.login({ username, password }));
+    const response = yield call(() => api.authApi.login({ username, password }));
     console.log('Ответ сервера:', response.data);
     
     if (response.data.status === 'success') {
@@ -45,6 +45,6 @@ function* handleLogin(
   }
 }
 
-export function* authSaga() {
-  yield takeLatest(loginRequest.type, handleLogin);
+export function* authSaga(api: any) {
+  yield takeLatest(loginRequest.type, handleLogin, api);
 }

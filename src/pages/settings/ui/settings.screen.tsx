@@ -3,16 +3,16 @@ import { View, Text, ScrollView, Switch, Alert, Linking, Modal } from 'react-nat
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../../types/navigation';
+import { RootStackParamList } from '../../../app/navigation';
 import { SettingsSection, SettingsItem } from '../../../features/settings';
 import { 
   setNotifications, 
   logoutRequest 
-} from '../../../features/settings/settings.slice';
+} from '../../../features/settings/slice';
 import { 
   selectNotifications,
   selectSettingsError 
-} from '../../../features/settings/settings.selectors';
+} from '../../../features/settings/selectors';
 import { ChangeEmailModal } from '../../../features/settings/ui/change.email.modal';
 import { ChangePasswordModal } from '../../../features/settings/ui/change.password.modal';
 import { ChangeNicknameModal } from '../../../features/settings/ui/change.nickname.modal';

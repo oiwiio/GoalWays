@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, Button, Alert } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../../types/navigation';
+import { RootStackParamList } from '../../../app/navigation';
 import { loginRequest } from '../../../features/auth/slice';
 import { useSelector, useDispatch } from 'react-redux';
 import { 
