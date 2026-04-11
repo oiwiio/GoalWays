@@ -46,6 +46,10 @@ export const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
     },
+    leftFooter: {
+        flexDirection: 'row',
+        gap: 8,
+    },
     date: {
         fontSize: 13,
         color: '#666666',
@@ -53,15 +57,15 @@ export const styles = StyleSheet.create({
     rightFooter: {
         flexDirection: 'row',
         alignItems: 'center',
+        gap: 8,
     },
     statusBadge: {
         fontSize: 12,
-        color: '#666666',
-        marginRight: 8,
-        backgroundColor: '#f0f0f0',
+        color: '#333',
         paddingHorizontal: 8,
         paddingVertical: 2,
         borderRadius: 4,
+        overflow: 'hidden',
     },
     progress: {
         fontSize: 14,
@@ -96,31 +100,4 @@ export const styles = StyleSheet.create({
     deleteText: {
         color: '#ff3b30',
     },
-
-    progressContainer: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  marginBottom: 12,
-  marginTop: 8,
-},
-progressBar: {
-  flex: 1,
-  height: 6,
-  backgroundColor: '#e0e0e0',
-  borderRadius: 3,
-  marginRight: 8,
-  overflow: 'hidden',
-},
-progressFill: {
-  height: '100%',
-  backgroundColor: '#007AFF',
-  borderRadius: 3,
-},
-progressText: {
-  fontSize: 14,
-  fontWeight: '500',
-  color: '#000000',
-  minWidth: 40,
-  textAlign: 'right',
-},
 });

@@ -53,12 +53,6 @@ function* handleCreateGoal(api: any, action: PayloadAction<any>): any {
       start_date: action.payload.startdate || new Date().toISOString().split('T')[0],
       deadline: action.payload.deadline || null,
       daily_time_minutes: action.payload.daily_time_minutes || 60,
-      stages: action.payload.stages || [{
-        title: 'Базовая задача',
-        priority: 'MEDIUM',
-        estimatedMinutes: 60,
-        startsAt: new Date().toISOString().split('T')[0]
-      }]
     };
 
     console.log('Отправляем на сервер:', JSON.stringify(payload, null, 2));
@@ -82,27 +76,36 @@ function* handleCreateGoal(api: any, action: PayloadAction<any>): any {
 }
 
 function* handleUpdateGoal(api: any, action: PayloadAction<Goal>): any {
+  console.log('Сага получила:', JSON.stringify(action.payload, null, 2));
   try {
     const updateData = {
       title: action.payload.title,
       description: action.payload.description,
-      priority: action.payload.priority,
+      priority: action.payload.priority?.toUpperCase() || 'MEDIUM',
       start_date: action.payload.startdate,
       deadline: action.payload.deadline,
       daily_time_minutes: action.payload.daily_time_minutes,
-      stages: action.payload.stages
+      progress: action.payload.progress,
+      status: action.payload.status?.toUpperCase(),
+      category: action.payload.category,
+      
     };
+    
+    
+    console.log('Обновление цели (ID:', Number(action.payload.id), '):', JSON.stringify(updateData, null, 2));
     
     const response = yield call(() => api.goalsApi.updateGoal(Number(action.payload.id), updateData));
     
     if (response.data.status === 'success') {
       yield put(updateGoalSuccess(response.data.data));
+      yield put(fetchGoalsRequest());
     } else {
       yield put(updateGoalFailure(response.data.error || 'Ошибка обновления цели'));
     }
   } catch (error: any) {
     yield put(updateGoalFailure(error.message || 'Ошибка сети'));
   }
+    console.log('Запрашиваем обновлённый список целей');
 }
 
 function* handleArchiveGoal(api: any, action: PayloadAction<string>): any {

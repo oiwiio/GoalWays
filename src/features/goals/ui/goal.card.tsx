@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Modal, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, Alert } from 'react-native';
 import { Goal } from '../../../types/goal';
 import { styles } from './goal.card.styles';
 
@@ -41,39 +41,14 @@ export const GoalCard = ({
         }
     };
 
-    const handleMenuPress = () => {
-        setMenuVisible(true);
-    };
-
-    const handleEdit = () => {
-        setMenuVisible(false);
-        onEdit(goal);
-    };
-
-    const handleArchive = () => {
-        setMenuVisible(false);
-        onArchive(goal);
-    };
-
-    const handleRestore = () => {
-        setMenuVisible(false);
-        if (onRestore) onRestore(goal);
-    };
-
-    const handleDelete = () => {
-        setMenuVisible(false);
-        Alert.alert(
-            'Удалить цель',
-            `Вы уверены, что хотите удалить "${goal.title}"?`,
-            [
-                { text: 'Отмена', style: 'cancel' },
-                { 
-                    text: 'Удалить', 
-                    onPress: () => onDelete(goal),
-                    style: 'destructive'
-                },
-            ]
-        );
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case 'in_progress': return '#007AFF';
+            case 'completed': return '#34C759';
+            case 'frozen': return '#FF9500';
+            case 'archived': return '#8E8E93';
+            default: return '#666';
+        }
     };
 
     return (
@@ -84,7 +59,7 @@ export const GoalCard = ({
                         <Text style={styles.priorityIcon}>{getPriorityIcon(goal.priority)}</Text>
                         <Text style={styles.title} numberOfLines={1}>{goal.title}</Text>
                     </View>
-                    <TouchableOpacity onPress={handleMenuPress}>
+                    <TouchableOpacity onPress={() => setMenuVisible(true)}>
                         <Text style={styles.menuButton}>⋯</Text>
                     </TouchableOpacity>
                 </View>
@@ -95,67 +70,47 @@ export const GoalCard = ({
                     </Text>
                 )}
 
-                <View style={styles.progressContainer}>
-                    <View style={styles.progressBar}>
-                        <View 
-                            style={[
-                            styles.progressFill, 
-                            { width: `${goal.progress}%` }
-                            ]} 
-                         />
-                </View>
-                    <Text style={styles.progressText}>{goal.progress}%</Text>
-                </View>
-
                 <View style={styles.footer}>
-                    {goal.deadline && (
-                        <Text style={styles.date}>
-                            {new Date(goal.deadline).toLocaleDateString('ru-RU')}
-                        </Text>
-                    )}
-                    <View style={styles.rightFooter}>
-                        {goal.status !== 'in_progress' && (
-                            <Text style={styles.statusBadge}>{getStatusText(goal.status)}</Text>
+                     <View style={styles.leftFooter}>
+                        {goal.startdate && (
+                        <Text style={styles.date}>📅 {new Date(goal.startdate).toLocaleDateString('ru-RU')}</Text>
                         )}
-                        
+                            {goal.deadline && (
+                        <Text style={styles.date}>→ {new Date(goal.deadline).toLocaleDateString('ru-RU')}</Text>
+                        )}
+                </View>
+                    <View style={styles.rightFooter}>
+                        <Text style={[styles.statusBadge, { backgroundColor: getStatusColor(goal.status) + '20' }]}>
+                            {getStatusText(goal.status)}
+                        </Text>
+                        <Text style={styles.progress}>{goal.progress}%</Text>
                     </View>
                 </View>
             </TouchableOpacity>
 
             {/* Меню действий */}
-            <Modal
-                visible={menuVisible}
-                transparent={true}
-                animationType="fade"
-                onRequestClose={() => setMenuVisible(false)}
-            >
-                <TouchableOpacity 
-                    style={styles.modalOverlay} 
-                    activeOpacity={1} 
-                    onPress={() => setMenuVisible(false)}
-                >
+            <Modal visible={menuVisible} transparent animationType="fade" onRequestClose={() => setMenuVisible(false)}>
+                <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setMenuVisible(false)}>
                     <View style={styles.menuContainer}>
                         {goal.status === 'archived' ? (
-                            // Для архивных целей — восстановление
-                            <TouchableOpacity style={styles.menuItem} onPress={handleRestore}>
-                                <Text style={styles.menuItemText}>↩️ Восстановить</Text>
+                            <TouchableOpacity style={styles.menuItem} onPress={() => { setMenuVisible(false); onRestore?.(goal); }}>
+                                <Text style={styles.menuItemText}>Восстановить</Text>
                             </TouchableOpacity>
                         ) : (
-                            // Для активных целей — редактирование и архивация
                             <>
-                                <TouchableOpacity style={styles.menuItem} onPress={handleEdit}>
-                                    <Text style={styles.menuItemText}>✏️ Редактировать</Text>
+                                <TouchableOpacity style={styles.menuItem} onPress={() => { setMenuVisible(false); onEdit(goal); }}>
+                                    <Text style={styles.menuItemText}>Редактировать</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity style={styles.menuItem} onPress={handleArchive}>
-                                    <Text style={styles.menuItemText}>📦 В архив</Text>
+                                <TouchableOpacity style={styles.menuItem} onPress={() => { setMenuVisible(false); onArchive(goal); }}>
+                                    <Text style={styles.menuItemText}>В архив</Text>
                                 </TouchableOpacity>
                             </>
                         )}
-                        <TouchableOpacity style={[styles.menuItem, styles.deleteItem]} onPress={handleDelete}>
-                            <Text style={[styles.menuItemText, styles.deleteText]}>🗑️ Удалить</Text>
+                        <TouchableOpacity style={[styles.menuItem, styles.deleteItem]} onPress={() => { setMenuVisible(false); onDelete(goal); }}>
+                            <Text style={[styles.menuItemText, styles.deleteText]}>Удалить</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.menuItem} onPress={() => setMenuVisible(false)}>
-                            <Text style={styles.menuItemText}>❌ Отмена</Text>
+                            <Text style={styles.menuItemText}>Отмена</Text>
                         </TouchableOpacity>
                     </View>
                 </TouchableOpacity>
@@ -163,4 +118,3 @@ export const GoalCard = ({
         </>
     );
 };
-

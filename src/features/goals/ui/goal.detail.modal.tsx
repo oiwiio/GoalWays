@@ -63,7 +63,7 @@ export const GoalDetailModal = ({
                 const goal = item as Goal;
                 setCategory(goal.category || '');
                 setStatus(goal.status);
-                setTasks(goal.tasks || []);
+                
             }
         }
     }, [item, mode]);
@@ -113,12 +113,13 @@ export const GoalDetailModal = ({
                 ...baseFields,
                 category: category.trim() || 'Без категории',
                 status,
-                tasks,
             } as Goal;
         } else {
             updatedItem = baseFields as Task;
         }
-
+        console.log('Данные из модалки:', JSON.stringify(updatedItem, null, 2));
+        onSave(updatedItem);
+        
         onSave(updatedItem);
         onClose();
     };
@@ -220,7 +221,7 @@ export const GoalDetailModal = ({
                                 value={progress}
                                 onChangeText={setProgress}
                                 placeholder="0-100"
-                                keyboardType="numeric"
+                                keyboardType="default"
                                 maxLength={3}
                             />
                         </View>
