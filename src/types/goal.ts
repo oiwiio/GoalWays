@@ -23,7 +23,7 @@ export type Goal = {
     priority: 'high' | 'medium' | 'low';
     status: 'in_progress' | 'completed' | 'frozen' | 'archived';
     createdAt?: string;
-    tasks?: Task[];
-    //results?: Result[];
-    stages?: any[];
+    // tasks?: Task[];
+    // results?: Result[];
+    // stages?: any[];
 };

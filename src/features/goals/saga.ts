@@ -22,19 +22,30 @@ import {
   deleteGoalFailure,
 } from './slice';
 
+const normalizeGoal = (goal: any): Goal => ({
+  ...goal,
+  priority: goal.priority?.toLowerCase(),
+  status: goal.status?.toLowerCase(),
+  startdate: goal.start_date,
+
+});
+
 function* handleFetchGoals(api: any): any {
   try {
     const response = yield call(() => api.goalsApi.fetchGoals({ page: 0, size: 10 }));
+    console.log('FETCHED GOALS:', response.data.data.content);
     
     if (response.data.status === 'success') {
-      yield put(fetchGoalsSuccess(response.data.data.content));
+      const normalizedGoals = response.data.data.content.map(normalizeGoal);
+      yield put(fetchGoalsSuccess(normalizedGoals));
     } else {
       yield put(fetchGoalsFailure(response.data.error || 'Ошибка загрузки целей'));
     }
   } catch (error: any) {
-    console.log('❌ Ошибка загрузки целей:', error.message);
+    console.log('Ошибка загрузки целей:', error.message);
     yield put(fetchGoalsFailure(error.message || 'Ошибка сети'));
-  }
+  } 
+  
 }
 
 function* handleCreateGoal(api: any, action: PayloadAction<any>): any {
@@ -73,40 +84,66 @@ function* handleCreateGoal(api: any, action: PayloadAction<any>): any {
     console.log('Критическая ошибка:', error.message);
     yield put(createGoalFailure(error.message || 'Ошибка сети'));
   }
-}
+} 
+
+const mapCategoryToBackend = (cat: string) => {
+  switch (cat) {
+    case 'Работа': return 'WORK';
+    case 'Учеба': return 'STUDY';
+    case 'Здоровье': return 'HEALTH';
+    default: return 'OTHER';
+  }
+};
 
 function* handleUpdateGoal(api: any, action: PayloadAction<Goal>): any {
   console.log('Сага получила:', JSON.stringify(action.payload, null, 2));
   try {
-    const updateData = {
+    const updateData: any = {
       title: action.payload.title,
       description: action.payload.description,
-      priority: action.payload.priority?.toUpperCase() || 'MEDIUM',
-      start_date: action.payload.startdate,
-      deadline: action.payload.deadline,
-      daily_time_minutes: action.payload.daily_time_minutes,
+      priority: action.payload.priority?.toUpperCase(),
       progress: action.payload.progress,
       status: action.payload.status?.toUpperCase(),
-      category: action.payload.category,
-      
     };
+
+    // добавляем только если есть
+    if (action.payload.startdate) {
+      updateData.start_date = action.payload.startdate;
+    }
+
+    if (action.payload.deadline) {
+      updateData.deadline = action.payload.deadline;
+    }
+
+    if (action.payload.category) {
+      updateData.category = action.payload.category;
+    }
+
+    if (action.payload.daily_time_minutes) {
+      updateData.daily_time_minutes = action.payload.daily_time_minutes;
+    }
     
-    
+    console.log('FINAL UPDATE DATA:', JSON.stringify(updateData, null, 2));
     console.log('Обновление цели (ID:', Number(action.payload.id), '):', JSON.stringify(updateData, null, 2));
     
+    
     const response = yield call(() => api.goalsApi.updateGoal(Number(action.payload.id), updateData));
+    console.log('RESPONSE FROM BACKEND:', JSON.stringify(response.data, null, 2));
     
     if (response.data.status === 'success') {
-      yield put(updateGoalSuccess(response.data.data));
+      const normalized = normalizeGoal(response.data.data);
+
+      yield put(updateGoalSuccess(normalized));
       yield put(fetchGoalsRequest());
     } else {
       yield put(updateGoalFailure(response.data.error || 'Ошибка обновления цели'));
     }
   } catch (error: any) {
+    console.log('фуллэррор:', error.response?.data);
     yield put(updateGoalFailure(error.message || 'Ошибка сети'));
   }
-    console.log('Запрашиваем обновлённый список целей');
-}
+    
+  }
 
 function* handleArchiveGoal(api: any, action: PayloadAction<string>): any {
   try {
@@ -120,6 +157,7 @@ function* handleArchiveGoal(api: any, action: PayloadAction<string>): any {
   } catch (error: any) {
     yield put(archiveGoalFailure(error.message || 'Ошибка сети'));
   }
+  
 }
 
 function* handleRestoreGoal(api: any, action: PayloadAction<string>): any {
@@ -148,7 +186,9 @@ function* handleDeleteGoal(api: any, action: PayloadAction<string>): any {
   } catch (error: any) {
     yield put(deleteGoalFailure(error.message || 'Ошибка сети'));
   }
-}
+} 
+
+
 
 export function* goalsSaga(api: any) {
   yield takeLatest(fetchGoalsRequest.type, handleFetchGoals, api);

@@ -128,16 +128,20 @@ export const GoalsScreen = () => {
     setEditModalVisible(true);
 };
 
+
     const handleSaveItem = (updatedItem: Goal | Task) => {
-    if ('tasks' in updatedItem) {
-        // это Goal
-        dispatch(updateGoalRequest(updatedItem as Goal));
-    } else {
-        // это Task
-        // dispatch(updateTaskRequest(updatedItem as Task));
-        console.log('Сохраняем задачу:', updatedItem);
-    }
-};
+    dispatch(updateGoalRequest(updatedItem as Goal));
+    };
+    // const handleSaveItem = (updatedItem: Goal | Task) => {
+    // if ('tasks' in updatedItem) {
+    //     // это Goal
+    //     dispatch(updateGoalRequest(updatedItem as Goal));
+    // } else {
+    //     // это Task
+    //     // dispatch(updateTaskRequest(updatedItem as Task));
+    //     console.log('Сохраняем задачу:', updatedItem);
+    // }
+    // };
 
     return (
         <SafeAreaView style={styles.container}>

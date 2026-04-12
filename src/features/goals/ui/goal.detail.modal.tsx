@@ -119,8 +119,6 @@ export const GoalDetailModal = ({
         }
         console.log('Данные из модалки:', JSON.stringify(updatedItem, null, 2));
         onSave(updatedItem);
-        
-        onSave(updatedItem);
         onClose();
     };
 
