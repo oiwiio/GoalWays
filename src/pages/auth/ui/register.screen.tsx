@@ -41,7 +41,7 @@ export const RegisterScreen = ({ navigation }: Props) => {
 
   // Валидация пароля (12+ символов, цифры, спецсимволы) - ЗАКОММЕНТИРОВАНО
   const validatePassword = (password: string) => {
-    // 🔒 Строгая валидация - раскомментируй когда будет готов бэкенд
+    // Строгая валидация - раскомментируй когда будет готов бэкенд
     /*
     if (password.length < 12) {
       setPasswordError('Минимум 12 символов');
@@ -58,7 +58,7 @@ export const RegisterScreen = ({ navigation }: Props) => {
     }
     */
     
-    // ✅ Простая валидация для тестов
+    // Простая валидация для тестов
     if (password.length < 3) {
       setPasswordError('Минимум 3 символа');
       return false;
@@ -113,7 +113,8 @@ export const RegisterScreen = ({ navigation }: Props) => {
       <Text style={styles.title}>Регистрация</Text>
 
       <TextInput
-        style={styles.input}
+        style={[styles.input, { color: '#000000' }]}
+        placeholderTextColor="#999"
         placeholder="Имя пользователя"
         value={username}
         onChangeText={setUsername}
@@ -121,7 +122,8 @@ export const RegisterScreen = ({ navigation }: Props) => {
       />
 
       <TextInput
-        style={[styles.input, emailError ? styles.inputError : null]}
+        style={[styles.input, emailError ? styles.inputError : null, { color: '#000000' }]}
+        placeholderTextColor="#999"
         placeholder="Email"
         value={email}
         onChangeText={(text) => {
@@ -135,7 +137,8 @@ export const RegisterScreen = ({ navigation }: Props) => {
       {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
 
       <TextInput
-        style={[styles.input, passwordError ? styles.inputError : null]}
+        style={[styles.input, passwordError ? styles.inputError : null, { color: '#000000' }]}
+        placeholderTextColor="#999"
         placeholder="Пароль"
         value={password}
         onChangeText={(text) => {
@@ -149,7 +152,8 @@ export const RegisterScreen = ({ navigation }: Props) => {
       {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
 
       <TextInput
-        style={[styles.input, confirmPasswordError ? styles.inputError : null]}
+        style={[styles.input, confirmPasswordError ? styles.inputError : null, { color: '#000000' }]}
+        placeholderTextColor="#999"
         placeholder="Повторите пароль"
         value={confirmPassword}
         onChangeText={(text) => {

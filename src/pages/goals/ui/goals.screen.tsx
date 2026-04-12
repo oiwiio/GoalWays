@@ -40,6 +40,7 @@ import { colors, spacing, borderRadius, typography, shadows } from '../../../sha
 import { GoalDetailModal } from '../../../features/goals/ui/goal.detail.modal';
 import {  Task } from '../../../types/goal';
 import { RootState } from '../../../app/store';
+import { ScrollView } from 'react-native'; 
 
 type GoalsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Goals'>;
 
@@ -151,49 +152,53 @@ export const GoalsScreen = () => {
                 </TouchableOpacity>
             </View>
 
-            {/* табы */}
-            <View style={styles.tabContainer}>
-                <TouchableOpacity
-                    style={[styles.tab, activeTab === 'in_progress' && styles.activeTab]}
-                    onPress={() => dispatch(setActiveTab('in_progress'))}
-                >
-                    <Text style={[styles.tabText, activeTab === 'in_progress' && styles.activeTabText]}>
-                        В процессе ({inProgressCount})
-                    </Text>
-                </TouchableOpacity>
+    {/* табы */}
+        <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.tabScrollContainer}
+        >
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'in_progress' && styles.activeTab]}
+          onPress={() => dispatch(setActiveTab('in_progress'))}
+        >
+            <Text style={[styles.tabText, activeTab === 'in_progress' && styles.activeTabText]} numberOfLines={1}>
+              В работе ({inProgressCount})
+            </Text>
+        </TouchableOpacity>
 
-                <TouchableOpacity
-                    style={[styles.tab, activeTab === 'completed' && styles.activeTab]}
-                    onPress={() => dispatch(setActiveTab('completed'))}
-                >
-                    <Text style={[styles.tabText, activeTab === 'completed' && styles.activeTabText]}>
-                        Завершённые ({completedCount})
-                    </Text>
-                </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'completed' && styles.activeTab]}
+          onPress={() => dispatch(setActiveTab('completed'))}
+        >
+          <Text style={[styles.tabText, activeTab === 'completed' && styles.activeTabText]} numberOfLines={1}>
+            Готово ({completedCount})
+          </Text>
+        </TouchableOpacity>
 
-                <TouchableOpacity
-                    style={[styles.tab, activeTab === 'frozen' && styles.activeTab]}
-                    onPress={() => dispatch(setActiveTab('frozen'))}
-                >
-                    <Text style={[styles.tabText, activeTab === 'frozen' && styles.activeTabText]}>
-                        Замороженные ({frozenCount})
-                    </Text>
-                </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'frozen' && styles.activeTab]}
+          onPress={() => dispatch(setActiveTab('frozen'))}
+        >
+          <Text style={[styles.tabText, activeTab === 'frozen' && styles.activeTabText]} numberOfLines={1}>
+            Заморож. ({frozenCount})
+          </Text>
+        </TouchableOpacity>
 
-                <TouchableOpacity
-                    style={[styles.tab, activeTab === 'archived' && styles.activeTab]}
-                    onPress={() => dispatch(setActiveTab('archived'))}
-                >
-                    <Text style={[styles.tabText, activeTab === 'archived' && styles.activeTabText]}>
-                        Архив ({archivedCount})
-                    </Text>
-                </TouchableOpacity>
-            </View>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'archived' && styles.activeTab]}
+          onPress={() => dispatch(setActiveTab('archived'))}
+        >
+        <Text style={[styles.tabText, activeTab === 'archived' && styles.activeTabText]} numberOfLines={1}>
+          Архив ({archivedCount})
+        </Text>
+        </TouchableOpacity>
+        </ScrollView>
 
-            {/* список целей */}
+        {/* список целей */}
             {isLoading && goals.length === 0 ? (
                 <View style={styles.emptyContainer}>
-                    <Text style={styles.emptyText}>Загрузка...</Text>
+                    <Text style={styles.emptyText}>Загрузка..</Text>
                 </View>
             ) : goals.length > 0 ? (
                 <FlatList
@@ -241,14 +246,14 @@ export const GoalsScreen = () => {
 
             
             <GoalDetailModal
-            visible={editModalVisible}
-            mode="goal"                  
-            item={editingGoal}            
-            onClose={() => {
-            setEditModalVisible(false);
-            setEditingGoal(null);
-            }}
-            onSave={handleSaveItem}
+                visible={editModalVisible}
+                mode="goal"                  
+                item={editingGoal}            
+                onClose={() => {
+                setEditModalVisible(false);
+                setEditingGoal(null);
+                }}
+                onSave={handleSaveItem}
             />
             
         </SafeAreaView>
@@ -287,32 +292,6 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         lineHeight: 32,
     },
-    tabContainer: {
-        flexDirection: 'row',
-        backgroundColor: colors.surface,
-        paddingHorizontal: spacing.l,
-        paddingVertical: spacing.s,
-        borderBottomWidth: 1,
-        borderBottomColor: colors.borderLight,
-    },
-    tab: {
-        flex: 1,
-        paddingVertical: spacing.s,
-        alignItems: 'center',
-        borderBottomWidth: 2,
-        borderBottomColor: 'transparent',
-    },
-    activeTab: {
-        borderBottomColor: colors.primary,
-    },
-    tabText: {
-        ...typography.body,
-        color: colors.textSecondary,
-    },
-    activeTabText: {
-        color: colors.primary,
-        fontWeight: '600',
-    },
     listContent: {
         paddingVertical: spacing.s,
     },
@@ -338,4 +317,35 @@ const styles = StyleSheet.create({
         ...typography.button,
         color: colors.surface,
     },
+    
+    tabScrollContainer: {
+    flexGrow: 1,
+    paddingHorizontal: spacing.m,
+    paddingVertical: spacing.s,
+    gap: spacing.s,
+    },
+    tab: {
+      paddingHorizontal: spacing.m,
+      paddingVertical: spacing.xs,
+      borderRadius: borderRadius.round,  
+      backgroundColor: colors.borderLight,
+      alignItems: 'center',
+      justifyContent: 'center',
+      minWidth: 60,
+      height: 36,
+    },
+    activeTab: {
+      backgroundColor: colors.primary,
+    },
+    tabText: {
+      fontSize: 12,
+      color: colors.textSecondary,
+      fontWeight: '500',
+    },
+    activeTabText: {
+      color: colors.surface,
+      fontWeight: '600',
+    },
+    
+
 });

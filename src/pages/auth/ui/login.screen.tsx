@@ -50,7 +50,8 @@ export const LoginScreen = ({ navigation }: Props) => {
             <Text style={styles.title}>Вход</Text>
 
             <TextInput
-            style={styles.input}
+            style={[styles.input, { color: '#000000' }]}
+            placeholderTextColor="#999"
             placeholder="Имя пользователя"
             value={username}
             onChangeText={setUsername}
@@ -59,7 +60,8 @@ export const LoginScreen = ({ navigation }: Props) => {
             
             
             <TextInput
-                style={styles.input}
+                style={[styles.input, { color: '#000000' }]}  
+                placeholderTextColor="#999" 
                 placeholder="Пароль"
                 value={password}
                 onChangeText={setPassword}

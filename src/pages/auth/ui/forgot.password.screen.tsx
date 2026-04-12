@@ -48,7 +48,8 @@ export const ForgotPasswordScreen = ({ navigation }: Props) => {
             </Text>
             
             <TextInput
-                style={styles.input}
+                style={[styles.input, { color: '#000000' }]}  
+                placeholderTextColor="#999"
                 placeholder="Email"
                 value={email}
                 onChangeText={setEmail}
