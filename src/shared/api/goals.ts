@@ -2,6 +2,7 @@ import { apiClient } from './client';
 import { Goal } from '../../types/goal';
 import { ApiResponse } from './types';
 
+
 // Тип для ответа с пагинацией
 interface PageResponse<T> {
   content: T[];

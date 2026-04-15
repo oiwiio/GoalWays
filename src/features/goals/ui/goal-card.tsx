@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, Modal, Alert } from 'react-native';
 import { Goal } from '../../../types/goal';
-import { styles } from './goal.card.styles';
+import { styles } from './goal-card.styles';
 
 interface GoalCardProps {
     goal: Goal;

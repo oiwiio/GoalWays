@@ -1,13 +1,14 @@
-
 export type Task = {
-    id: string;
-    title: string;
-    description?: string;
-    completed: boolean;
-    progress: number; // 0-100
-    priority: 'high' | 'medium' | 'low';
-    deadline?: string | null;
-    goalId?: string; // для связи с родительской целью
+  id: number;
+  title: string;
+  description?: string;
+  priority: 'LOW' | 'MEDIUM' | 'HIGH';
+  progress: number;
+  deadline: string | null;
+  estimatedMinutes: number;
+  status: 'IN_PROGRESS' | 'COMPLETED' | 'FROZEN' | 'ARCHIVED';
+  createdAt: string;
+  updatedAt: string;
 };
 
 
@@ -24,6 +25,6 @@ export type Goal = {
     status: 'in_progress' | 'completed' | 'frozen' | 'archived';
     createdAt?: string;
     // tasks?: Task[];
-    // results?: Result[];
+     results?: string[];
     // stages?: any[];
 };

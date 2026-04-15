@@ -9,6 +9,7 @@ import { settingsReducer } from '../features/settings';
 import { rootSaga } from './saga';
 import { authApi } from '../shared/api/auth';
 import { goalsApi } from '../shared/api/goals';
+import tasksReducer from '../features/goals/tasks.slice';
 
 const api = { authApi, goalsApi };
 
@@ -21,6 +22,7 @@ export const store = configureStore({
     forgotPassword: forgotPasswordReducer,
     confirm: confirmReducer,
     goals: goalsReducer,
+    tasks: tasksReducer,
     settings: settingsReducer,
   },
   middleware: (getDefaultMiddleware) =>
