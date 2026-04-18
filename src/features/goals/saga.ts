@@ -1,6 +1,6 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
 import { PayloadAction } from '@reduxjs/toolkit';
-import { Goal } from '../../types/goal';
+import { GoalAPI } from '../../types/goal';
 import {
   fetchGoalsRequest,
   fetchGoalsSuccess,
@@ -22,7 +22,7 @@ import {
   deleteGoalFailure,
 } from './slice';
 
-const normalizeGoal = (goal: any): Goal => ({
+const normalizeGoal = (goal: any): GoalAPI => ({
   ...goal,
   priority: goal.priority?.toLowerCase(),
   status: goal.status?.toLowerCase(),
@@ -58,12 +58,20 @@ function* handleCreateGoal(api: any, action: PayloadAction<any>): any {
     }
 
     const payload = {
-      title: action.payload.title,
-      description: action.payload.description || '',
-      priority: backendPriority,
-      start_date: action.payload.startdate || new Date().toISOString().split('T')[0],
-      deadline: action.payload.deadline || null,
-      daily_time_minutes: action.payload.daily_time_minutes || 60,
+    title: action.payload.title,
+    description: action.payload.description || '',
+    priority: backendPriority,
+    start_date: action.payload.startdate || new Date().toISOString().split('T')[0],
+    deadline: action.payload.deadline || null,
+    daily_time_minutes: action.payload.daily_time_minutes || 60,
+    stages: action.payload.stages || [
+        {
+            title: 'Базовая задача',
+            priority: 'MEDIUM',
+            estimatedMinutes: 60,
+            startsAt: new Date().toISOString().split('T')[0]
+        }
+      ]
     };
 
     console.log('Отправляем на сервер:', JSON.stringify(payload, null, 2));
@@ -95,7 +103,7 @@ const mapCategoryToBackend = (cat: string) => {
   }
 };
 
-function* handleUpdateGoal(api: any, action: PayloadAction<Goal>): any {
+function* handleUpdateGoal(api: any, action: PayloadAction<GoalAPI>): any {
   console.log('Сага получила:', JSON.stringify(action.payload, null, 2));
   try {
     const updateData: any = {

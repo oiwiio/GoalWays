@@ -213,8 +213,41 @@ export const styles = StyleSheet.create({
       fontWeight: '500',
     },
     row: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      marginTop: 20,
-},
-});
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+    },
+
+    headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+    },
+    backButton: {
+        fontSize: 28,
+        color: '#007AFF',
+        padding: 4,
+    },
+    editButton: {
+        fontSize: 24,
+        color: '#007AFF',
+        padding: 4,
+    },
+    
+    halfColumn: {
+        flex: 1,
+    },
+    descriptionText: {
+        fontSize: 16,
+        color: '#333',
+        lineHeight: 22,
+    },
+    valueText: {
+        fontSize: 16,
+        color: '#000',
+        fontWeight: '500',
+        marginTop: 4,
+    },
+    
+    }); 

@@ -14,7 +14,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../app/navigation';
 import { GoalCard } from '../../../features/goals/ui/goal-card';
 import { CreateGoalModal } from '../../../features/goals/ui/create-goal-modal';
-import { Goal } from '../../../types/goal';
+import { GoalAPI } from '../../../types/goal';
 import {
     fetchGoalsRequest,
     createGoalRequest,
@@ -41,6 +41,7 @@ import { GoalDetailModal } from '../../../features/goals/ui/goal-detail-modal';
 import {  Task } from '../../../types/goal';
 import { RootState } from '../../../app/store';
 import { ScrollView } from 'react-native'; 
+import { GoalViewModal } from '../../../features/goals/ui/goal-view-modal';
 
 type GoalsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Goals'>;
 
@@ -56,7 +57,7 @@ export const GoalsScreen = () => {
     const archivedCount = useSelector(selectArchivedCount);
     const isLoading = useSelector(selectGoalsIsLoading);
     const error = useSelector(selectGoalsError);
-    const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
+    const [editingGoal, setEditingGoal] = useState<GoalAPI | null>(null);
     const [editModalVisible, setEditModalVisible] = useState(false);
 
     useEffect(() => {
@@ -70,7 +71,7 @@ export const GoalsScreen = () => {
         }
     }, [error, dispatch]);
 
-    const handleCreateGoal = (newGoal: Omit<Goal, 'id' | 'createdAt'>) => {
+    const handleCreateGoal = (newGoal: Omit<GoalAPI, 'id' | 'createdAt'>) => {
     dispatch(createGoalRequest(newGoal));
     setModalVisible(false);
  
@@ -80,16 +81,16 @@ export const GoalsScreen = () => {
   console.log('Обновление списка целей..');
 };
 
-    const handleEditGoal = (goal: Goal) => {
+    const handleEditGoal = (goal: GoalAPI) => {
     setEditingGoal(goal);
     setEditModalVisible(true);
 };
 
-    const handleSaveGoal = (updatedGoal: Goal) => {
+    const handleSaveGoal = (updatedGoal: GoalAPI) => {
     dispatch(updateGoalRequest(updatedGoal));
     };
     
-    const handleArchiveGoal = (goal: Goal) => {
+    const handleArchiveGoal = (goal: GoalAPI) => {
         Alert.alert(
             'Архивировать цель',
             `Переместить "${goal.title}" в архив?`,
@@ -97,13 +98,13 @@ export const GoalsScreen = () => {
                 { text: 'Отмена', style: 'cancel' },
                 {
                     text: 'Архивировать',
-                    onPress: () => dispatch(archiveGoalRequest(goal.id)),
+                    onPress: () => dispatch(restoreGoalRequest(String(goal.id)))
                 },
             ]
         );
     };
 
-    const handleRestoreGoal = (goal: Goal) => {
+    const handleRestoreGoal = (goal: GoalAPI) => {
     Alert.alert(
         'Восстановить цель',
         `Вернуть "${goal.title}" из архива?`,
@@ -111,37 +112,37 @@ export const GoalsScreen = () => {
       { text: 'Отмена', style: 'cancel' },
       {
         text: 'Восстановить',
-        onPress: () => dispatch(restoreGoalRequest(goal.id)),
+        onPress: () => () => dispatch(restoreGoalRequest(String(goal.id))),
                 },
             ]
         );
     };
 
-    const handleDeleteGoal = (goal: Goal) => { //удаление
-    dispatch(deleteGoalRequest(goal.id));   // диспатчим экшн
+    const handleDeleteGoal = (goal: GoalAPI) => { //удаление
+    () => dispatch(restoreGoalRequest(String(goal.id)))   // диспатчим экшн
     };
 
-    const handleGoalPress = (goal: Goal) => {
-    console.log('Нажали на цель:', goal.title);
     
-    setEditingGoal(goal);
-    setEditModalVisible(true);
-};
 
-
-    const handleSaveItem = (updatedItem: Goal | Task) => {
-    dispatch(updateGoalRequest(updatedItem as Goal));
+    const handleGoalPress = (goal: GoalAPI) => {
+    setViewingGoal(goal);
+    setViewModalVisible(true);
+    console.log('Нажали на цель:', goal.title)
     };
-    // const handleSaveItem = (updatedItem: Goal | Task) => {
-    // if ('tasks' in updatedItem) {
-    //     // это Goal
-    //     dispatch(updateGoalRequest(updatedItem as Goal));
-    // } else {
-    //     // это Task
-    //     // dispatch(updateTaskRequest(updatedItem as Task));
-    //     console.log('Сохраняем задачу:', updatedItem);
-    // }
-    // };
+
+    const [viewModalVisible, setViewModalVisible] = useState(false);
+    const [viewingGoal, setViewingGoal] = useState<GoalAPI | null>(null);
+
+    const handleSaveItem = (updatedItem: GoalAPI | Task) => {
+    dispatch(updateGoalRequest(updatedItem as GoalAPI));
+    };
+    
+    const handleEditFromView = () => {
+    setViewModalVisible(false);
+    setEditingGoal(viewingGoal);
+    setEditModalVisible(true);
+    };
+    
 
     return (
         <SafeAreaView style={styles.container}>
@@ -259,7 +260,14 @@ export const GoalsScreen = () => {
                 }}
                 onSave={handleSaveItem}
             />
-            
+            <GoalViewModal
+                visible={viewModalVisible}
+                goal={viewingGoal}
+                onClose={() => setViewModalVisible(false)}
+                onEdit={handleEditFromView}
+            />
+                
+
         </SafeAreaView>
     );
 };

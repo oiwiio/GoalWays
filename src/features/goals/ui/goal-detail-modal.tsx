@@ -9,7 +9,7 @@ import {
     Alert
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { Goal, Task } from '../../../types/goal';
+import { GoalAPI, Task } from '../../../types/goal';
 import { TaskItem } from './task-item';
 import { TaskModal } from './task-modal';
 import { fetchTasksRequest, createTaskRequest, updateTaskRequest, deleteTaskRequest, clearTasksError } from '../tasks.slice';
@@ -19,9 +19,12 @@ import { styles } from './goal-detail-modal.styles';
 
 interface GoalDetailModalProps {
     visible: boolean;
-    item: Goal | null;
+    mode: 'goal' | 'task';  
+    item: GoalAPI | Task | null;
     onClose: () => void;
-    onSave: (updatedItem: Goal) => void;
+    onSave: (updatedItem: GoalAPI | Task) => void;
+    onAddTask?: () => void;
+    onTaskPress?: (task: Task) => void;
 }
 
 export const GoalDetailModal = ({ 
@@ -37,8 +40,12 @@ export const GoalDetailModal = ({
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState('');
     const [deadline, setDeadline] = useState('');
-    const [priority, setPriority] = useState<'high' | 'medium' | 'low'>('medium');
-    const [status, setStatus] = useState<'in_progress' | 'completed' | 'frozen' | 'archived'>('in_progress');
+    // Статус в API-формате
+const [status, setStatus] = useState<'IN_PROGRESS' | 'COMPLETED' | 'FROZEN' | 'ARCHIVED'>('IN_PROGRESS');
+
+// Приоритет в API-формате
+const [priority, setPriority] = useState<'HIGH' | 'MEDIUM' | 'LOW'>('MEDIUM');
+   
     
     // Результаты
     const [resultModalVisible, setResultModalVisible] = useState(false);
@@ -51,6 +58,9 @@ export const GoalDetailModal = ({
     const tasksError = useSelector((state: RootState) => state.tasks?.error || null);
     const [taskModalVisible, setTaskModalVisible] = useState(false);
     const [editingTask, setEditingTask] = useState<Task | null>(null);
+
+    
+
 
     // Загрузка задач при открытии цели
     useEffect(() => {
@@ -69,17 +79,18 @@ export const GoalDetailModal = ({
 
     // Заполнение формы данными цели
     useEffect(() => {
-        if (item) {
-            setTitle(item.title || '');
-            setDescription(item.description || '');
-            setPriority(item.priority);
-            setDeadline(item.deadline || '');
-            setCategory(item.category || '');
-            setStatus(item.status);
-            setResults(item.results || []);
-        }
+    if (item && 'category' in item) {  
+        setTitle(item.title || '');
+        setDescription(item.description || '');
+        setPriority(item.priority);
+        setDeadline(item.deadline || '');
+        setCategory(item.category || '');
+        setStatus(item.status);
+        setResults(item.results || []);
+    }
     }, [item]);
 
+    
     const handleAddTextResult = () => {
         if (resultText.trim()) {
             setResults([...results, resultText.trim()]);
@@ -99,8 +110,8 @@ export const GoalDetailModal = ({
         }
         if (!item) return;
 
-        const updatedItem: Goal = {
-            ...item,
+        const updatedItem: GoalAPI = {
+            id: Number(item.id),
             title: title.trim(),
             description: description.trim(),
             priority,
@@ -108,6 +119,7 @@ export const GoalDetailModal = ({
             category: category.trim() || 'Без категории',
             status,
             results,
+            progress: 0, 
         };
         
         onSave(updatedItem);
@@ -200,22 +212,22 @@ export const GoalDetailModal = ({
                                 <Text style={styles.label}>Приоритет</Text>
                                 <View style={styles.priorityContainer}>
                                     <TouchableOpacity
-                                        style={[styles.priorityButton, priority === 'high' && styles.priorityButtonActive]}
-                                        onPress={() => setPriority('high')}
+                                        style={[styles.priorityButton, priority === 'HIGH' && styles.priorityButtonActive]}
+                                        onPress={() => setPriority('HIGH')}
                                     >
-                                        <Text style={[styles.priorityButtonText, priority === 'high' && styles.priorityButtonTextActive]}>🔥 Высокий</Text>
+                                        <Text style={[styles.priorityButtonText, priority === 'HIGH' && styles.priorityButtonTextActive]}>🔥 Высокий</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity
-                                        style={[styles.priorityButton, priority === 'medium' && styles.priorityButtonActive]}
-                                        onPress={() => setPriority('medium')}
+                                        style={[styles.priorityButton, priority === 'MEDIUM' && styles.priorityButtonActive]}
+                                        onPress={() => setPriority('MEDIUM')}
                                     >
-                                        <Text style={[styles.priorityButtonText, priority === 'medium' && styles.priorityButtonTextActive]}>⚪ Средний</Text>
+                                        <Text style={[styles.priorityButtonText, priority === 'MEDIUM' && styles.priorityButtonTextActive]}>⚪ Средний</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity
-                                        style={[styles.priorityButton, priority === 'low' && styles.priorityButtonActive]}
-                                        onPress={() => setPriority('low')}
+                                        style={[styles.priorityButton, priority === 'LOW' && styles.priorityButtonActive]}
+                                        onPress={() => setPriority('LOW')}
                                     >
-                                        <Text style={[styles.priorityButtonText, priority === 'low' && styles.priorityButtonTextActive]}>💤 Низкий</Text>
+                                        <Text style={[styles.priorityButtonText, priority === 'LOW' && styles.priorityButtonTextActive]}>💤 Низкий</Text>
                                     </TouchableOpacity>
                                 </View>
                             </View>
@@ -261,22 +273,22 @@ export const GoalDetailModal = ({
                                 <Text style={styles.label}>Статус</Text>
                                 <View style={styles.statusContainer}>
                                     <TouchableOpacity
-                                        style={[styles.statusButton, status === 'in_progress' && styles.statusButtonActive]}
-                                        onPress={() => setStatus('in_progress')}
+                                        style={[styles.statusButton, status === 'IN_PROGRESS' && styles.statusButtonActive]}
+                                        onPress={() => setStatus('IN_PROGRESS')}
                                     >
-                                        <Text style={[styles.statusButtonText, status === 'in_progress' && styles.statusButtonTextActive]}>▶️ В процессе</Text>
+                                        <Text style={[styles.statusButtonText, status === 'IN_PROGRESS' && styles.statusButtonTextActive]}>▶️ В процессе</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity   
+                                        style={[styles.statusButton, status === 'COMPLETED' && styles.statusButtonActive]}
+                                        onPress={() => setStatus('COMPLETED')}
+                                    >
+                                        <Text style={[styles.statusButtonText, status === 'COMPLETED' && styles.statusButtonTextActive]}>✅ Завершено</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity
-                                        style={[styles.statusButton, status === 'completed' && styles.statusButtonActive]}
-                                        onPress={() => setStatus('completed')}
+                                        style={[styles.statusButton, status === 'FROZEN' && styles.statusButtonActive]}
+                                        onPress={() => setStatus('FROZEN')}
                                     >
-                                        <Text style={[styles.statusButtonText, status === 'completed' && styles.statusButtonTextActive]}>✅ Завершено</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                        style={[styles.statusButton, status === 'frozen' && styles.statusButtonActive]}
-                                        onPress={() => setStatus('frozen')}
-                                    >
-                                        <Text style={[styles.statusButtonText, status === 'frozen' && styles.statusButtonTextActive]}>❄️ Заморожено</Text>
+                                        <Text style={[styles.statusButtonText, status === 'FROZEN' && styles.statusButtonTextActive]}>❄️ Заморожено</Text>
                                     </TouchableOpacity>
                                 </View>
                             </View>
