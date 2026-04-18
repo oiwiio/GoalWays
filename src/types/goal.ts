@@ -25,4 +25,5 @@ export type GoalAPI = {
   status: 'IN_PROGRESS' | 'COMPLETED' | 'FROZEN' | 'ARCHIVED';
   createdAt?: string;
   results?: string[];
+  start_date?: string;
 };

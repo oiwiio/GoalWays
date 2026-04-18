@@ -267,7 +267,15 @@ export const GoalsScreen = () => {
                 onEdit={handleEditFromView}
             />
                 
-
+            {error && (
+                <View style={styles.errorContainer}>
+                    <Text style={styles.errorText}>Не удалось загрузить цели</Text>
+                    <TouchableOpacity style={styles.retryButton} onPress={() => dispatch(fetchGoalsRequest())}>
+                        <Text style={styles.retryButtonText}>Повторить</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
+                
         </SafeAreaView>
     );
 };
@@ -359,5 +367,27 @@ const styles = StyleSheet.create({
       fontWeight: '600',
     },
     
+    errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing.xl,
+    },
+    errorText: {
+        ...typography.body,
+        color: colors.danger,
+        textAlign: 'center',
+        marginBottom: spacing.m,
+    },
+    retryButton: {
+        backgroundColor: colors.primary,
+        paddingHorizontal: spacing.l,
+        paddingVertical: spacing.m,
+        borderRadius: borderRadius.round,
+    },
+    retryButtonText: {
+        ...typography.button,
+        color: colors.surface,
+    },
 
 });

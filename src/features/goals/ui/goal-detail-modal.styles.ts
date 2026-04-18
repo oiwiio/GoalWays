@@ -249,5 +249,11 @@ export const styles = StyleSheet.create({
         fontWeight: '500',
         marginTop: 4,
     },
-    
+    errorText: {
+    color: '#ff3b30',
+    fontSize: 12,
+    marginTop: 4,
+    marginLeft: 12,
+    },
+
     }); 

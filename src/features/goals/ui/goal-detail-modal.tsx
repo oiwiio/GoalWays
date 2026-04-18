@@ -58,7 +58,7 @@ const [priority, setPriority] = useState<'HIGH' | 'MEDIUM' | 'LOW'>('MEDIUM');
     const tasksError = useSelector((state: RootState) => state.tasks?.error || null);
     const [taskModalVisible, setTaskModalVisible] = useState(false);
     const [editingTask, setEditingTask] = useState<Task | null>(null);
-
+    const [startDate, setStartDate] = useState('');
     
 
 
@@ -82,6 +82,7 @@ const [priority, setPriority] = useState<'HIGH' | 'MEDIUM' | 'LOW'>('MEDIUM');
     if (item && 'category' in item) {  
         setTitle(item.title || '');
         setDescription(item.description || '');
+        setStartDate(item.startdate || item.start_date || '');
         setPriority(item.priority);
         setDeadline(item.deadline || '');
         setCategory(item.category || '');
@@ -150,6 +151,19 @@ const [priority, setPriority] = useState<'HIGH' | 'MEDIUM' | 'LOW'>('MEDIUM');
         }, 300);
     };
 
+    const [dateError, setDateError] = useState('');
+
+    const validateDates = (start: string, end: string) => {
+    if (start && end && new Date(end) < new Date(start)) {
+        setDateError('Дедлайн не может быть раньше даты начала');
+        return false;
+    }
+    setDateError('');
+    return true;
+    };
+    
+
+
     const handleDeleteTask = (taskId: number) => {
         if (!item) return;
         
@@ -163,11 +177,10 @@ const [priority, setPriority] = useState<'HIGH' | 'MEDIUM' | 'LOW'>('MEDIUM');
             }}
         ]);
     };
-
     const suggestedCategories = ['Работа', 'Учеба', 'Здоровье', 'Личное', 'Финансы'];
-
     if (!item) return null;
 
+    
     return (
         <>
             <Modal
@@ -378,6 +391,21 @@ const [priority, setPriority] = useState<'HIGH' | 'MEDIUM' | 'LOW'>('MEDIUM');
                 }}
                 onSave={handleSaveTask}
             />
+            {/*для ошибки */}
+        <TextInput
+            style={styles.input}
+            value={deadline}
+            onChangeText={(text) => {
+            setDeadline(text);
+            validateDates(startDate, text);
+            {dateError ? <Text style={styles.errorText}>{dateError}</Text> : null}
+        }}
+            placeholder="ГГГГ-ММ-ДД"
+            
+        />
+
         </>
+        
+
     );
 };
