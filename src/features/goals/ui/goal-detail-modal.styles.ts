@@ -1,4 +1,5 @@
 import { StyleSheet } from "react-native";
+import { spacing } from '../../../shared/styles/theme';
 
 export const styles = StyleSheet.create({
     modalOverlay: {
@@ -250,10 +251,21 @@ export const styles = StyleSheet.create({
         marginTop: 4,
     },
     errorText: {
-    color: '#ff3b30',
-    fontSize: 12,
-    marginTop: 4,
-    marginLeft: 12,
+        color: '#ff3b30',
+        fontSize: 12,
+        marginTop: 4,
+        marginLeft: 12,
     },
 
+    serverErrorText: {
+        color: '#ff3b30',
+        fontSize: 14,
+        textAlign: 'center',
+        marginBottom: spacing.m,
+        paddingHorizontal: spacing.m,
+    },
+    
+    disabledButton: {
+        opacity: 0.6,
+    },
     }); 

@@ -16,10 +16,9 @@ import { fetchTasksRequest, createTaskRequest, updateTaskRequest, deleteTaskRequ
 import { RootState } from '../../../app/store';
 import { styles } from './goal-detail-modal.styles';
 
-
 interface GoalDetailModalProps {
     visible: boolean;
-    mode: 'goal' | 'task';  
+    mode: 'goal' | 'task';
     item: GoalAPI | Task | null;
     onClose: () => void;
     onSave: (updatedItem: GoalAPI | Task) => void;
@@ -27,31 +26,31 @@ interface GoalDetailModalProps {
     onTaskPress?: (task: Task) => void;
 }
 
-export const GoalDetailModal = ({ 
-    visible, 
-    item, 
-    onClose, 
+export const GoalDetailModal = ({
+    visible,
+    item,
+    onClose,
     onSave,
 }: GoalDetailModalProps) => {
     const dispatch = useDispatch();
-    
+
     // Состояния формы
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState('');
     const [deadline, setDeadline] = useState('');
-    // Статус в API-формате
-const [status, setStatus] = useState<'IN_PROGRESS' | 'COMPLETED' | 'FROZEN' | 'ARCHIVED'>('IN_PROGRESS');
 
-// Приоритет в API-формате
-const [priority, setPriority] = useState<'HIGH' | 'MEDIUM' | 'LOW'>('MEDIUM');
-   
-    
+    // Статус в API-формате
+    const [status, setStatus] = useState<'IN_PROGRESS' | 'COMPLETED' | 'FROZEN' | 'ARCHIVED'>('IN_PROGRESS');
+
+    // Приоритет в API-формате
+    const [priority, setPriority] = useState<'HIGH' | 'MEDIUM' | 'LOW'>('MEDIUM');
+
     // Результаты
     const [resultModalVisible, setResultModalVisible] = useState(false);
     const [resultText, setResultText] = useState('');
     const [results, setResults] = useState<string[]>([]);
-    
+
     // Задачи
     const tasks = useSelector((state: RootState) => state.tasks?.items || []);
     const tasksLoading = useSelector((state: RootState) => state.tasks?.isLoading || false);
@@ -59,8 +58,9 @@ const [priority, setPriority] = useState<'HIGH' | 'MEDIUM' | 'LOW'>('MEDIUM');
     const [taskModalVisible, setTaskModalVisible] = useState(false);
     const [editingTask, setEditingTask] = useState<Task | null>(null);
     const [startDate, setStartDate] = useState('');
-    
-
+    const [serverError, setServerError] = useState('');
+    const [isSaving, setIsSaving] = useState(false);
+    const [dateError, setDateError] = useState('');
 
     // Загрузка задач при открытии цели
     useEffect(() => {
@@ -79,19 +79,27 @@ const [priority, setPriority] = useState<'HIGH' | 'MEDIUM' | 'LOW'>('MEDIUM');
 
     // Заполнение формы данными цели
     useEffect(() => {
-    if (item && 'category' in item) {  
-        setTitle(item.title || '');
-        setDescription(item.description || '');
-        setStartDate(item.startdate || item.start_date || '');
-        setPriority(item.priority);
-        setDeadline(item.deadline || '');
-        setCategory(item.category || '');
-        setStatus(item.status);
-        setResults(item.results || []);
-    }
+        if (item && 'category' in item) {
+            setTitle(item.title || '');
+            setDescription(item.description || '');
+            setStartDate(item.startdate || item.start_date || '');
+            setPriority(item.priority);
+            setDeadline(item.deadline || '');
+            setCategory(item.category || '');
+            setStatus(item.status);
+            setResults(item.results || []);
+        }
     }, [item]);
 
-    
+    const validateDates = (start: string, end: string) => {
+        if (start && end && new Date(end) < new Date(start)) {
+            setDateError('Дедлайн не может быть раньше даты начала');
+            return false;
+        }
+        setDateError('');
+        return true;
+    };
+
     const handleAddTextResult = () => {
         if (resultText.trim()) {
             setResults([...results, resultText.trim()]);
@@ -104,27 +112,47 @@ const [priority, setPriority] = useState<'HIGH' | 'MEDIUM' | 'LOW'>('MEDIUM');
         Alert.alert('Функция в разработке', 'Загрузка фото будет доступна позже');
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
+        if (!item) {
+            Alert.alert('Ошибка', 'Цель не найдена');
+            return;
+        }
+
         if (!title.trim()) {
             Alert.alert('Ошибка', 'Введите название');
             return;
         }
-        if (!item) return;
+        
+        if (!validateDates(startDate, deadline)) {
+            Alert.alert('Ошибка', 'Дедлайн не может быть раньше даты начала');
+            return;
+        }
+
+        setServerError('');
 
         const updatedItem: GoalAPI = {
-            id: Number(item.id),
+            id: item.id,
             title: title.trim(),
             description: description.trim(),
             priority,
             deadline: deadline || null,
+            start_date: startDate || undefined,
             category: category.trim() || 'Без категории',
             status,
             results,
-            progress: 0, 
+            progress: 0,
         };
-        
-        onSave(updatedItem);
-        onClose();
+
+        try {
+            onSave(updatedItem);
+            onClose();
+        } catch (err: any) {
+            if (err?.response?.status === 400) {
+                setServerError(err?.response?.data?.error?.message || 'Ошибка валидации');
+            } else {
+                setServerError('Не удалось сохранить. Проверьте соединение.');
+            }
+        }
     };
 
     // Обработчики задач
@@ -139,48 +167,54 @@ const [priority, setPriority] = useState<'HIGH' | 'MEDIUM' | 'LOW'>('MEDIUM');
         setTaskModalVisible(true);
     };
 
-    const handleSaveTask = (goalId: number, taskData: Partial<Task>, taskId?: number) => {
-        if (taskId) {
-            dispatch(updateTaskRequest({ goalId, taskId, data: taskData }));
-        } else {
-            dispatch(createTaskRequest({ goalId, data: taskData }));
+    const handleSaveTask = async (goalId: number, taskData: Partial<Task>, taskId?: number) => {
+        if (isSaving) return;
+
+        setIsSaving(true);
+        setServerError('');
+
+        try {
+            if (taskId) {
+                await dispatch(updateTaskRequest({ goalId, taskId, data: taskData }));
+            } else {
+                await dispatch(createTaskRequest({ goalId, data: taskData }));
+            }
+            setTimeout(() => {
+                dispatch(fetchTasksRequest(goalId));
+            }, 300);
+            setTaskModalVisible(false);
+            setEditingTask(null);
+        } catch (err: any) {
+            if (err?.response?.status === 400) {
+                setServerError(err?.response?.data?.error?.message || 'Ошибка валидации');
+            } else {
+                setServerError('Не удалось сохранить. Проверьте соединение.');
+            }
+        } finally {
+            setIsSaving(false);
         }
-        // Обновляем список задач после создания/обновления
-        setTimeout(() => {
-            dispatch(fetchTasksRequest(goalId));
-        }, 300);
     };
-
-    const [dateError, setDateError] = useState('');
-
-    const validateDates = (start: string, end: string) => {
-    if (start && end && new Date(end) < new Date(start)) {
-        setDateError('Дедлайн не может быть раньше даты начала');
-        return false;
-    }
-    setDateError('');
-    return true;
-    };
-    
-
 
     const handleDeleteTask = (taskId: number) => {
         if (!item) return;
-        
+
         Alert.alert('Удалить задачу', 'Вы уверены?', [
             { text: 'Отмена', style: 'cancel' },
-            { text: 'Удалить', onPress: () => {
-                dispatch(deleteTaskRequest({ goalId: Number(item.id), taskId }));
-                setTimeout(() => {
-                    dispatch(fetchTasksRequest(Number(item.id)));
-                }, 300);
-            }}
+            {
+                text: 'Удалить', onPress: () => {
+                    dispatch(deleteTaskRequest({ goalId: Number(item.id), taskId }));
+                    setTimeout(() => {
+                        dispatch(fetchTasksRequest(Number(item.id)));
+                    }, 300);
+                }
+            }
         ]);
     };
+
     const suggestedCategories = ['Работа', 'Учеба', 'Здоровье', 'Личное', 'Финансы'];
+
     if (!item) return null;
 
-    
     return (
         <>
             <Modal
@@ -220,6 +254,36 @@ const [priority, setPriority] = useState<'HIGH' | 'MEDIUM' | 'LOW'>('MEDIUM');
                                 />
                             </View>
 
+                            {/* Дата начала */}
+                            <View style={styles.inputGroup}>
+                                <Text style={styles.label}>Дата начала</Text>
+                                <TextInput
+                                    style={styles.input}
+                                    value={startDate}
+                                    onChangeText={(text) => {
+                                        setStartDate(text);
+                                        validateDates(text, deadline);
+                                    }}
+                                    placeholder="ГГГГ-ММ-ДД"
+                                />
+                                <Text style={styles.hint}>Формат: 2025-01-01</Text>
+                            </View>
+
+                            {/* Дедлайн */}
+                            <View style={styles.inputGroup}>
+                                <Text style={styles.label}>Дедлайн</Text>
+                                <TextInput
+                                    style={styles.input}
+                                    value={deadline}
+                                    onChangeText={(text) => {
+                                        setDeadline(text);
+                                        validateDates(startDate, text);
+                                    }}
+                                    placeholder="ГГГГ-ММ-ДД"
+                                />
+                                <Text style={styles.hint}>Формат: 2025-12-31</Text>
+                            </View>
+
                             {/* Приоритет */}
                             <View style={styles.inputGroup}>
                                 <Text style={styles.label}>Приоритет</Text>
@@ -243,18 +307,6 @@ const [priority, setPriority] = useState<'HIGH' | 'MEDIUM' | 'LOW'>('MEDIUM');
                                         <Text style={[styles.priorityButtonText, priority === 'LOW' && styles.priorityButtonTextActive]}>💤 Низкий</Text>
                                     </TouchableOpacity>
                                 </View>
-                            </View>
-
-                            {/* Дедлайн */}
-                            <View style={styles.inputGroup}>
-                                <Text style={styles.label}>Дедлайн</Text>
-                                <TextInput
-                                    style={styles.input}
-                                    value={deadline}
-                                    onChangeText={setDeadline}
-                                    placeholder="ГГГГ-ММ-ДД"
-                                />
-                                <Text style={styles.hint}>Формат: 2025-12-31</Text>
                             </View>
 
                             {/* Категория */}
@@ -291,7 +343,7 @@ const [priority, setPriority] = useState<'HIGH' | 'MEDIUM' | 'LOW'>('MEDIUM');
                                     >
                                         <Text style={[styles.statusButtonText, status === 'IN_PROGRESS' && styles.statusButtonTextActive]}>▶️ В процессе</Text>
                                     </TouchableOpacity>
-                                    <TouchableOpacity   
+                                    <TouchableOpacity
                                         style={[styles.statusButton, status === 'COMPLETED' && styles.statusButtonActive]}
                                         onPress={() => setStatus('COMPLETED')}
                                     >
@@ -342,6 +394,10 @@ const [priority, setPriority] = useState<'HIGH' | 'MEDIUM' | 'LOW'>('MEDIUM');
                             </View>
                         </ScrollView>
 
+                        {/* Отображение ошибок */}
+                        {dateError ? <Text style={styles.errorText}>{dateError}</Text> : null}
+                        {serverError ? <Text style={styles.serverErrorText}>{serverError}</Text> : null}
+
                         {/* Кнопки */}
                         <View style={styles.buttonsContainer}>
                             <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={onClose}>
@@ -355,7 +411,7 @@ const [priority, setPriority] = useState<'HIGH' | 'MEDIUM' | 'LOW'>('MEDIUM');
                 </View>
             </Modal>
 
-            {/* Модалка результата */}
+            {/* Модалка добавления текстового результата */}
             <Modal visible={resultModalVisible} transparent animationType="slide">
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
@@ -391,21 +447,6 @@ const [priority, setPriority] = useState<'HIGH' | 'MEDIUM' | 'LOW'>('MEDIUM');
                 }}
                 onSave={handleSaveTask}
             />
-            {/*для ошибки */}
-        <TextInput
-            style={styles.input}
-            value={deadline}
-            onChangeText={(text) => {
-            setDeadline(text);
-            validateDates(startDate, text);
-            {dateError ? <Text style={styles.errorText}>{dateError}</Text> : null}
-        }}
-            placeholder="ГГГГ-ММ-ДД"
-            
-        />
-
         </>
-        
-
     );
 };

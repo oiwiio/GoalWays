@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { taskItemStyles as styles } from './task-item.styles';
 import { Task } from '../../../types/goal';
+import { taskItemStyles } from './task-item.styles';
 
 interface TaskItemProps {
   task: any;
