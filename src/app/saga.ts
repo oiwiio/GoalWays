@@ -5,7 +5,7 @@ import { forgotPasswordSaga } from '../features/forgot-password/saga';
 import { confirmSaga } from '../features/confirm/saga';
 import { goalsSaga } from '../features/goals/saga';
 import { settingsSaga } from '../features/settings/saga';
-import { tasksSaga } from '../features/goals/tasks.saga';
+import { tasksSaga } from '../features/tasks/tasks.saga';
 
 export function* rootSaga(api: any) {
   yield all([

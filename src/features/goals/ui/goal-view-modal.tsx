@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Modal, View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { GoalAPI, Task } from '../../../types/goal';
-import { TaskItem } from './task-item';
+import { TaskItem } from '../../tasks/ui/task-item';
 import { fetchTasksRequest } from '../tasks.slice';
 import { RootState } from '../../../app/store';
 import { styles } from './goal-detail-modal.styles';

@@ -10,9 +10,9 @@ import {
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { GoalAPI, Task } from '../../../types/goal';
-import { TaskItem } from './task-item';
-import { TaskModal } from './task-modal';
-import { fetchTasksRequest, createTaskRequest, updateTaskRequest, deleteTaskRequest, clearTasksError } from '../tasks.slice';
+import { TaskItem } from '../../tasks/ui/task-item';
+import { TaskModal } from '../../tasks/ui/task-modal';
+import { fetchTasksRequest, createTaskRequest, updateTaskRequest, deleteTaskRequest, clearTasksError } from '../../tasks/tasks.slice';
 import { RootState } from '../../../app/store';
 import { styles } from './goal-detail-modal.styles';
 
