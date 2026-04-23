@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, Modal, Alert } from 'react-native';
-import { Goal } from '../../../types/goal';
+import { GoalAPI } from '../../../types/goal';
 import { styles } from './goal-card.styles';
 
 interface GoalCardProps {
-    goal: Goal;
-    onPress: (goal: Goal) => void;
-    onEdit: (goal: Goal) => void;        
-    onArchive: (goal: Goal) => void;
-    onRestore?: (goal: Goal) => void;    
-    onDelete: (goal: Goal) => void;      
+    goal: GoalAPI;
+    onPress: (goal: GoalAPI) => void;
+    onEdit: (goal: GoalAPI) => void;        
+    onArchive: (goal: GoalAPI) => void;
+    onRestore?: (goal: GoalAPI) => void;    
+    onDelete: (goal: GoalAPI) => void;      
 }
 
 export const GoalCard = ({ 
@@ -92,7 +92,7 @@ export const GoalCard = ({
             <Modal visible={menuVisible} transparent animationType="fade" onRequestClose={() => setMenuVisible(false)}>
                 <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setMenuVisible(false)}>
                     <View style={styles.menuContainer}>
-                        {goal.status === 'archived' ? (
+                        {goal.status === 'ARCHIVED' ? (
                             <TouchableOpacity style={styles.menuItem} onPress={() => { setMenuVisible(false); onRestore?.(goal); }}>
                                 <Text style={styles.menuItemText}>Восстановить</Text>
                             </TouchableOpacity>

@@ -9,12 +9,12 @@ import {
     ScrollView,
     Alert
 } from 'react-native';
-import { Goal } from '../../../types/goal';
+import { GoalAPI } from '../../../types/goal';
 
 interface CreateGoalModalProps {
     visible: boolean;
     onClose: () => void;
-    onCreateGoal: (goal: Omit<Goal, 'id' | 'createdAt'>) => void;
+    onCreateGoal: (goal: Omit<GoalAPI, 'id' | 'createdAt'>) => void;
 }
 
 export const CreateGoalModal = ({ visible, onClose, onCreateGoal }: CreateGoalModalProps) => {
@@ -38,12 +38,11 @@ export const CreateGoalModal = ({ visible, onClose, onCreateGoal }: CreateGoalMo
         deadline: deadline || null,
         daily_time_minutes: 60,
         progress: 0,
-        status: 'in_progress' as const,
+        status: 'IN_PROGRESS' as const,
+        stages: [],
      
 };
-    console.log('Вызываю onCreateGoal с данными:', goalData);  
-    onCreateGoal(goalData);
-
+   
     // очистка
     setTitle('');
     setDescription('');

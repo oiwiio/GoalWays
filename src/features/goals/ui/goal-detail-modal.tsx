@@ -15,6 +15,7 @@ import { TaskModal } from '../../tasks/ui/task-modal';
 import { fetchTasksRequest, createTaskRequest, updateTaskRequest, deleteTaskRequest, clearTasksError } from '../../tasks/tasks.slice';
 import { RootState } from '../../../app/store';
 import { styles } from './goal-detail-modal.styles';
+import { selectTasksItems, selectTasksIsLoading, selectTasksError } from '../../../features/tasks/tasks.selectors';
 
 interface GoalDetailModalProps {
     visible: boolean;
@@ -52,9 +53,9 @@ export const GoalDetailModal = ({
     const [results, setResults] = useState<string[]>([]);
 
     // Задачи
-    const tasks = useSelector((state: RootState) => state.tasks?.items || []);
-    const tasksLoading = useSelector((state: RootState) => state.tasks?.isLoading || false);
-    const tasksError = useSelector((state: RootState) => state.tasks?.error || null);
+    const tasks = useSelector(selectTasksItems);
+    const tasksLoading = useSelector(selectTasksIsLoading);
+    const tasksError = useSelector(selectTasksError);
     const [taskModalVisible, setTaskModalVisible] = useState(false);
     const [editingTask, setEditingTask] = useState<Task | null>(null);
     const [startDate, setStartDate] = useState('');
