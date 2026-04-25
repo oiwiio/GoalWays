@@ -160,7 +160,7 @@ export const TaskModal = ({ visible, mode, task, goalId, onClose, onSave }: Task
                                 onChangeText={setDeadline}
                                 placeholder="ГГГГ-ММ-ДД"
                             />
-                            <Text style={styles.hint}>Формат: 2025-12-31</Text>
+                            <Text style={styles.hint}>Формат: 2026-12-31</Text>
                         </View>
 
                         {/* время на задачу */}

@@ -267,7 +267,7 @@ export const GoalDetailModal = ({
                                     }}
                                     placeholder="ГГГГ-ММ-ДД"
                                 />
-                                <Text style={styles.hint}>Формат: 2025-01-01</Text>
+                                <Text style={styles.hint}>Формат: 2026-01-01</Text>
                             </View>
 
                             {/* Дедлайн */}
@@ -282,7 +282,7 @@ export const GoalDetailModal = ({
                                     }}
                                     placeholder="ГГГГ-ММ-ДД"
                                 />
-                                <Text style={styles.hint}>Формат: 2025-12-31</Text>
+                                <Text style={styles.hint}>Формат: 2026-12-31</Text>
                             </View>
 
                             {/* Приоритет */}

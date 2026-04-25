@@ -176,7 +176,7 @@ export const CreateGoalModal = ({ visible, onClose, onCreateGoal }: CreateGoalMo
                                 onChangeText={setDeadline}
                                 placeholder="ГГГГ-ММ-ДД"
                             />
-                            <Text style={styles.hint}>Формат: 2025-12-31</Text>
+                            <Text style={styles.hint}>Формат: 2026-12-31</Text>
                         </View>
                     </ScrollView>
 

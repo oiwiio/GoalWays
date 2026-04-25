@@ -21,6 +21,39 @@ import {
   deleteGoalSuccess,
   deleteGoalFailure,
 } from './slice';
+import { SagaIterator } from 'redux-saga';
+
+type Api = {
+  goalsApi: {
+    fetchGoals: (params: { page: number; size: number }) => Promise<{
+      data: {
+        status: string;
+        data: { content: GoalAPI[] };
+        error?: string;
+      };
+    }>;
+    createGoal: (data: unknown) => Promise<{
+      data: {
+        status: string;
+        data: GoalAPI;
+        error?: string;
+      };
+    }>;
+    updateGoal: (id: number, data: unknown) => Promise<{
+      data: {
+        status: string;
+        data: GoalAPI;
+        error?: string;
+      };
+    }>;
+    deleteGoal: (id: number) => Promise<{
+      data: {
+        status: string;
+        error?: string;
+      };
+    }>;
+  };
+};
 
 const normalizeGoal = (goal: any): GoalAPI => ({
   ...goal,
@@ -30,69 +63,56 @@ const normalizeGoal = (goal: any): GoalAPI => ({
 
 });
 
-function* handleFetchGoals(api: any): any {
+function* handleFetchGoals(api: Api): SagaIterator {
   try {
-    const response = yield call(() => api.goalsApi.fetchGoals({ page: 0, size: 10 }));
-    console.log('FETCHED GOALS:', response.data.data.content);
-    
+    const response = yield call(() =>
+      api.goalsApi.fetchGoals({ page: 0, size: 10 })
+    );
+
     if (response.data.status === 'success') {
-      const normalizedGoals = response.data.data.content.map(normalizeGoal);
-      yield put(fetchGoalsSuccess(normalizedGoals));
+     
+      const normalized = response.data.data.content.map(normalizeGoal);
+      yield put(fetchGoalsSuccess(normalized));
     } else {
-      yield put(fetchGoalsFailure(response.data.error || 'Ошибка загрузки целей'));
+      yield put(fetchGoalsFailure(response.data.error || 'Ошибка загрузки'));
     }
-  } catch (error: any) {
-    console.log('Ошибка загрузки целей:', error.message);
-    yield put(fetchGoalsFailure(error.message || 'Ошибка сети'));
-  } 
-  
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      yield put(fetchGoalsFailure(error.message));
+    } else {
+      yield put(fetchGoalsFailure('Ошибка сети'));
+    }
+  }
 }
-
-function* handleCreateGoal(api: any, action: PayloadAction<any>): any {
+function* handleCreateGoal(api: Api, action: PayloadAction<GoalAPI>): SagaIterator {
   try {
-    let backendPriority = 'MEDIUM';
-    switch (action.payload.priority) {
-      case 'high': backendPriority = 'HIGH'; break;
-      case 'medium': backendPriority = 'MEDIUM'; break;
-      case 'low': backendPriority = 'LOW'; break;
-    }
-
+    
     const payload = {
-    title: action.payload.title,
-    description: action.payload.description || '',
-    priority: backendPriority,
-    start_date: action.payload.startdate || new Date().toISOString().split('T')[0],
-    deadline: action.payload.deadline || null,
-    daily_time_minutes: action.payload.daily_time_minutes || 60,
-    stages: action.payload.stages || [
-        {
-            title: 'Базовая задача',
-            priority: 'MEDIUM',
-            estimatedMinutes: 60,
-            startsAt: new Date().toISOString().split('T')[0]
-        }
-      ]
+      title: action.payload.title,
+      description: action.payload.description,
+      priority: action.payload.priority?.toUpperCase(),
+      start_date: action.payload.startdate,  
+      deadline: action.payload.deadline,
+      daily_time_minutes: action.payload.daily_time_minutes,
+      stages: [],
     };
 
-    console.log('Отправляем на сервер:', JSON.stringify(payload, null, 2));
-    
-    const response = yield call(() => api.goalsApi.createGoal(payload));
-    
-    console.log('Ответ сервера:', response.data);
-    
+    const response = yield call(() => api.goalsApi.createGoal(payload));  
+
     if (response.data.status === 'success') {
-      console.log('Цель создана:', response.data.data);
       yield put(createGoalSuccess(response.data.data));
       yield put(fetchGoalsRequest());
     } else {
-      console.log('Ошибка от сервера:', response.data.error);
-      yield put(createGoalFailure(response.data.error || 'Ошибка создания цели'));
+      yield put(createGoalFailure(response.data.error || 'Ошибка создания'));
     }
-  } catch (error: any) {
-    console.log('Критическая ошибка:', error.message);
-    yield put(createGoalFailure(error.message || 'Ошибка сети'));
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      yield put(createGoalFailure(error.message));
+    } else {
+      yield put(createGoalFailure('Ошибка сети'));
+    }
   }
-} 
+}
 
 const mapCategoryToBackend = (cat: string) => {
   switch (cat) {
@@ -103,55 +123,40 @@ const mapCategoryToBackend = (cat: string) => {
   }
 };
 
-function* handleUpdateGoal(api: any, action: PayloadAction<GoalAPI>): any {
-  console.log('Сага получила:', JSON.stringify(action.payload, null, 2));
-  try {
-    const updateData: any = {
+function* handleUpdateGoal(
+  api: Api,
+  action: PayloadAction<GoalAPI>
+): SagaIterator {
+  try { 
+    const payload = {
       title: action.payload.title,
       description: action.payload.description,
       priority: action.payload.priority?.toUpperCase(),
+      start_date: action.payload.startdate,  
+      deadline: action.payload.deadline,
+      daily_time_minutes: action.payload.daily_time_minutes,
+      category: action.payload.category,
       progress: action.payload.progress,
       status: action.payload.status?.toUpperCase(),
     };
+    const response = yield call(() =>
+      api.goalsApi.updateGoal(Number(action.payload.id), action.payload)
+    );
 
-    // добавляем только если есть
-    if (action.payload.startdate) {
-      updateData.start_date = action.payload.startdate;
-    }
-
-    if (action.payload.deadline) {
-      updateData.deadline = action.payload.deadline;
-    }
-
-    if (action.payload.category) {
-      updateData.category = action.payload.category;
-    }
-
-    if (action.payload.daily_time_minutes) {
-      updateData.daily_time_minutes = action.payload.daily_time_minutes;
-    }
-    
-    console.log('FINAL UPDATE DATA:', JSON.stringify(updateData, null, 2));
-    console.log('Обновление цели (ID:', Number(action.payload.id), '):', JSON.stringify(updateData, null, 2));
-    
-    
-    const response = yield call(() => api.goalsApi.updateGoal(Number(action.payload.id), updateData));
-    console.log('RESPONSE FROM BACKEND:', JSON.stringify(response.data, null, 2));
-    
     if (response.data.status === 'success') {
-      const normalized = normalizeGoal(response.data.data);
-
-      yield put(updateGoalSuccess(normalized));
+      yield put(updateGoalSuccess(response.data.data));
       yield put(fetchGoalsRequest());
     } else {
-      yield put(updateGoalFailure(response.data.error || 'Ошибка обновления цели'));
+      yield put(updateGoalFailure(response.data.error || 'Ошибка обновления'));
     }
-  } catch (error: any) {
-    console.log('фуллэррор:', error.response?.data);
-    yield put(updateGoalFailure(error.message || 'Ошибка сети'));
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      yield put(updateGoalFailure(error.message));
+    } else {
+      yield put(updateGoalFailure('Ошибка сети'));
+    }
   }
-    
-  }
+}
 
 function* handleArchiveGoal(api: any, action: PayloadAction<string>): any {
   try {
@@ -182,27 +187,34 @@ function* handleRestoreGoal(api: any, action: PayloadAction<string>): any {
   }
 }
 
-function* handleDeleteGoal(api: any, action: PayloadAction<string>): any {
+function* handleDeleteGoal(
+  api: Api,
+  action: PayloadAction<string>
+): SagaIterator {
   try {
-    const response = yield call(() => api.goalsApi.deleteGoal(Number(action.payload)));
-    
+    const response = yield call(() =>
+      api.goalsApi.deleteGoal(Number(action.payload))
+    );
+
     if (response.data.status === 'success') {
       yield put(deleteGoalSuccess(action.payload));
     } else {
       yield put(deleteGoalFailure(response.data.error || 'Ошибка удаления'));
     }
-  } catch (error: any) {
-    yield put(deleteGoalFailure(error.message || 'Ошибка сети'));
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      yield put(deleteGoalFailure(error.message));
+    } else {
+      yield put(deleteGoalFailure('Ошибка сети'));
+    }
   }
 } 
 
 
 
-export function* goalsSaga(api: any) {
+export function* goalsSaga(api: Api): SagaIterator {
   yield takeLatest(fetchGoalsRequest.type, handleFetchGoals, api);
   yield takeLatest(createGoalRequest.type, handleCreateGoal, api);
   yield takeLatest(updateGoalRequest.type, handleUpdateGoal, api);
-  yield takeLatest(archiveGoalRequest.type, handleArchiveGoal, api);
-  yield takeLatest(restoreGoalRequest.type, handleRestoreGoal, api);
   yield takeLatest(deleteGoalRequest.type, handleDeleteGoal, api);
 }
