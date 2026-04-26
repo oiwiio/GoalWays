@@ -21,9 +21,7 @@ import { Task } from '../../types/goal';
 import { tasksApi } from '../../shared/api/tasks';
 
 
-function* handleFetchTasks(
-  action: PayloadAction<number>
-): SagaIterator {
+function* handleFetchTasks( action: PayloadAction<number>):SagaIterator {
   try {
     const response: {
       data: {

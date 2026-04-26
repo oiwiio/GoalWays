@@ -13,7 +13,7 @@ export type Task = {
 
 
 export type GoalAPI = {
-  id: number;
+  id: string;
   title: string;
   description?: string;
   category?: string;
@@ -26,4 +26,5 @@ export type GoalAPI = {
   createdAt?: string;
   results?: string[];
   start_date?: string;
+  stages?: any[];
 };

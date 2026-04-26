@@ -80,7 +80,8 @@ export const GoalDetailModal = ({
 
     // Заполнение формы данными цели
     useEffect(() => {
-        if (item && 'category' in item) {
+        if (visible && item && 'category' in item) {
+            console.log('🎯 Заполняем форму для цели:', item.title);
             setTitle(item.title || '');
             setDescription(item.description || '');
             setStartDate(item.startdate || item.start_date || '');
@@ -89,8 +90,10 @@ export const GoalDetailModal = ({
             setCategory(item.category || '');
             setStatus(item.status);
             setResults(item.results || []);
+        } else if ( visible && !item) {
+            console.log('7️⃣ Модалка открыта, но item = null');
         }
-    }, [item]);
+    }, [visible,item]);
 
     const validateDates = (start: string, end: string) => {
         if (start && end && new Date(end) < new Date(start)) {
@@ -115,6 +118,7 @@ export const GoalDetailModal = ({
 
     const handleSave = async () => {
         if (!item) {
+             console.error('item = null, сохранение невозможно');
             Alert.alert('Ошибка', 'Цель не найдена');
             return;
         }
@@ -132,7 +136,7 @@ export const GoalDetailModal = ({
         setServerError('');
 
         const updatedItem: GoalAPI = {
-            id: item.id,
+            id: item.id.toString(),
             title: title.trim(),
             description: description.trim(),
             priority,
@@ -142,6 +146,7 @@ export const GoalDetailModal = ({
             status,
             results,
             progress: 0,
+           
         };
 
         try {
@@ -169,32 +174,37 @@ export const GoalDetailModal = ({
     };
 
     const handleSaveTask = async (goalId: number, taskData: Partial<Task>, taskId?: number) => {
-        if (isSaving) return;
+    if (isSaving) return;
 
-        setIsSaving(true);
-        setServerError('');
-
-        try {
-            if (taskId) {
-                await dispatch(updateTaskRequest({ goalId, taskId, data: taskData }));
-            } else {
-                await dispatch(createTaskRequest({ goalId, data: taskData }));
-            }
-            setTimeout(() => {
-                dispatch(fetchTasksRequest(goalId));
-            }, 300);
-            setTaskModalVisible(false);
-            setEditingTask(null);
-        } catch (err: any) {
-            if (err?.response?.status === 400) {
-                setServerError(err?.response?.data?.error?.message || 'Ошибка валидации');
-            } else {
-                setServerError('Не удалось сохранить. Проверьте соединение.');
-            }
-        } finally {
-            setIsSaving(false);
-        }
+    const data = {
+        ...taskData,
+        progress: taskData.progress ? Number(taskData.progress) : 0,
     };
+
+    setIsSaving(true);
+    setServerError('');
+
+    try {
+        if (taskId) {
+            await dispatch(updateTaskRequest({ goalId, taskId, data }));
+        } else {
+            await dispatch(createTaskRequest({ goalId, data }));
+        }
+        setTimeout(() => {
+            dispatch(fetchTasksRequest(goalId));
+        }, 300);
+        setTaskModalVisible(false);
+        setEditingTask(null);
+    } catch (err: any) {
+        if (err?.response?.status === 400) {
+            setServerError(err?.response?.data?.error?.message || 'Ошибка валидации');
+        } else {
+            setServerError('Не удалось сохранить. Проверьте соединение.');
+        }
+    } finally {
+        setIsSaving(false);
+    }
+};
 
     const handleDeleteTask = (taskId: number) => {
         if (!item) return;

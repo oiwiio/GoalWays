@@ -1,11 +1,11 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Goal } from '../../types/goal';
+import { GoalAPI } from '../../types/goal';
 
 type GoalCardProps = {
-    goal: Goal;
-    onPress: (goal: Goal) => void;
-    onArchive: (goal: Goal) => void;
+    goal: GoalAPI;
+    onPress: (goal: GoalAPI) => void;
+    onArchive: (goal: GoalAPI) => void;
 };
 
 export const GoalCard = ({ goal, onPress, onArchive }: GoalCardProps) => {

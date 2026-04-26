@@ -9,7 +9,8 @@ import { settingsReducer } from '../features/settings';
 import { rootSaga } from './saga';
 import { authApi } from '../shared/api/auth';
 import { goalsApi } from '../shared/api/goals';
-import {tasksReducer} from '../features/tasks/index';
+import { tasksReducer } from '../features/tasks/index';
+import uiReducer from '../features/goals/ui.slice';
 
 const api = { authApi, goalsApi };
 
@@ -24,6 +25,7 @@ export const store = configureStore({
     goals: goalsReducer,
     tasks: tasksReducer,
     settings: settingsReducer,
+    ui: uiReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

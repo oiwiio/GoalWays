@@ -38,10 +38,18 @@ export const CreateGoalModal = ({ visible, onClose, onCreateGoal }: CreateGoalMo
         deadline: deadline || null,
         daily_time_minutes: 60,
         progress: 0,
-        status: 'IN_PROGRESS' as const,
-        stages: [],
-     
-};
+        status: 'IN_PROGRESS',
+        stages: [  
+            {
+                title: 'Базовая задача',
+                priority: priority?.toUpperCase() || 'MEDIUM',
+                estimatedMinutes: 60,
+                deadline: new Date().toISOString().split('T')[0],
+                startsAt: new Date().toISOString().split('T')[0],
+                sortOrder: 0,
+            }
+        ],
+    };
    
     // очистка
     setTitle('');

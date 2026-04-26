@@ -1,6 +1,8 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { GoalAPI } from '../../types/goal';
+import { select } from 'redux-saga/effects';
+import { RootState } from '../../app/store'
 import {
   fetchGoalsRequest,
   fetchGoalsSuccess,
@@ -65,19 +67,39 @@ const normalizeGoal = (goal: any): GoalAPI => ({
 
 function* handleFetchGoals(api: Api): SagaIterator {
   try {
-    const response = yield call(() =>
-      api.goalsApi.fetchGoals({ page: 0, size: 10 })
+    // Получаем фильтры из стора
+    console.log('handleFetchGoals вызвана');
+    const filters: { status: string[]; sort: string; order: string } = yield select(
+      (state: RootState) => state.ui.goalFilters
     );
 
+    const params = {
+    page: 0,
+    size: 10,
+    status: filters.status.join(','),    
+    sort: filters.sort,                   
+    order: filters.order,                 
+    };
+
+    if (filters.status.length > 0) {
+      params.status = filters.status.join(',');
+    }
+
+    const response = yield call(() => api.goalsApi.fetchGoals(params));
+    console.log('Ответ на fetchGoals:', response.data);
+
     if (response.data.status === 'success') {
-     
       const normalized = response.data.data.content.map(normalizeGoal);
+      console.log('Цели загружены:', normalized.length);
       yield put(fetchGoalsSuccess(normalized));
     } else {
+      console.log('Ошибка от сервера:', response.data.error);
       yield put(fetchGoalsFailure(response.data.error || 'Ошибка загрузки'));
     }
   } catch (error: unknown) {
+    console.log('Ошибка fetchGoals:', error);
     if (error instanceof Error) {
+      console.log('Сообщение:', error.message);
       yield put(fetchGoalsFailure(error.message));
     } else {
       yield put(fetchGoalsFailure('Ошибка сети'));
@@ -86,18 +108,26 @@ function* handleFetchGoals(api: Api): SagaIterator {
 }
 function* handleCreateGoal(api: Api, action: PayloadAction<GoalAPI>): SagaIterator {
   try {
-    
     const payload = {
-      title: action.payload.title,
-      description: action.payload.description,
-      priority: action.payload.priority?.toUpperCase(),
-      start_date: action.payload.startdate,  
-      deadline: action.payload.deadline,
-      daily_time_minutes: action.payload.daily_time_minutes,
-      stages: [],
-    };
+    title: action.payload.title,
+    description: action.payload.description || '',
+    priority: action.payload.priority?.toUpperCase() || 'MEDIUM',
+    start_date: action.payload.startdate || new Date().toISOString().split('T')[0],
+    deadline: action.payload.deadline || null,
+    daily_time_minutes: action.payload.daily_time_minutes || 60,
+    // stages: action.payload.stages || [   
+    //     {
+    //         title: 'Базовая задача',
+    //         priority: 'MEDIUM',
+    //         estimatedMinutes: 60,
+    //         deadline: new Date().toISOString().split('T')[0],
+    //         startsAt: new Date().toISOString().split('T')[0],
+    //         sortOrder: 0,
+    //     }
+    // ],
+};
 
-    const response = yield call(() => api.goalsApi.createGoal(payload));  
+    const response = yield call(() => api.goalsApi.createGoal(payload)); 
 
     if (response.data.status === 'success') {
       yield put(createGoalSuccess(response.data.data));

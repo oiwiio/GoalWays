@@ -1,5 +1,5 @@
 import { apiClient } from './client';
-import { Goal } from '../../types/goal';
+import { GoalAPI } from '../../types/goal';
 import { ApiResponse } from './types';
 
 
@@ -25,21 +25,21 @@ export const goalsApi = {
     sort?: string;
     order?: 'asc' | 'desc';
   }) =>
-    apiClient.get<ApiResponse<PageResponse<Goal>>>('/api/v1/goals', {
+    apiClient.get<ApiResponse<PageResponse<GoalAPI>>>('/api/v1/goals', {
       params: { page: 0, size: 10, ...params }
     }),
 
   // получить цель по ID
   fetchGoalById: (id: number) =>
-    apiClient.get<ApiResponse<Goal>>(`/api/v1/goals/${id}`),
+    apiClient.get<ApiResponse<GoalAPI>>(`/api/v1/goals/${id}`),
 
   // создать цель
   createGoal: (data: any) =>
-    apiClient.post<ApiResponse<Goal>>('/api/v1/goals', data),
+    apiClient.post<ApiResponse<GoalAPI>>('/api/v1/goals', data),
 
   // обновить цель
   updateGoal: (id: number, data: any) =>
-    apiClient.patch<ApiResponse<Goal>>(`/api/v1/goals/${id}`, data),
+    apiClient.patch<ApiResponse<GoalAPI>>(`/api/v1/goals/${id}`, data),
 
   // удалить цель
   deleteGoal: (id: number) =>

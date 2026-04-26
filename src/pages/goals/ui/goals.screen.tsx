@@ -43,6 +43,8 @@ import { RootState } from '../../../app/store';
 import { ScrollView } from 'react-native'; 
 import { GoalViewModal } from '../../../features/goals/ui/goal-view-modal';
 import { styles } from './styles';
+import { setStatusFilter, setSort, setOrder, resetFilters } from '../../../features/goals/ui.slice';
+
 
 type GoalsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Goals'>;
 
@@ -60,8 +62,9 @@ export const GoalsScreen = () => {
     const error = useSelector(selectGoalsError);
     const [editingGoal, setEditingGoal] = useState<GoalAPI | null>(null);
     const [editModalVisible, setEditModalVisible] = useState(false);
-
+    
     useEffect(() => {
+        console.log('Запрос на загрузку целей');
         dispatch(fetchGoalsRequest());
     }, [dispatch]);
 
@@ -83,9 +86,13 @@ export const GoalsScreen = () => {
 };
 
     const handleEditGoal = (goal: GoalAPI) => {
+    console.log('1 handleEditGoal вызван, цель:', goal.title);
+    console.log('2 editingGoal до:', editingGoal);
     setEditingGoal(goal);
+    console.log('3 editingGoal после:', goal);
     setEditModalVisible(true);
-};
+    console.log('4 editModalVisible установлен в true');
+    };
 
     const handleSaveGoal = (updatedGoal: GoalAPI) => {
     dispatch(updateGoalRequest(updatedGoal));
@@ -99,7 +106,7 @@ export const GoalsScreen = () => {
                 { text: 'Отмена', style: 'cancel' },
                 {
                     text: 'Архивировать',
-                    onPress: () => dispatch(restoreGoalRequest(String(goal.id)))
+                    onPress: () => dispatch(archiveGoalRequest(String(goal.id)))
                 },
             ]
         );
@@ -113,35 +120,35 @@ export const GoalsScreen = () => {
       { text: 'Отмена', style: 'cancel' },
       {
         text: 'Восстановить',
-        onPress: () => () => dispatch(restoreGoalRequest(String(goal.id))),
+        onPress: () => dispatch(restoreGoalRequest(String(goal.id))),
                 },
             ]
         );
     };
 
-    const handleDeleteGoal = (goal: GoalAPI) => { //удаление
-    () => dispatch(restoreGoalRequest(String(goal.id)))   // диспатчим экшн
+    const handleDeleteGoal = (goal: GoalAPI) => {
+        dispatch(deleteGoalRequest(String(goal.id)));  
     };
 
     
 
     const handleGoalPress = (goal: GoalAPI) => {
-    setViewingGoal(goal);
-    setViewModalVisible(true);
-    console.log('Нажали на цель:', goal.title)
+        setViewingGoal(goal);
+        setViewModalVisible(true);
+        console.log('Нажали на цель:', goal.title)
     };
 
     const [viewModalVisible, setViewModalVisible] = useState(false);
     const [viewingGoal, setViewingGoal] = useState<GoalAPI | null>(null);
 
     const handleSaveItem = (updatedItem: GoalAPI | Task) => {
-    dispatch(updateGoalRequest(updatedItem as GoalAPI));
+        dispatch(updateGoalRequest(updatedItem as GoalAPI));
     };
     
     const handleEditFromView = () => {
-    setViewModalVisible(false);
-    setEditingGoal(viewingGoal);
-    setEditModalVisible(true);
+        setViewModalVisible(false);
+        setEditingGoal(viewingGoal);
+        setEditModalVisible(true);
     };
     
 
@@ -159,47 +166,44 @@ export const GoalsScreen = () => {
             </View>
 
     {/* табы */}
-        <ScrollView 
+    <ScrollView 
             horizontal 
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.tabScrollContainer}
         >
         <TouchableOpacity
-          style={[styles.tab, activeTab === 'in_progress' && styles.activeTab]}
-          onPress={() => dispatch(setActiveTab('in_progress'))}
+            style={[styles.tab, activeTab === 'in_progress' && styles.activeTab]}
+            onPress={() => dispatch(setStatusFilter(['IN_PROGRESS']))}
         >
-            <Text style={[styles.tabText, activeTab === 'in_progress' && styles.activeTabText]} numberOfLines={1}>
-              В работе ({inProgressCount})
-            </Text>
+            <Text>В работе ({inProgressCount})</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[styles.tab, activeTab === 'completed' && styles.activeTab]}
-          onPress={() => dispatch(setActiveTab('completed'))}
+          onPress={() => dispatch(setStatusFilter(['COMPLETED']))}
         >
-          <Text style={[styles.tabText, activeTab === 'completed' && styles.activeTabText]} numberOfLines={1}>
-            Готово ({completedCount})
-          </Text>
+            <Text>Готово ({completedCount})</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.tab, activeTab === 'frozen' && styles.activeTab]}
-          onPress={() => dispatch(setActiveTab('frozen'))}
+         style={[styles.tab, activeTab === 'frozen' && styles.activeTab]}
+          onPress={() => dispatch(setStatusFilter(['PAUSED']))}
         >
-          <Text style={[styles.tabText, activeTab === 'frozen' && styles.activeTabText]} numberOfLines={1}>
-            Заморож. ({frozenCount})
-          </Text>
+          <Text>Заморож. ({frozenCount})</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[styles.tab, activeTab === 'archived' && styles.activeTab]}
-          onPress={() => dispatch(setActiveTab('archived'))}
+          onPress={() => dispatch(setStatusFilter(['ARCHIVED']))}
         >
-        <Text style={[styles.tabText, activeTab === 'archived' && styles.activeTabText]} numberOfLines={1}>
-          Архив ({archivedCount})
-        </Text>
+          <Text>Архив ({archivedCount})</Text>
         </TouchableOpacity>
-        </ScrollView>
+
+        <TouchableOpacity onPress={() => dispatch(resetFilters())}>
+        <Text>Сбросить</Text>
+        </TouchableOpacity>
+
+    </ScrollView>
 
         {error && (
                 <View style={styles.errorContainer}>
