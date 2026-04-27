@@ -80,7 +80,7 @@ export const GoalDetailModal = ({
 
     // Заполнение формы данными цели
     useEffect(() => {
-        if (visible && item && 'category' in item) {
+        if (visible && item &&'category' in item) {
             console.log('🎯 Заполняем форму для цели:', item.title);
             setTitle(item.title || '');
             setDescription(item.description || '');
@@ -169,6 +169,7 @@ export const GoalDetailModal = ({
     };
 
     const handleEditTask = (task: Task) => {
+        console.log('Редактируем задачу:', task.title);
         setEditingTask(task);
         setTaskModalVisible(true);
     };
@@ -370,23 +371,23 @@ export const GoalDetailModal = ({
                             </View>
 
                             {/* Задачи */}
-                            <View style={styles.inputGroup}>
-                                <View style={styles.tasksHeader}>
-                                    <Text style={styles.label}>Задачи</Text>
-                                    <TouchableOpacity onPress={handleAddTask}>
-                                        <Text style={styles.addButton}>+ Добавить</Text>
-                                    </TouchableOpacity>
-                                </View>
-                                {tasksLoading ? (
-                                    <Text style={styles.emptyText}>Загрузка...</Text>
-                                ) : tasks.length === 0 ? (
-                                    <Text style={styles.emptyText}>Нет задач</Text>
-                                ) : (
-                                    tasks.map((task) => (
-                                        <TaskItem key={task.id} task={task} onPress={() => handleEditTask(task)} />
-                                    ))
-                                )}
-                            </View>
+                    <View style={styles.inputGroup}>
+                        <View style={styles.tasksHeader}>
+                            <Text style={styles.label}>Задачи</Text>
+                            <TouchableOpacity onPress={handleAddTask}>
+                                <Text style={styles.addButton}>+ Добавить</Text>
+                            </TouchableOpacity>
+                        </View>
+                        {tasksLoading ? (
+                            <Text style={styles.emptyText}>Загрузка...</Text>
+                        ) : tasks.length === 0 ? (
+                            <Text style={styles.emptyText}>Нет задач</Text>
+                        ) : (
+                            tasks.map((task) => (
+                                <TaskItem key={task.id} task={task} onPress={() => handleEditTask(task)} />
+                            ))
+                        )}
+                    </View>
 
                             {/* Результаты */}
                             <View style={styles.inputGroup}>

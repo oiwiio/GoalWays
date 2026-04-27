@@ -130,8 +130,10 @@ export const GoalViewModal = ({ visible, goal, onClose, onEdit }: GoalViewModalP
                                 {goal.results.map((res, idx) => (
                                     <Text key={idx} style={styles.resultItem}>• {res}</Text>
                                 ))}
-                            </View>
+                            </View> 
                         )}
+
+                        
                     </ScrollView>
                 </View>
             </View>

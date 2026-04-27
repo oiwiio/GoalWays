@@ -9,8 +9,8 @@ export const tasksApi = {
   createTask: (goalId: number, data: any) =>
     apiClient.post(`/api/v1/goals/${goalId}/tasks`, data),
 
-  updateTask: (goalId: number, taskId: number, data: any) =>
-    apiClient.patch<ApiResponse<Task>>(`/api/v1/goals/${goalId}/tasks/${taskId}`, data),
+  updateTask: (goalId: number, stageId: number, data: any) =>
+    apiClient.patch(`/api/v1/goals/${goalId}/tasks/${stageId}`, data),
 
   deleteTask: (goalId: number, taskId: number) =>
     apiClient.delete(`/api/v1/goals/${goalId}/tasks/${taskId}`),

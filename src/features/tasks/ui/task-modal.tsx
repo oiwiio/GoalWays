@@ -29,23 +29,26 @@ export const TaskModal = ({ visible, mode, task, goalId, onClose, onSave }: Task
     const [progress, setProgress] = useState('0');
 
     useEffect(() => {
-        if (mode === 'edit' && task) {
-            setTitle(task.title || '');
-            setDescription(task.description || '');
-            setPriority(task.priority || 'MEDIUM');
-            setDeadline(task.deadline || '');
-            setEstimatedMinutes(task.estimatedMinutes?.toString() || '');
-            setProgress(task.progress?.toString() || '0');
-        } else {
-            // сброс формы при создании
-            setTitle('');
-            setDescription('');
-            setPriority('MEDIUM');
-            setDeadline('');
-            setEstimatedMinutes('');
-            setProgress('0');
-        }
-    }, [mode, task, visible]);
+    if (task && mode === 'edit') {
+        setTitle(task.title || '');
+        setDescription(task.description || '');
+        setPriority(task.priority || 'MEDIUM');
+        setDeadline(task.deadline || '');
+        setEstimatedMinutes(task.estimatedMinutes?.toString() || '');
+        setProgress(task.progress?.toString() || '0');
+    }
+    }, [task]); 
+
+    const handleClose = () => {
+        setTitle('');
+        setDescription('');
+        setPriority('MEDIUM');
+        setDeadline('');
+        setEstimatedMinutes('');
+        setProgress('0');
+        onClose();
+    };
+
 
     const handleSave = () => {
         if (!title.trim()) {
