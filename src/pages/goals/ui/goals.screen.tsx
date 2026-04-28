@@ -34,16 +34,16 @@ import {
     selectActiveTab,
     selectGoalsIsLoading,
     selectGoalsError,
-    
 } from '../../../features/goals/selectors';
 import { colors, spacing, borderRadius, typography, shadows } from '../../../shared/styles/theme';
-import { GoalDetailModal } from '../../../features/goals/ui/goal-detail-modal';
 import {  Task } from '../../../types/goal';
 import { RootState } from '../../../app/store';
 import { ScrollView } from 'react-native'; 
 import { GoalViewModal } from '../../../features/goals/ui/goal-view-modal';
 import { styles } from './styles';
 import { setStatusFilter, setSort, setOrder, resetFilters } from '../../../features/goals/ui.slice';
+import { GoalEditModal } from '../../../features/goals/ui/goal-edit-modal/GoalEditModal';
+import { openModal } from '../../../features/goals/ui/goal-edit-modal/index';
 
 
 type GoalsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Goals'>;
@@ -86,12 +86,7 @@ export const GoalsScreen = () => {
 };
 
     const handleEditGoal = (goal: GoalAPI) => {
-    console.log('1 handleEditGoal вызван, цель:', goal.title);
-    console.log('2 editingGoal до:', editingGoal);
-    setEditingGoal(goal);
-    console.log('3 editingGoal после:', goal);
-    setEditModalVisible(true);
-    console.log('4 editModalVisible установлен в true');
+    dispatch(openModal(goal));  
     };
 
     const handleSaveGoal = (updatedGoal: GoalAPI) => {
@@ -133,9 +128,8 @@ export const GoalsScreen = () => {
     
 
     const handleGoalPress = (goal: GoalAPI) => {
-        setViewingGoal(goal);
-        setViewModalVisible(true);
-        console.log('Нажали на цель:', goal.title)
+        dispatch(openModal(goal));
+        console.log('Нажали на цель:', goal.title);
     };
 
     const [viewModalVisible, setViewModalVisible] = useState(false);
@@ -222,7 +216,7 @@ export const GoalsScreen = () => {
             ) : goals.length > 0 ? (
                 <FlatList
                     data={goals}
-                    keyExtractor={(item) => item.id}
+                    keyExtractor={(item) => item.id.toString()}
                     renderItem={({ item }) => (
                         <GoalCard
                             goal={item}
@@ -257,29 +251,7 @@ export const GoalsScreen = () => {
                 </View>
             )}
 
-            <CreateGoalModal
-                visible={modalVisible}
-                onClose={() => setModalVisible(false)}
-                onCreateGoal={handleCreateGoal}
-            />
-
-            
-            <GoalDetailModal
-                visible={editModalVisible}
-                mode="goal"                  
-                item={editingGoal}            
-                onClose={() => {
-                setEditModalVisible(false);
-                setEditingGoal(null);
-                }}
-                onSave={handleSaveItem}
-            />
-            <GoalViewModal
-                visible={viewModalVisible}
-                goal={viewingGoal}
-                onClose={() => setViewModalVisible(false)}
-                onEdit={handleEditFromView}
-            />
+            <GoalEditModal />
                 
             
                 

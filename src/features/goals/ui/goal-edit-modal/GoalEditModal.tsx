@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+// features/goals/ui/goal-edit-modal/GoalEditModal.tsx
+import React, { useEffect } from "react";
 import {
     Modal,
     View,
@@ -9,66 +10,97 @@ import {
     Alert
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { GoalAPI, Task } from '../../../types/goal';
-import { TaskItem } from '../../tasks/ui/task-item';
-import { TaskModal } from '../../tasks/ui/task-modal';
-import { fetchTasksRequest, createTaskRequest, updateTaskRequest, deleteTaskRequest, clearTasksError } from '../../tasks/tasks.slice';
-import { RootState } from '../../../app/store';
-import { styles } from './goal-detail-modal.styles';
-import { selectTasksItems, selectTasksIsLoading, selectTasksError } from '../../../features/tasks/tasks.selectors';
+import { Task } from '../../../../types/goal';
+import { TaskItem } from '../../../tasks/ui/task-item';
+import { TaskModal } from '../../../tasks/ui/task-modal';
+import { 
+    fetchTasksRequest, 
+    createTaskRequest, 
+    updateTaskRequest, 
+    deleteTaskRequest, 
+    clearTasksError 
+} from '../../../tasks/tasks.slice';
+import { styles } from './styles';
 
-interface GoalDetailModalProps {
-    visible: boolean;
-    mode: 'goal' | 'task';
-    item: GoalAPI | Task | null;
-    onClose: () => void;
-    onSave: (updatedItem: GoalAPI | Task) => void;
-    onAddTask?: () => void;
-    onTaskPress?: (task: Task) => void;
-}
+// 👇 Импортируем селекторы из правильного места
+import { 
+    selectTasksItems, 
+    selectTasksIsLoading, 
+    selectTasksError 
+} from '../../../tasks/tasks.selectors';
 
-export const GoalDetailModal = ({
-    visible,
-    item,
-    onClose,
-    onSave,
-}: GoalDetailModalProps) => {
+// 👇 Импортируем селекторы и экшены модалки
+import {
+    selectGoalEditModalVisible,
+    selectGoalEditModalTitle,
+    selectGoalEditModalDescription,
+    selectGoalEditModalCategory,
+    selectGoalEditModalDeadline,
+    selectGoalEditModalStartDate,
+    selectGoalEditModalStatus,
+    selectGoalEditModalPriority,
+    selectGoalEditModalResults,
+    selectGoalEditModalCurrentGoalId,
+    selectGoalEditModalIsSaving,
+    selectGoalEditModalError,
+    selectGoalEditModalResultModalVisible,
+    selectGoalEditModalResultText,
+    closeModal,
+    setTitle,
+    setDescription,
+    setCategory,
+    setDeadline,
+    setStartDate,
+    setStatus,
+    setPriority,
+    addResult,
+    openResultModal,
+    closeResultModal,
+    setResultText,
+    setSaving,
+    setError,
+    clearError,
+    resetForm,
+} from './index';
+
+// Импортируем экшен обновления цели
+import { updateGoalRequest } from '../../slice';
+
+export const GoalEditModal: React.FC = () => {
     const dispatch = useDispatch();
-
-    // Состояния формы
-    const [title, setTitle] = useState('');
-    const [description, setDescription] = useState('');
-    const [category, setCategory] = useState('');
-    const [deadline, setDeadline] = useState('');
-
-    // Статус в API-формате
-    const [status, setStatus] = useState<'IN_PROGRESS' | 'COMPLETED' | 'FROZEN' | 'ARCHIVED'>('IN_PROGRESS');
-
-    // Приоритет в API-формате
-    const [priority, setPriority] = useState<'HIGH' | 'MEDIUM' | 'LOW'>('MEDIUM');
-
-    // Результаты
-    const [resultModalVisible, setResultModalVisible] = useState(false);
-    const [resultText, setResultText] = useState('');
-    const [results, setResults] = useState<string[]>([]);
-
-    // Задачи
+    
+    // ✅ Используем импортированные селекторы
+    const visible = useSelector(selectGoalEditModalVisible);
+    const title = useSelector(selectGoalEditModalTitle);
+    const description = useSelector(selectGoalEditModalDescription);
+    const category = useSelector(selectGoalEditModalCategory);
+    const deadline = useSelector(selectGoalEditModalDeadline);
+    const startDate = useSelector(selectGoalEditModalStartDate);
+    const status = useSelector(selectGoalEditModalStatus);
+    const priority = useSelector(selectGoalEditModalPriority);
+    const results = useSelector(selectGoalEditModalResults);
+    const currentGoalId = useSelector(selectGoalEditModalCurrentGoalId);
+    const isSaving = useSelector(selectGoalEditModalIsSaving);
+    const error = useSelector(selectGoalEditModalError);
+    const resultModalVisible = useSelector(selectGoalEditModalResultModalVisible);
+    const resultText = useSelector(selectGoalEditModalResultText);
+    
+    // ✅ Используем импортированные селекторы задач
     const tasks = useSelector(selectTasksItems);
     const tasksLoading = useSelector(selectTasksIsLoading);
     const tasksError = useSelector(selectTasksError);
-    const [taskModalVisible, setTaskModalVisible] = useState(false);
-    const [editingTask, setEditingTask] = useState<Task | null>(null);
-    const [startDate, setStartDate] = useState('');
-    const [serverError, setServerError] = useState('');
-    const [isSaving, setIsSaving] = useState(false);
-    const [dateError, setDateError] = useState('');
+    
+    // Локальное состояние только для модалки задачи
+    const [taskModalVisible, setTaskModalVisible] = React.useState(false);
+    const [editingTask, setEditingTask] = React.useState<Task | null>(null);
+    const [dateError, setDateError] = React.useState('');
 
-    // Загрузка задач при открытии цели
+    // Загрузка задач при открытии
     useEffect(() => {
-        if (visible && item) {
-            dispatch(fetchTasksRequest(Number(item.id)));
+        if (visible && currentGoalId) {
+            dispatch(fetchTasksRequest(currentGoalId));
         }
-    }, [visible, item, dispatch]);
+    }, [visible, currentGoalId, dispatch]);
 
     // Обработка ошибок задач
     useEffect(() => {
@@ -77,23 +109,6 @@ export const GoalDetailModal = ({
             dispatch(clearTasksError());
         }
     }, [tasksError, dispatch]);
-
-    // Заполнение формы данными цели
-    useEffect(() => {
-        if (visible && item &&'category' in item) {
-            console.log('🎯 Заполняем форму для цели:', item.title);
-            setTitle(item.title || '');
-            setDescription(item.description || '');
-            setStartDate(item.startdate || item.start_date || '');
-            setPriority(item.priority);
-            setDeadline(item.deadline || '');
-            setCategory(item.category || '');
-            setStatus(item.status);
-            setResults(item.results || []);
-        } else if ( visible && !item) {
-            console.log('7️⃣ Модалка открыта, но item = null');
-        }
-    }, [visible,item]);
 
     const validateDates = (start: string, end: string) => {
         if (start && end && new Date(end) < new Date(start)) {
@@ -106,19 +121,13 @@ export const GoalDetailModal = ({
 
     const handleAddTextResult = () => {
         if (resultText.trim()) {
-            setResults([...results, resultText.trim()]);
-            setResultText('');
-            setResultModalVisible(false);
+            dispatch(addResult(resultText.trim()));
+            dispatch(closeResultModal());
         }
     };
 
-    const handleAddPhotoResult = () => {
-        Alert.alert('Функция в разработке', 'Загрузка фото будет доступна позже');
-    };
-
     const handleSave = async () => {
-        if (!item) {
-             console.error('item = null, сохранение невозможно');
+        if (!currentGoalId) {
             Alert.alert('Ошибка', 'Цель не найдена');
             return;
         }
@@ -133,90 +142,72 @@ export const GoalDetailModal = ({
             return;
         }
 
-        setServerError('');
+        dispatch(setSaving(true));
+        dispatch(clearError());
 
-        const updatedItem: GoalAPI = {
-            id: item.id.toString(),
+        const updatedItem = {
+            id: currentGoalId,
             title: title.trim(),
             description: description.trim(),
             priority,
             deadline: deadline || null,
-            start_date: startDate || undefined,
+            startdate: startDate || undefined,
             category: category.trim() || 'Без категории',
             status,
             results,
             progress: 0,
-           
         };
 
         try {
-            onSave(updatedItem);
-            onClose();
+            await dispatch(updateGoalRequest(updatedItem));
+            dispatch(closeModal());
         } catch (err: any) {
             if (err?.response?.status === 400) {
-                setServerError(err?.response?.data?.error?.message || 'Ошибка валидации');
+                dispatch(setError(err?.response?.data?.error?.message || 'Ошибка валидации'));
             } else {
-                setServerError('Не удалось сохранить. Проверьте соединение.');
+                dispatch(setError('Не удалось сохранить. Проверьте соединение.'));
             }
+        } finally {
+            dispatch(setSaving(false));
         }
     };
 
-    // Обработчики задач
     const handleAddTask = () => {
-        if (!item) return;
+        if (!currentGoalId) return;
         setEditingTask(null);
         setTaskModalVisible(true);
     };
 
     const handleEditTask = (task: Task) => {
-        console.log('Редактируем задачу:', task.title);
         setEditingTask(task);
         setTaskModalVisible(true);
     };
 
     const handleSaveTask = async (goalId: number, taskData: Partial<Task>, taskId?: number) => {
-    if (isSaving) return;
-
-    const data = {
-        ...taskData,
-        progress: taskData.progress ? Number(taskData.progress) : 0,
+        try {
+            if (taskId) {
+                await dispatch(updateTaskRequest({ goalId, taskId, data: taskData }));
+            } else {
+                await dispatch(createTaskRequest({ goalId, data: taskData }));
+            }
+            dispatch(fetchTasksRequest(goalId));
+            setTaskModalVisible(false);
+            setEditingTask(null);
+        } catch (err: any) {
+            Alert.alert('Ошибка', err?.message || 'Не удалось сохранить задачу');
+        }
     };
 
-    setIsSaving(true);
-    setServerError('');
-
-    try {
-        if (taskId) {
-            await dispatch(updateTaskRequest({ goalId, taskId, data }));
-        } else {
-            await dispatch(createTaskRequest({ goalId, data }));
-        }
-        setTimeout(() => {
-            dispatch(fetchTasksRequest(goalId));
-        }, 300);
-        setTaskModalVisible(false);
-        setEditingTask(null);
-    } catch (err: any) {
-        if (err?.response?.status === 400) {
-            setServerError(err?.response?.data?.error?.message || 'Ошибка валидации');
-        } else {
-            setServerError('Не удалось сохранить. Проверьте соединение.');
-        }
-    } finally {
-        setIsSaving(false);
-    }
-};
-
     const handleDeleteTask = (taskId: number) => {
-        if (!item) return;
+        if (!currentGoalId) return;
 
         Alert.alert('Удалить задачу', 'Вы уверены?', [
             { text: 'Отмена', style: 'cancel' },
             {
                 text: 'Удалить', onPress: () => {
-                    dispatch(deleteTaskRequest({ goalId: Number(item.id), taskId }));
+                    dispatch(deleteTaskRequest({ goalId: currentGoalId, taskId }));
                     setTimeout(() => {
-                        dispatch(fetchTasksRequest(Number(item.id)));
+                        dispatch(fetchTasksRequest(currentGoalId));
                     }, 300);
                 }
             }
@@ -225,15 +216,13 @@ export const GoalDetailModal = ({
 
     const suggestedCategories = ['Работа', 'Учеба', 'Здоровье', 'Личное', 'Финансы'];
 
-    if (!item) return null;
-
     return (
         <>
             <Modal
                 visible={visible}
                 animationType="slide"
                 transparent={true}
-                onRequestClose={onClose}
+                onRequestClose={() => dispatch(closeModal())}
             >
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
@@ -246,7 +235,7 @@ export const GoalDetailModal = ({
                                 <TextInput
                                     style={styles.input}
                                     value={title}
-                                    onChangeText={setTitle}
+                                    onChangeText={(text) => dispatch(setTitle(text))}
                                     placeholder="Введите название"
                                     maxLength={50}
                                 />
@@ -258,7 +247,7 @@ export const GoalDetailModal = ({
                                 <TextInput
                                     style={[styles.input, styles.textArea]}
                                     value={description}
-                                    onChangeText={setDescription}
+                                    onChangeText={(text) => dispatch(setDescription(text))}
                                     placeholder="Опишите"
                                     multiline
                                     numberOfLines={3}
@@ -273,7 +262,7 @@ export const GoalDetailModal = ({
                                     style={styles.input}
                                     value={startDate}
                                     onChangeText={(text) => {
-                                        setStartDate(text);
+                                        dispatch(setStartDate(text));
                                         validateDates(text, deadline);
                                     }}
                                     placeholder="ГГГГ-ММ-ДД"
@@ -288,7 +277,7 @@ export const GoalDetailModal = ({
                                     style={styles.input}
                                     value={deadline}
                                     onChangeText={(text) => {
-                                        setDeadline(text);
+                                        dispatch(setDeadline(text));
                                         validateDates(startDate, text);
                                     }}
                                     placeholder="ГГГГ-ММ-ДД"
@@ -302,19 +291,19 @@ export const GoalDetailModal = ({
                                 <View style={styles.priorityContainer}>
                                     <TouchableOpacity
                                         style={[styles.priorityButton, priority === 'HIGH' && styles.priorityButtonActive]}
-                                        onPress={() => setPriority('HIGH')}
+                                        onPress={() => dispatch(setPriority('HIGH'))}
                                     >
                                         <Text style={[styles.priorityButtonText, priority === 'HIGH' && styles.priorityButtonTextActive]}>🔥 Высокий</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity
                                         style={[styles.priorityButton, priority === 'MEDIUM' && styles.priorityButtonActive]}
-                                        onPress={() => setPriority('MEDIUM')}
+                                        onPress={() => dispatch(setPriority('MEDIUM'))}
                                     >
                                         <Text style={[styles.priorityButtonText, priority === 'MEDIUM' && styles.priorityButtonTextActive]}>⚪ Средний</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity
                                         style={[styles.priorityButton, priority === 'LOW' && styles.priorityButtonActive]}
-                                        onPress={() => setPriority('LOW')}
+                                        onPress={() => dispatch(setPriority('LOW'))}
                                     >
                                         <Text style={[styles.priorityButtonText, priority === 'LOW' && styles.priorityButtonTextActive]}>💤 Низкий</Text>
                                     </TouchableOpacity>
@@ -327,7 +316,7 @@ export const GoalDetailModal = ({
                                 <TextInput
                                     style={styles.input}
                                     value={category}
-                                    onChangeText={setCategory}
+                                    onChangeText={(text) => dispatch(setCategory(text))}
                                     placeholder="Выберите или введите категорию"
                                 />
                                 <View style={styles.categoriesContainer}>
@@ -335,7 +324,7 @@ export const GoalDetailModal = ({
                                         <TouchableOpacity
                                             key={cat}
                                             style={[styles.categoryChip, category === cat && styles.categoryChipSelected]}
-                                            onPress={() => setCategory(cat)}
+                                            onPress={() => dispatch(setCategory(cat))}
                                         >
                                             <Text style={[styles.categoryChipText, category === cat && styles.categoryChipTextSelected]}>
                                                 {cat}
@@ -351,19 +340,19 @@ export const GoalDetailModal = ({
                                 <View style={styles.statusContainer}>
                                     <TouchableOpacity
                                         style={[styles.statusButton, status === 'IN_PROGRESS' && styles.statusButtonActive]}
-                                        onPress={() => setStatus('IN_PROGRESS')}
+                                        onPress={() => dispatch(setStatus('IN_PROGRESS'))}
                                     >
                                         <Text style={[styles.statusButtonText, status === 'IN_PROGRESS' && styles.statusButtonTextActive]}>▶️ В процессе</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity
                                         style={[styles.statusButton, status === 'COMPLETED' && styles.statusButtonActive]}
-                                        onPress={() => setStatus('COMPLETED')}
+                                        onPress={() => dispatch(setStatus('COMPLETED'))}
                                     >
                                         <Text style={[styles.statusButtonText, status === 'COMPLETED' && styles.statusButtonTextActive]}>✅ Завершено</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity
                                         style={[styles.statusButton, status === 'FROZEN' && styles.statusButtonActive]}
-                                        onPress={() => setStatus('FROZEN')}
+                                        onPress={() => dispatch(setStatus('FROZEN'))}
                                     >
                                         <Text style={[styles.statusButtonText, status === 'FROZEN' && styles.statusButtonTextActive]}>❄️ Заморожено</Text>
                                     </TouchableOpacity>
@@ -371,23 +360,23 @@ export const GoalDetailModal = ({
                             </View>
 
                             {/* Задачи */}
-                    <View style={styles.inputGroup}>
-                        <View style={styles.tasksHeader}>
-                            <Text style={styles.label}>Задачи</Text>
-                            <TouchableOpacity onPress={handleAddTask}>
-                                <Text style={styles.addButton}>+ Добавить</Text>
-                            </TouchableOpacity>
-                        </View>
-                        {tasksLoading ? (
-                            <Text style={styles.emptyText}>Загрузка...</Text>
-                        ) : tasks.length === 0 ? (
-                            <Text style={styles.emptyText}>Нет задач</Text>
-                        ) : (
-                            tasks.map((task) => (
-                                <TaskItem key={task.id} task={task} onPress={() => handleEditTask(task)} />
-                            ))
-                        )}
-                    </View>
+                            <View style={styles.inputGroup}>
+                                <View style={styles.tasksHeader}>
+                                    <Text style={styles.label}>Задачи</Text>
+                                    <TouchableOpacity onPress={handleAddTask}>
+                                        <Text style={styles.addButton}>+ Добавить</Text>
+                                    </TouchableOpacity>
+                                </View>
+                                {tasksLoading ? (
+                                    <Text style={styles.emptyText}>Загрузка...</Text>
+                                ) : tasks.length === 0 ? (
+                                    <Text style={styles.emptyText}>Нет задач</Text>
+                                ) : (
+                                    tasks.map((task) => (
+                                        <TaskItem key={task.id} task={task} onPress={() => handleEditTask(task)} />
+                                    ))
+                                )}
+                            </View>
 
                             {/* Результаты */}
                             <View style={styles.inputGroup}>
@@ -396,10 +385,10 @@ export const GoalDetailModal = ({
                                     <Text key={idx} style={styles.resultItem}>• {res}</Text>
                                 ))}
                                 <View style={styles.resultButtons}>
-                                    <TouchableOpacity style={styles.resultButton} onPress={() => setResultModalVisible(true)}>
+                                    <TouchableOpacity style={styles.resultButton} onPress={() => dispatch(openResultModal())}>
                                         <Text style={styles.resultButtonText}>➕ Текст</Text>
                                     </TouchableOpacity>
-                                    <TouchableOpacity style={styles.resultButton} onPress={handleAddPhotoResult}>
+                                    <TouchableOpacity style={styles.resultButton} onPress={() => Alert.alert('Функция в разработке', 'Загрузка фото будет доступна позже')}>
                                         <Text style={styles.resultButtonText}>📷 Фото</Text>
                                     </TouchableOpacity>
                                 </View>
@@ -408,15 +397,19 @@ export const GoalDetailModal = ({
 
                         {/* Отображение ошибок */}
                         {dateError ? <Text style={styles.errorText}>{dateError}</Text> : null}
-                        {serverError ? <Text style={styles.serverErrorText}>{serverError}</Text> : null}
+                        {error ? <Text style={styles.serverErrorText}>{error}</Text> : null}
 
                         {/* Кнопки */}
                         <View style={styles.buttonsContainer}>
-                            <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={onClose}>
+                            <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={() => dispatch(closeModal())}>
                                 <Text style={styles.cancelButtonText}>Отмена</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={[styles.button, styles.saveButton]} onPress={handleSave}>
-                                <Text style={styles.saveButtonText}>Сохранить</Text>
+                            <TouchableOpacity 
+                                style={[styles.button, styles.saveButton, isSaving && styles.disabledButton]} 
+                                onPress={handleSave}
+                                disabled={isSaving}
+                            >
+                                <Text style={styles.saveButtonText}>{isSaving ? 'Сохранение...' : 'Сохранить'}</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -433,10 +426,10 @@ export const GoalDetailModal = ({
                             multiline
                             placeholder="Введите текст..."
                             value={resultText}
-                            onChangeText={setResultText}
+                            onChangeText={(text) => dispatch(setResultText(text))}
                         />
                         <View style={styles.row}>
-                            <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={() => setResultModalVisible(false)}>
+                            <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={() => dispatch(closeResultModal())}>
                                 <Text style={styles.cancelButtonText}>Отмена</Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={[styles.button, styles.saveButton]} onPress={handleAddTextResult}>
@@ -452,7 +445,7 @@ export const GoalDetailModal = ({
                 visible={taskModalVisible}
                 mode={editingTask ? 'edit' : 'create'}
                 task={editingTask}
-                goalId={Number(item.id)}
+                goalId={currentGoalId || 0}
                 onClose={() => {
                     setTaskModalVisible(false);
                     setEditingTask(null);

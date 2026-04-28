@@ -5,7 +5,7 @@ import { GoalAPI, Task } from '../../../types/goal';
 import { TaskItem } from '../../tasks/ui/task-item';
 import { fetchTasksRequest } from '../../tasks/index';
 import { RootState } from '../../../app/store';
-import { styles } from './goal-detail-modal.styles';
+import { styles } from './goal-view.styles';
 
 interface GoalViewModalProps {
     visible: boolean;
