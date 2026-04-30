@@ -74,7 +74,9 @@ export const TaskModal = ({ visible, mode, task, goalId, onClose, onSave }: Task
             priority,
             deadline: deadline || null,
             estimatedMinutes: minutes,
+            startsAt: new Date().toISOString().split('T')[0], 
             progress: progressNum,
+            status: 'IN_PROGRESS', 
         };
 
         if (mode === 'edit' && task) {

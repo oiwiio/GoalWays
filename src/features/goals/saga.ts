@@ -67,41 +67,60 @@ const normalizeGoal = (goal: any): GoalAPI => ({
 
 function* handleFetchGoals(api: Api): SagaIterator {
   try {
-    // Получаем фильтры из стора
     console.log('handleFetchGoals вызвана');
+    
     const filters: { status: string[]; sort: string; order: string } = yield select(
-      (state: RootState) => state.ui.goalFilters
+      (state: RootState) => 
+        state.ui.goalFilters
+      
     );
+    
+    console.log('Фильтры перед запросом:', JSON.stringify(filters, null, 2));
+    console.log('  - status:', filters.status);
+    console.log('  - sort:', filters.sort);
+    console.log('  - order:', filters.order);
 
-    const params = {
-    page: 0,
-    size: 10,
-    status: filters.status.join(','),    
-    sort: filters.sort,                   
-    order: filters.order,                 
+    const params: any = {
+      page: 0,
+      size: 10,
+      sort: filters.sort || 'createdAt',
+      order: filters.order || 'desc',
     };
 
-    if (filters.status.length > 0) {
+    if (filters.status && filters.status.length > 0) {
       params.status = filters.status.join(',');
+      console.log('  - status param:', params.status);
     }
 
+    console.log('Параметры запроса:', JSON.stringify(params, null, 2));
+
     const response = yield call(() => api.goalsApi.fetchGoals(params));
-    console.log('Ответ на fetchGoals:', response.data);
+    
+    console.log('Ответ на fetchGoals:', {
+      status: response.data.status,
+      dataLength: response.data.data?.content?.length,
+      fullData: response.data
+    });
 
     if (response.data.status === 'success') {
       const normalized = response.data.data.content.map(normalizeGoal);
-      console.log('Цели загружены:', normalized.length);
+      console.log('Цели загружены:', {
+        count: normalized.length,
+        firstGoal: normalized[0]?.title
+      });
       yield put(fetchGoalsSuccess(normalized));
     } else {
       console.log('Ошибка от сервера:', response.data.error);
       yield put(fetchGoalsFailure(response.data.error || 'Ошибка загрузки'));
     }
   } catch (error: unknown) {
-    console.log('Ошибка fetchGoals:', error);
+    console.log('Ошибка в handleFetchGoals:', error);
     if (error instanceof Error) {
-      console.log('Сообщение:', error.message);
+      console.log('  - message:', error.message);
+      console.log('  - stack:', error.stack);
       yield put(fetchGoalsFailure(error.message));
     } else {
+      console.log('  - неизвестная ошибка');
       yield put(fetchGoalsFailure('Ошибка сети'));
     }
   }
@@ -188,27 +207,33 @@ function* handleUpdateGoal(
   }
 }
 
-function* handleArchiveGoal(api: any, action: PayloadAction<string>): any {
-  try {
-    const response = yield call(() => api.goalsApi.updateGoal(Number(action.payload), { status: 'ARCHIVED' }));
-    
-    if (response.data.status === 'success') {
-      yield put(archiveGoalSuccess(action.payload));
-    } else {
-      yield put(archiveGoalFailure(response.data.error || 'Ошибка архивирования'));
-    }
-  } catch (error: any) {
-    yield put(archiveGoalFailure(error.message || 'Ошибка сети'));
-  }
-  
-}
+function* handleArchiveGoal(api: Api, action: PayloadAction<string>): SagaIterator {
+    console.log('2 Сага архивации получила ID:', action.payload);
+    try {
+        const response = yield call(() => api.goalsApi.updateGoal(Number(action.payload), { status: 'ARCHIVED' }));
+        console.log('3 Ответ от сервера:', response.data);
+        console.log(' :) Статус после архивации:', response.data.data.status);
+        if (response.data.status === 'success') {
+            console.log('4 Успех, диспатчим archiveGoalSuccess');
+            yield put(archiveGoalSuccess(action.payload));
+            yield put(fetchGoalsRequest());
+        } else {
+            console.log('5 Ошибка от сервера:', response.data.error);
+            yield put(archiveGoalFailure(response.data.error || 'Ошибка архивирования'));
+        }
+    } catch (error: any) {
+        console.log('6 Исключение в саге:', error.message);
+        yield put(archiveGoalFailure(error.message || 'Ошибка сети'));
+    };
+};
 
-function* handleRestoreGoal(api: any, action: PayloadAction<string>): any {
+function* handleRestoreGoal(api: Api, action: PayloadAction<string>): SagaIterator {
   try {
     const response = yield call(() => api.goalsApi.updateGoal(Number(action.payload), { status: 'IN_PROGRESS' }));
     
     if (response.data.status === 'success') {
       yield put(restoreGoalSuccess(action.payload));
+      yield put(fetchGoalsRequest());
     } else {
       yield put(restoreGoalFailure(response.data.error || 'Ошибка восстановления'));
     }
@@ -246,5 +271,7 @@ export function* goalsSaga(api: Api): SagaIterator {
   yield takeLatest(fetchGoalsRequest.type, handleFetchGoals, api);
   yield takeLatest(createGoalRequest.type, handleCreateGoal, api);
   yield takeLatest(updateGoalRequest.type, handleUpdateGoal, api);
+  yield takeLatest(archiveGoalRequest.type, handleArchiveGoal, api);  
+  yield takeLatest(restoreGoalRequest.type, handleRestoreGoal, api);  
   yield takeLatest(deleteGoalRequest.type, handleDeleteGoal, api);
 }

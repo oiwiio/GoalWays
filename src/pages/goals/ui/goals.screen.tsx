@@ -97,25 +97,29 @@ export const GoalsScreen = () => {
         Alert.alert(
             'Архивировать цель',
             `Переместить "${goal.title}" в архив?`,
-            [
-                { text: 'Отмена', style: 'cancel' },
+        [
+            { text: 'Отмена', style: 'cancel' },
                 {
                     text: 'Архивировать',
-                    onPress: () => dispatch(archiveGoalRequest(String(goal.id)))
+                    
+                    onPress: () => {
+                        console.log(' 1 Диспатч archiveGoalRequest, ID:', goal.id);
+                        dispatch(archiveGoalRequest(String(goal.id))) 
+                    }
                 },
             ]
         );
     };
 
     const handleRestoreGoal = (goal: GoalAPI) => {
-    Alert.alert(
-        'Восстановить цель',
-        `Вернуть "${goal.title}" из архива?`,
-    [
-      { text: 'Отмена', style: 'cancel' },
-      {
-        text: 'Восстановить',
-        onPress: () => dispatch(restoreGoalRequest(String(goal.id))),
+        Alert.alert(
+            'Восстановить цель',
+            `Вернуть "${goal.title}" из архива?`,
+        [
+            { text: 'Отмена', style: 'cancel' },
+                {
+                    text: 'Восстановить',
+                    onPress: () => dispatch(restoreGoalRequest(String(goal.id))) // 👈 правильно
                 },
             ]
         );
@@ -161,43 +165,58 @@ export const GoalsScreen = () => {
 
     {/* табы */}
     <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.tabScrollContainer}
-        >
-        <TouchableOpacity
-            style={[styles.tab, activeTab === 'in_progress' && styles.activeTab]}
-            onPress={() => dispatch(setStatusFilter(['IN_PROGRESS']))}
-        >
-            <Text>В работе ({inProgressCount})</Text>
-        </TouchableOpacity>
+        horizontal 
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.tabScrollContainer}
+    >
+    <TouchableOpacity
+        style={[styles.tab, activeTab === 'in_progress' && styles.activeTab]}
+        onPress={() => {
+            console.log('Нажат таб IN_PROGRESS');
+            dispatch(setStatusFilter(['IN_PROGRESS']));
+            dispatch(setActiveTab('in_progress'));  
+            dispatch(fetchGoalsRequest());
+        }}
+    >
+        <Text>В работе ({inProgressCount})</Text>
+    </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'completed' && styles.activeTab]}
-          onPress={() => dispatch(setStatusFilter(['COMPLETED']))}
-        >
-            <Text>Готово ({completedCount})</Text>
-        </TouchableOpacity>
+    <TouchableOpacity
+        style={[styles.tab, activeTab === 'completed' && styles.activeTab]}
+        onPress={() => {
+            console.log('Нажат таб COMPLETED');
+            dispatch(setStatusFilter(['COMPLETED']));
+            dispatch(setActiveTab('completed'));     
+            dispatch(fetchGoalsRequest());
+        }}
+    >
+        <Text>Готово ({completedCount})</Text>
+    </TouchableOpacity>
 
-        <TouchableOpacity
-         style={[styles.tab, activeTab === 'frozen' && styles.activeTab]}
-          onPress={() => dispatch(setStatusFilter(['PAUSED']))}
-        >
-          <Text>Заморож. ({frozenCount})</Text>
-        </TouchableOpacity>
+    <TouchableOpacity
+        style={[styles.tab, activeTab === 'frozen' && styles.activeTab]}
+        onPress={() => {
+            console.log('Нажат таб FROZEN');          
+            dispatch(setStatusFilter(['FROZEN']));    
+            dispatch(setActiveTab('frozen'));         
+            dispatch(fetchGoalsRequest());
+        }}
+    >
+        <Text>Заморож. ({frozenCount})</Text>
+    </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'archived' && styles.activeTab]}
-          onPress={() => dispatch(setStatusFilter(['ARCHIVED']))}
-        >
-          <Text>Архив ({archivedCount})</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => dispatch(resetFilters())}>
-        <Text>Сбросить</Text>
-        </TouchableOpacity>
-
-    </ScrollView>
+    <TouchableOpacity
+        style={[styles.tab, activeTab === 'archived' && styles.activeTab]}
+        onPress={() => {
+            console.log('Нажат таб ARCHIVED');
+            dispatch(setStatusFilter(['ARCHIVED']));
+            dispatch(setActiveTab('archived'));       
+            dispatch(fetchGoalsRequest());
+        }}
+    >
+        <Text>Архив ({archivedCount})</Text>
+    </TouchableOpacity>
+</ScrollView>
 
         {error && (
                 <View style={styles.errorContainer}>
