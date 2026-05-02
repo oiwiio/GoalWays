@@ -78,6 +78,8 @@ export interface AuthApi {
   login: (data: LoginRequest) => Promise<AxiosResponse<ApiSuccess<LoginResponse>>>;
   refresh: (data: RefreshRequest) => Promise<AxiosResponse<ApiSuccess<{ access_token: string }>>>;
   logout: (data: LogoutRequest) => Promise<AxiosResponse<ApiSuccess<{ message: string }>>>;
+  forgotPassword: (data: { email: string }) => Promise<AxiosResponse<ApiSuccess<{ message: string }>>>;
+   sendPasswordResetCode: (email: string) => Promise<AxiosResponse<ApiSuccess<{ message: string }>>>;
 }
 
 export interface GoalsApi {
