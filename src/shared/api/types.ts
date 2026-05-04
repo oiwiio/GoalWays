@@ -50,11 +50,6 @@ export interface ApiError {
   error: string;
 }
 
-export interface ConfirmRequest {
-  username: string;
-  code: string;
-}
-
 export interface ConfirmResponse {
   message: string;
 }
@@ -80,6 +75,10 @@ export interface AuthApi {
   logout: (data: LogoutRequest) => Promise<AxiosResponse<ApiSuccess<{ message: string }>>>;
   forgotPassword: (data: { email: string }) => Promise<AxiosResponse<ApiSuccess<{ message: string }>>>;
    sendPasswordResetCode: (email: string) => Promise<AxiosResponse<ApiSuccess<{ message: string }>>>;
+  getProfile: () => Promise<AxiosResponse<ApiSuccess<UserProfile>>>;
+  updateProfile: (data: UpdateProfileRequest) => Promise<AxiosResponse<ApiSuccess<UserProfile>>>;
+  changePassword: (data: ChangePasswordRequest) => Promise<AxiosResponse<ApiSuccess<{ message: string }>>>;
+  uploadAvatar: (formData: FormData) => Promise<AxiosResponse<ApiSuccess<{ avatarUrl: string }>>>; 
 }
 
 export interface GoalsApi {
@@ -105,5 +104,28 @@ export interface TasksApi {
 export interface Api {
   authApi: AuthApi;
   goalsApi: GoalsApi;
-  tasksApi: TasksApi;
+  tasksApi?: TasksApi;
+}
+
+export interface UserProfile {
+  id: number;
+  username: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  avatar?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface UpdateProfileRequest {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  avatar?: string;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
 }

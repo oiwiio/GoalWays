@@ -86,4 +86,31 @@ export const profileStyles = StyleSheet.create({
     fontSize: 20,
     color: '#999',
   },
+
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: '#666',
+  },
+  userEmail: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 4,
+  },
+  userFullName: {
+    fontSize: 14,
+    color: '#888',
+    marginTop: 2,
+  },
+  userDate: {
+    fontSize: 12,
+    color: '#999',
+    marginTop: 4,
+  },
+
 });
