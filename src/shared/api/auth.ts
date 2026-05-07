@@ -15,6 +15,7 @@ import {
 } from './types';
 
 export const authApi = {
+ 
   // Регистрация
   register: (data: RegisterRequest) =>
     apiClient.post<ApiResponse<RegisterResponse>>('/api/v1/auth/register', data), 
@@ -39,20 +40,16 @@ export const authApi = {
   logout: (data: LogoutRequest) =>
     apiClient.post<ApiResponse<null>>('/api/v1/auth/logout', data), 
   
-   getProfile: () =>
-    apiClient.get<ApiResponse<UserProfile>>('/api/v1/users/profile'),
+ 
+  // Получение профиля
+  getProfile: () =>
+    apiClient.get<ApiResponse<UserProfile>>('/api/v1/auth/me'),
 
-  // Обновить профиль
+  // Обновление профиля (username, email)
   updateProfile: (data: UpdateProfileRequest) =>
-    apiClient.put<ApiResponse<UserProfile>>('/api/v1/users/profile', data),
+    apiClient.patch<ApiResponse<UserProfile>>('/api/v1/profile', data),
 
-  // Сменить пароль
+  // Смена пароля
   changePassword: (data: ChangePasswordRequest) =>
-    apiClient.post<ApiResponse<{ message: string }>>('/api/v1/users/change-password', data),
-
-  // Загрузить аватар
-  uploadAvatar: (formData: FormData) =>
-    apiClient.post<ApiResponse<{ avatarUrl: string }>>('/api/v1/users/avatar', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    }),
+    apiClient.post<ApiResponse<{ message: string }>>('/api/v1/auth/change-password', data),
 };

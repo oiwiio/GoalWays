@@ -129,3 +129,22 @@ export interface ChangePasswordRequest {
   currentPassword: string;
   newPassword: string;
 }
+
+export interface UserProfile {
+  id: number;
+  username: string;
+  email: string;
+  status?: 'ACTIVE' | 'INACTIVE' | 'BLOCKED';
+}
+
+
+export interface UpdateProfileRequest {
+  username?: string;
+  email?: string;
+}
+
+
+export interface ChangePasswordRequest {
+  oldPassword: string;  
+  newPassword: string;
+}
