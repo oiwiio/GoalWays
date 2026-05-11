@@ -50,10 +50,6 @@ export interface ApiError {
   error: string;
 }
 
-export interface ConfirmResponse {
-  message: string;
-}
-
 export interface PageResponse<T> {
   content: T[];
   totalPages: number;
@@ -111,6 +107,7 @@ export interface UserProfile {
   id: number;
   username: string;
   email: string;
+  status?: 'ACTIVE' | 'INACTIVE' | 'BLOCKED';
   firstName?: string;
   lastName?: string;
   avatar?: string;
@@ -123,39 +120,18 @@ export interface UpdateProfileRequest {
   lastName?: string;
   email?: string;
   avatar?: string;
+  username?: string;
 }
 
 export interface ChangePasswordRequest {
   currentPassword: string;
   newPassword: string;
-}
-
-export interface UserProfile {
-  id: number;
-  username: string;
-  email: string;
-  status?: 'ACTIVE' | 'INACTIVE' | 'BLOCKED';
-}
-
-
-export interface UpdateProfileRequest {
-  username?: string;
-  email?: string;
-}
-
-
-export interface ChangePasswordRequest {
   oldPassword: string;  
-  newPassword: string;
-}
-
-export interface AIQuestion {
-  id: string;
-  text: string;
+  
 }
 
 export interface AIPlanResponse {
-  status: 'ready' | 'clarification_needed';
+  status: 'success' | 'error' | 'clarification_needed';
   data?: {
     tasks?: Array<{
       title: string;
@@ -164,9 +140,28 @@ export interface AIPlanResponse {
       estimated_minutes?: number;
     }>;
   };
-  session_id?: string;
   questions?: AIQuestion[];
+  session_id?: string;
+  priority?: 'HIGH' | 'MEDIUM' | 'LOW';
+  deadline?: string;
+  title?: string;
+  description?: string;
+  start_date?: string;
+  daily_time_minutes?: number;
   error?: string;
+  message?: string;
+}
+
+export interface AIClarifyResponse {
+  status: 'success';
+  data: {
+    tasks: Array<{
+      title: string;
+      description?: string;
+      priority?: 'LOW' | 'MEDIUM' | 'HIGH';
+      estimated_minutes?: number;
+    }>;
+  };
 }
 
 export interface AIClarifyRequest {
@@ -178,14 +173,37 @@ export interface AIClarifyRequest {
   }>;
 }
 
-export interface AIClarifyResponse {
-  status: 'ready';
-  data: {
-    tasks: Array<{
-      title: string;
-      description?: string;
-      priority?: 'LOW' | 'MEDIUM' | 'HIGH';
-      estimated_minutes?: number;
-    }>;
-  };
+export interface AiHelpGoalRequest {
+  goalId: number;
+  prompt?: string;
+}
+
+export interface AIQuestion {
+  id: string;
+  text: string;
+}
+
+export interface AIGeneratedTask {
+  id?: number;
+  title: string;
+  description?: string;
+  priority?: 'HIGH' | 'MEDIUM' | 'LOW';
+  estimated_minutes?: number;
+  deadline?: string;
+  startsAt?: string;
+  sortOrder?: number;
+  status?: string;
+}
+
+export interface AIPlanData {
+  tasks?: AIGeneratedTask[];
+  stages?: AIGeneratedTask[];
+  questions?: AIQuestion[];
+  session_id?: string;
+  priority?: 'HIGH' | 'MEDIUM' | 'LOW';
+  deadline?: string;
+  title?: string;
+  description?: string;
+  start_date?: string;
+  daily_time_minutes?: number;
 }

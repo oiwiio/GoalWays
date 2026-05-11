@@ -10,56 +10,79 @@ import {
   clarifyPlanFailure,
 } from './slice';
 import { aiApi } from '../../shared/api/ai';
-import { AIPlanResponse, AIClarifyResponse } from '../../shared/api/types';
+import { 
+  AIPlanResponse, 
+  AIClarifyRequest, 
+  AIClarifyResponse,
+  AIPlanData 
+} from '../../shared/api/types';
 import { AxiosResponse } from 'axios';
 import { Alert } from 'react-native';
 
 type GeneratePlanResponse = AxiosResponse<AIPlanResponse>;
 type ClarifyPlanResponse = AxiosResponse<AIClarifyResponse>;
 
-function* handleGeneratePlan(action: PayloadAction<number>): Generator<any, void, GeneratePlanResponse> {
+function* handleGeneratePlan(action: PayloadAction<{ goalId: number; prompt: string }>) {
   try {
-    const goalId = action.payload;
-    console.log('Сага вызвана, goalId:', goalId);
-    console.log('Генерация AI плана для цели:', goalId);
+    const { goalId, prompt } = action.payload;
+    console.log('Сага вызвана, goalId:', goalId, 'prompt:', prompt);
     
-    const response: GeneratePlanResponse = yield call(() => aiApi.generatePlan(goalId));
-     console.log('Ответ от сервера:', response.data);
+    const response: GeneratePlanResponse = yield call(() => 
+      aiApi.generatePlan({ goalId, prompt })
+    );
     
-    console.log('Ответ AI:', response.data);
+    console.log('Ответ сервера:', response.data);
     
-    if (response.data.status === 'ready' && response.data.data?.tasks) {
-      // готовый план задач
-      yield put(generatePlanSuccess(response.data.data.tasks));
-    } else if (response.data.status === 'clarification_needed' && response.data.questions && response.data.session_id) {
-      // нужны уточнения
-      yield put(generatePlanClarification({
-        sessionId: response.data.session_id,
-        questions: response.data.questions,
+    // Получаем данные из ответа
+    const responseData = response.data as any;
+    
+    // Успешный ответ от бэкенда
+    if (responseData.status === 'success' && responseData.data?.stages) {
+      const stages = responseData.data.stages;
+      console.log('Получены этапы:', stages.length);
+      
+      // Преобразуем в формат для модалки
+      const tasks = stages.map((stage: any) => ({
+        title: stage.title,
+        description: stage.description || '',
+        priority: stage.priority || 'MEDIUM',
+        estimated_minutes: stage.estimatedMinutes || 60,
+        selected: true,
       }));
-    } else {
-      // неизвестный ответ
-      yield put(generatePlanFailure(response.data.error || 'Неизвестная ошибка'));
+      
+      yield put(generatePlanSuccess(tasks));
+    } 
+    // Если нужны уточнения
+    else if (responseData.status === 'clarification_needed' && responseData.questions) {
+      console.log('Нужны уточнения:', responseData.questions);
+      yield put(generatePlanClarification({
+        sessionId: responseData.session_id || Date.now().toString(),
+        questions: responseData.questions,
+      }));
     }
-  } catch (error: any) {
-    console.log('Ошибка генерации плана:', error);
-    console.log('Ошибка в саге:', error?.message, error?.response?.data);
+    // Ошибка от бэкенда
+    else {
+      console.log('Неожиданный ответ:', responseData);
+      yield put(generatePlanFailure(responseData.error || 'Не удалось сгенерировать план'));
+    }
     
-    // обработка ошибок по статусам
-    if (error.response?.status === 404) {
-      yield put(generatePlanFailure('Цель не найдена'));
-    } else if (error.response?.status === 502) {
-      yield put(generatePlanFailure('Ошибка генерации плана. Попробуйте позже'));
-    } else if (error.response?.status === 504) {
-      yield put(generatePlanFailure('Превышено время ожидания. Попробуйте позже'));
-    } else if (error.response?.status === 400) {
-      yield put(generatePlanFailure('Сессия уточнений истекла. Сгенерируйте план заново'));
-    } else {
-      yield put(generatePlanFailure(error.message || 'Ошибка сети'));
+  } catch (error: any) {
+    console.log('Ошибка в саге:', error?.message);
+    
+    // Простая обработка ошибок
+    let errorMessage = 'Ошибка генерации плана';
+    
+    if (error?.response?.status === 403) {
+      errorMessage = 'Нет доступа к AI функциям';
+    } else if (error?.response?.status === 400) {
+      errorMessage = error?.response?.data?.error?.message || 'Некорректный запрос';
+    } else if (error?.response?.status === 500) {
+      errorMessage = 'Ошибка на сервере. Попробуйте позже';
     }
+    
+    yield put(generatePlanFailure(errorMessage));
   }
 }
-
 function* handleClarifyPlan(action: PayloadAction<{ goalId: number; sessionId: string; answers: { question_id: string; answer: string }[] }>): Generator<any, void, ClarifyPlanResponse> {
   try {
     const { goalId, sessionId, answers } = action.payload;
@@ -73,7 +96,7 @@ function* handleClarifyPlan(action: PayloadAction<{ goalId: number; sessionId: s
     
     console.log('Ответ на уточнения:', response.data);
     
-    if (response.data.status === 'ready' && response.data.data?.tasks) {
+    if (response.data.status === 'success' && response.data.data?.tasks) {
       yield put(clarifyPlanSuccess(response.data.data.tasks));
     } else {
       yield put(clarifyPlanFailure('Не удалось получить план'));

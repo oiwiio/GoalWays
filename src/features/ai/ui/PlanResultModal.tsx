@@ -57,7 +57,7 @@ export const PlanResultModal = ({ onAddSelected, onAddAll }: PlanResultModalProp
     >
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
-          <Text style={styles.title}>🤖 План задач от ИИ</Text>
+          <Text style={styles.title}>План задач от ИИ</Text>
           <Text style={styles.subtitle}>
             Выберите задачи, которые хотите добавить в цель
           </Text>

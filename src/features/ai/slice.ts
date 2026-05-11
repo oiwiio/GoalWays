@@ -1,4 +1,3 @@
-// features/ai/ai.slice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AIQuestion } from '../../shared/api/types';
 
@@ -41,10 +40,10 @@ const aiSlice = createSlice({
   initialState,
   reducers: {
     // Генерация плана
-    generatePlanRequest: (state, action: PayloadAction<number>) => {
+    generatePlanRequest: (state, action: PayloadAction<{ goalId: number; prompt?: string }>) => {
       state.isLoading = true;
       state.error = null;
-      state.currentGoalId = action.payload;
+      state.currentGoalId = action.payload.goalId;
       state.needsClarification = false;
       state.questions = [];
       state.sessionId = null;
