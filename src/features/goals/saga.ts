@@ -126,6 +126,8 @@ function* handleFetchGoals(api: Api): SagaIterator {
   }
 }
 function* handleCreateGoal(api: Api, action: PayloadAction<GoalAPI>): SagaIterator {
+  console.log('САГА handleCreateGoal ВЫЗВАНА');
+  console.log('action.payload:', action.payload);
   try {
     const payload = {
     title: action.payload.title,
@@ -134,17 +136,17 @@ function* handleCreateGoal(api: Api, action: PayloadAction<GoalAPI>): SagaIterat
     start_date: action.payload.startdate || new Date().toISOString().split('T')[0],
     deadline: action.payload.deadline || null,
     daily_time_minutes: action.payload.daily_time_minutes || 60,
-    // stages: action.payload.stages || [   
-    //     {
-    //         title: 'Базовая задача',
-    //         priority: 'MEDIUM',
-    //         estimatedMinutes: 60,
-    //         deadline: new Date().toISOString().split('T')[0],
-    //         startsAt: new Date().toISOString().split('T')[0],
-    //         sortOrder: 0,
-    //     }
-    // ],
-};
+    stages: action.payload.stages || [   
+          {
+             title: 'Базовая задача',
+             priority: 'MEDIUM',
+             estimatedMinutes: 60,
+            deadline: new Date().toISOString().split('T')[0],
+            startsAt: new Date().toISOString().split('T')[0],
+            sortOrder: 0,
+          }
+      ],
+  };
 
     const response = yield call(() => api.goalsApi.createGoal(payload)); 
 
@@ -207,7 +209,7 @@ function* handleUpdateGoal(
   }
 }
 
-function* handleArchiveGoal(api: Api, action: PayloadAction<string>): SagaIterator {
+function* handleArchiveGoal(api: Api, action: PayloadAction<number>): SagaIterator {
     console.log('2 Сага архивации получила ID:', action.payload);
     try {
         const response = yield call(() => api.goalsApi.updateGoal(Number(action.payload), { status: 'ARCHIVED' }));
@@ -227,7 +229,7 @@ function* handleArchiveGoal(api: Api, action: PayloadAction<string>): SagaIterat
     };
 };
 
-function* handleRestoreGoal(api: Api, action: PayloadAction<string>): SagaIterator {
+function* handleRestoreGoal(api: Api, action: PayloadAction<number>): SagaIterator {
   try {
     const response = yield call(() => api.goalsApi.updateGoal(Number(action.payload), { status: 'IN_PROGRESS' }));
     
@@ -242,10 +244,7 @@ function* handleRestoreGoal(api: Api, action: PayloadAction<string>): SagaIterat
   }
 }
 
-function* handleDeleteGoal(
-  api: Api,
-  action: PayloadAction<string>
-): SagaIterator {
+function* handleDeleteGoal(api: Api, action: PayloadAction<number>): SagaIterator {
   try {
     const response = yield call(() =>
       api.goalsApi.deleteGoal(Number(action.payload))

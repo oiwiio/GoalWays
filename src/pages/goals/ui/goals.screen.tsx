@@ -78,13 +78,19 @@ export const GoalsScreen = () => {
 
     // Обработчики
     const handleCreateGoal = (newGoal: Omit<GoalAPI, 'id' | 'createdAt'>) => {
+        console.log('handleCreateGoal ВЫЗВАН в GoalsScreen');
+        console.log('newGoal:', JSON.stringify(newGoal, null, 2));
+  
         dispatch(createGoalRequest(newGoal));
+        console.log('dispatch createGoalRequest отправлен');
+  
         setModalVisible(false);
+  
         setTimeout(() => {
-            dispatch(fetchGoalsRequest());
-        }, 500);
+          console.log('Вызов fetchGoalsRequest');
+          dispatch(fetchGoalsRequest());
+        }, 1000);
     };
-
     const handleEditGoal = (goal: GoalAPI) => {
         dispatch(openEditModal(goal));
     };

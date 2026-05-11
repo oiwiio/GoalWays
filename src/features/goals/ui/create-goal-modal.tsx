@@ -5,11 +5,11 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
-    StyleSheet,
     ScrollView,
     Alert
 } from 'react-native';
 import { GoalAPI } from '../../../types/goal';
+import { styles } from './create-goal-modal.styles';
 
 interface CreateGoalModalProps {
     visible: boolean;
@@ -27,22 +27,25 @@ export const CreateGoalModal = ({ visible, onClose, onCreateGoal }: CreateGoalMo
     const handleCreate = () => {
         if (!title.trim()) {
             Alert.alert('Ошибка', 'Введите название цели');
-    return;
-  }
+            return;
+        }
 
-   const goalData = {
-        title: title.trim(),
-        description: description.trim(),
-        priority: priority,
-        startdate: new Date().toISOString().split('T')[0],
-        deadline: deadline || null,
-        daily_time_minutes: 60,
-        progress: 0,
-        status: 'IN_PROGRESS',
-        stages: [  
+        const priorityUpperCase = priority === 'high' ? 'HIGH' : priority === 'medium' ? 'MEDIUM' : 'LOW';
+
+        const goalData: any = {
+            title: title.trim(),
+            description: description.trim(),
+            priority: priorityUpperCase,
+            start_date: new Date().toISOString().split('T')[0],
+            deadline: deadline || null,
+            daily_time_minutes: 60,
+            progress: 0,
+            status: 'IN_PROGRESS',
+            category: category.trim() || 'Без категории',
+            stages: [  
             {
                 title: 'Базовая задача',
-                priority: priority?.toUpperCase() || 'MEDIUM',
+                priority: priorityUpperCase,
                 estimatedMinutes: 60,
                 deadline: new Date().toISOString().split('T')[0],
                 startsAt: new Date().toISOString().split('T')[0],
@@ -50,15 +53,18 @@ export const CreateGoalModal = ({ visible, onClose, onCreateGoal }: CreateGoalMo
             }
         ],
     };
-   
-    // очистка
-    setTitle('');
-    setDescription('');
-    setCategory('');
-    setDeadline('');
-    setPriority('medium');
-    onClose();
+        
+        onCreateGoal(goalData);
+        
+        // очистка
+        setTitle('');
+        setDescription('');
+        setCategory('');
+        setDeadline('');
+        setPriority('medium');
+        onClose();
     };
+
     const suggestedCategories = ['Работа', 'Учеба', 'Здоровье', 'Личное', 'Финансы'];
 
     return (
@@ -209,129 +215,3 @@ export const CreateGoalModal = ({ visible, onClose, onCreateGoal }: CreateGoalMo
         </Modal>
     );
 }
-
-const styles = StyleSheet.create({
-    modalOverlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        justifyContent: 'flex-end',
-    },
-    modalContent: {
-        backgroundColor: '#fff',
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-        padding: 20,
-        minHeight: '70%',
-        maxHeight: '90%',
-    },
-    modalTitle: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#1a1a1a',
-        marginBottom: 20,
-        textAlign: 'center',
-    },
-    inputGroup: {
-        marginBottom: 20,
-    },
-    label: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#333',
-        marginBottom: 8,
-    },
-    input: {
-        borderWidth: 1,
-        borderColor: '#ddd',
-        borderRadius: 10,
-        padding: 12,
-        fontSize: 16,
-        backgroundColor: '#f9f9f9',
-    },
-    textArea: {
-        minHeight: 80,
-        textAlignVertical: 'top',
-    },
-    hint: {
-        fontSize: 12,
-        color: '#999',
-        marginTop: 4,
-    },
-    categoriesContainer: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        marginTop: 10,
-    },
-    categoryChip: {
-        backgroundColor: '#f0f0f0',
-        paddingHorizontal: 15,
-        paddingVertical: 8,
-        borderRadius: 20,
-        marginRight: 10,
-        marginBottom: 10,
-    },
-    categoryChipSelected: {
-        backgroundColor: '#007AFF',
-    },
-    categoryChipText: {
-        color: '#666',
-        fontSize: 14,
-    },
-    categoryChipTextSelected: {
-        color: '#fff',
-    },
-    priorityContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginTop: 8,
-    },
-    priorityButton: {
-        flex: 1,
-        paddingVertical: 12,
-        backgroundColor: '#f0f0f0',
-        borderRadius: 8,
-        marginHorizontal: 4,
-        alignItems: 'center',
-    },
-    priorityButtonActive: {
-        backgroundColor: '#007AFF',
-    },
-    priorityButtonText: {
-        fontSize: 14,
-        color: '#333',
-    },
-    priorityButtonTextActive: {
-        color: '#fff',
-    },
-    buttonsContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginTop: 20,
-        paddingTop: 20,
-        borderTopWidth: 1,
-        borderTopColor: '#eee',
-    },
-    button: {
-        flex: 1,
-        paddingVertical: 15,
-        borderRadius: 10,
-        alignItems: 'center',
-        marginHorizontal: 5,
-    },
-    cancelButton: {
-        backgroundColor: '#f0f0f0',
-    },
-    createButton: {
-        backgroundColor: '#007AFF',
-    },
-    cancelButtonText: {
-        color: '#666',
-        fontSize: 16,
-        fontWeight: '600',
-    },
-    createButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: '600',
-    },
-});

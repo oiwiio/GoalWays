@@ -17,7 +17,7 @@ import {
   clarifyPlanRequest,
   clearError,
 } from '../slice';
-import { styles } from './ClarificationModal.styles';
+import { styles } from './ClarificationModal.style';
 
 export const ClarificationModal = () => {
   const dispatch = useDispatch();
