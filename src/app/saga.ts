@@ -10,6 +10,7 @@ import { goalsSaga } from '../features/goals/saga';
 import { settingsSaga } from '../features/settings/saga';
 import { tasksSaga } from '../features/tasks/tasks.saga';
 import { profileSaga } from '../features/profile/saga';
+import { aiSaga } from '../features/ai/saga';
 
 export function* rootSaga(api: any): SagaIterator {
   yield all([
@@ -21,6 +22,7 @@ export function* rootSaga(api: any): SagaIterator {
     fork(settingsSaga, api),
     fork(tasksSaga),
     fork(profileSaga, api),
+    fork(aiSaga)
   ]);
 }
 

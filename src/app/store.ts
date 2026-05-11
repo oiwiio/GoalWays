@@ -14,6 +14,7 @@ import uiReducer from '../features/goals/ui.slice';
 import goalEditModalReducer from '../features/goals/ui/goal-edit-modal/slice';
 import profileReducer from '../features/profile/slice';
 import { tasksApi } from '../shared/api/tasks';
+import aiReducer from '../features/ai/slice';
 
 const api = { authApi, goalsApi, tasksApi };
 
@@ -30,7 +31,8 @@ export const store = configureStore({
     settings: settingsReducer,
     ui: uiReducer,
     GoalEditModal: goalEditModalReducer,
-    profile: profileReducer
+    profile: profileReducer,
+    ai: aiReducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

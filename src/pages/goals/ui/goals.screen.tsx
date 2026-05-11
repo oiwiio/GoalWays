@@ -4,17 +4,23 @@ import {
     Text,
     FlatList,
     TouchableOpacity,
-    StyleSheet,
     SafeAreaView,
     Alert
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { ScrollView } from 'react-native';
+
 import { RootStackParamList } from '../../../app/navigation';
+import { RootState } from '../../../app/store';
 import { GoalCard } from '../../../features/goals/ui/goal-card';
 import { CreateGoalModal } from '../../../features/goals/ui/create-goal-modal';
-import { GoalAPI } from '../../../types/goal';
+import { GoalAPI, Task } from '../../../types/goal';
+import { setStatusFilter } from '../../../features/goals/ui.slice';
+import { styles } from './styles';
+
+// Redux actions & selectors
 import {
     fetchGoalsRequest,
     createGoalRequest,
@@ -26,7 +32,6 @@ import {
     deleteGoalRequest,
 } from '../../../features/goals/slice';
 import {
-    selectSortedGoals,
     selectInProgressCount,
     selectCompletedCount,
     selectFrozenCount,
@@ -35,23 +40,20 @@ import {
     selectGoalsIsLoading,
     selectGoalsError,
 } from '../../../features/goals/selectors';
-import { colors, spacing, borderRadius, typography, shadows } from '../../../shared/styles/theme';
-import {  Task } from '../../../types/goal';
-import { RootState } from '../../../app/store';
-import { ScrollView } from 'react-native'; 
-import { GoalViewModal } from '../../../features/goals/ui/goal-view-modal';
-import { styles } from './styles';
-import { setStatusFilter, setSort, setOrder, resetFilters } from '../../../features/goals/ui.slice';
-import { GoalEditModal } from '../../../features/goals/ui/goal-edit-modal/GoalEditModal';
-import { openModal } from '../../../features/goals/ui/goal-edit-modal/index';
 
+// Модалки
+import { GoalEditModal, openModal as openEditModal } from '../../../features/goals/ui/goal-edit-modal';
 
 type GoalsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Goals'>;
 
 export const GoalsScreen = () => {
     const navigation = useNavigation<GoalsScreenNavigationProp>();
     const dispatch = useDispatch();
+    
+    // Состояния
     const [modalVisible, setModalVisible] = useState(false);
+    
+    // Redux данные
     const goals = useSelector((state: RootState) => state.goals.items);
     const activeTab = useSelector(selectActiveTab);
     const inProgressCount = useSelector(selectInProgressCount);
@@ -60,9 +62,8 @@ export const GoalsScreen = () => {
     const archivedCount = useSelector(selectArchivedCount);
     const isLoading = useSelector(selectGoalsIsLoading);
     const error = useSelector(selectGoalsError);
-    const [editingGoal, setEditingGoal] = useState<GoalAPI | null>(null);
-    const [editModalVisible, setEditModalVisible] = useState(false);
     
+    // Эффекты
     useEffect(() => {
         console.log('Запрос на загрузку целей');
         dispatch(fetchGoalsRequest());
@@ -75,37 +76,28 @@ export const GoalsScreen = () => {
         }
     }, [error, dispatch]);
 
+    // Обработчики
     const handleCreateGoal = (newGoal: Omit<GoalAPI, 'id' | 'createdAt'>) => {
-    dispatch(createGoalRequest(newGoal));
-    setModalVisible(false);
- 
-    setTimeout(() => {
-    dispatch(fetchGoalsRequest());
-  }, 500); 
-  console.log('Обновление списка целей..');
-};
+        dispatch(createGoalRequest(newGoal));
+        setModalVisible(false);
+        setTimeout(() => {
+            dispatch(fetchGoalsRequest());
+        }, 500);
+    };
 
     const handleEditGoal = (goal: GoalAPI) => {
-    dispatch(openModal(goal));  
+        dispatch(openEditModal(goal));
     };
 
-    const handleSaveGoal = (updatedGoal: GoalAPI) => {
-    dispatch(updateGoalRequest(updatedGoal));
-    };
-    
     const handleArchiveGoal = (goal: GoalAPI) => {
         Alert.alert(
             'Архивировать цель',
             `Переместить "${goal.title}" в архив?`,
-        [
-            { text: 'Отмена', style: 'cancel' },
+            [
+                { text: 'Отмена', style: 'cancel' },
                 {
                     text: 'Архивировать',
-                    
-                    onPress: () => {
-                        console.log(' 1 Диспатч archiveGoalRequest, ID:', goal.id);
-                        dispatch(archiveGoalRequest(String(goal.id))) 
-                    }
+                    onPress: () => dispatch(archiveGoalRequest(String(goal.id)))
                 },
             ]
         );
@@ -115,40 +107,41 @@ export const GoalsScreen = () => {
         Alert.alert(
             'Восстановить цель',
             `Вернуть "${goal.title}" из архива?`,
-        [
-            { text: 'Отмена', style: 'cancel' },
-                {
-                    text: 'Восстановить',
-                    onPress: () => dispatch(restoreGoalRequest(String(goal.id))) // 👈 правильно
-                },
+            [
+                { text: 'Отмена', style: 'cancel' },
+                { text: 'Восстановить', onPress: () => dispatch(restoreGoalRequest(String(goal.id))) }
             ]
         );
     };
 
     const handleDeleteGoal = (goal: GoalAPI) => {
-        dispatch(deleteGoalRequest(String(goal.id)));  
+        Alert.alert(
+            'Удалить цель',
+            `Удалить "${goal.title}" навсегда?`,
+            [
+                { text: 'Отмена', style: 'cancel' },
+                { text: 'Удалить', onPress: () => dispatch(deleteGoalRequest(String(goal.id))) }
+            ]
+        );
     };
 
-    
-
+    // TODO: Создать GoalDetailScreen или вернуть модальный просмотр
     const handleGoalPress = (goal: GoalAPI) => {
-        dispatch(openModal(goal));
+        // Вариант 1: Открыть экран деталей (нужно создать GoalDetailScreen)
+        navigation.navigate('GoalDetail', { 
+            goalId: String(goal.id), 
+            goal: goal 
+        });
+        
+        // Вариант 2: Пока использовать модальный просмотр (если есть GoalViewModal)
+        // dispatch(openViewModal(goal));
+        
         console.log('Нажали на цель:', goal.title);
     };
-
-    const [viewModalVisible, setViewModalVisible] = useState(false);
-    const [viewingGoal, setViewingGoal] = useState<GoalAPI | null>(null);
 
     const handleSaveItem = (updatedItem: GoalAPI | Task) => {
         dispatch(updateGoalRequest(updatedItem as GoalAPI));
     };
-    
-    const handleEditFromView = () => {
-        setViewModalVisible(false);
-        setEditingGoal(viewingGoal);
-        setEditModalVisible(true);
-    };
-    
 
     return (
         <SafeAreaView style={styles.container}>
@@ -163,62 +156,63 @@ export const GoalsScreen = () => {
                 </TouchableOpacity>
             </View>
 
-    {/* табы */}
-    <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.tabScrollContainer}
-    >
-    <TouchableOpacity
-        style={[styles.tab, activeTab === 'in_progress' && styles.activeTab]}
-        onPress={() => {
-            console.log('Нажат таб IN_PROGRESS');
-            dispatch(setStatusFilter(['IN_PROGRESS']));
-            dispatch(setActiveTab('in_progress'));  
-            dispatch(fetchGoalsRequest());
-        }}
-    >
-        <Text>В работе ({inProgressCount})</Text>
-    </TouchableOpacity>
+            {/* табы */}
+            <ScrollView 
+                horizontal 
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.tabScrollContainer}
+            >
+                <TouchableOpacity
+                    style={[styles.tab, activeTab === 'in_progress' && styles.activeTab]}
+                    onPress={() => {
+                        console.log('Нажат таб IN_PROGRESS');
+                        dispatch(setStatusFilter(['IN_PROGRESS']));
+                        dispatch(setActiveTab('in_progress'));
+                        dispatch(fetchGoalsRequest());
+                    }}
+                >
+                    <Text>В работе ({inProgressCount})</Text>
+                </TouchableOpacity>
 
-    <TouchableOpacity
-        style={[styles.tab, activeTab === 'completed' && styles.activeTab]}
-        onPress={() => {
-            console.log('Нажат таб COMPLETED');
-            dispatch(setStatusFilter(['COMPLETED']));
-            dispatch(setActiveTab('completed'));     
-            dispatch(fetchGoalsRequest());
-        }}
-    >
-        <Text>Готово ({completedCount})</Text>
-    </TouchableOpacity>
+                <TouchableOpacity
+                    style={[styles.tab, activeTab === 'completed' && styles.activeTab]}
+                    onPress={() => {
+                        console.log('Нажат таб COMPLETED');
+                        dispatch(setStatusFilter(['COMPLETED']));
+                        dispatch(setActiveTab('completed'));
+                        dispatch(fetchGoalsRequest());
+                    }}
+                >
+                    <Text>Готово ({completedCount})</Text>
+                </TouchableOpacity>
 
-    <TouchableOpacity
-        style={[styles.tab, activeTab === 'frozen' && styles.activeTab]}
-        onPress={() => {
-            console.log('Нажат таб FROZEN');          
-            dispatch(setStatusFilter(['FROZEN']));    
-            dispatch(setActiveTab('frozen'));         
-            dispatch(fetchGoalsRequest());
-        }}
-    >
-        <Text>Заморож. ({frozenCount})</Text>
-    </TouchableOpacity>
+                <TouchableOpacity
+                    style={[styles.tab, activeTab === 'frozen' && styles.activeTab]}
+                    onPress={() => {
+                        console.log('Нажат таб FROZEN');
+                        dispatch(setStatusFilter(['FROZEN']));
+                        dispatch(setActiveTab('frozen'));
+                        dispatch(fetchGoalsRequest());
+                    }}
+                >
+                    <Text>Заморож. ({frozenCount})</Text>
+                </TouchableOpacity>
 
-    <TouchableOpacity
-        style={[styles.tab, activeTab === 'archived' && styles.activeTab]}
-        onPress={() => {
-            console.log('Нажат таб ARCHIVED');
-            dispatch(setStatusFilter(['ARCHIVED']));
-            dispatch(setActiveTab('archived'));       
-            dispatch(fetchGoalsRequest());
-        }}
-    >
-        <Text>Архив ({archivedCount})</Text>
-    </TouchableOpacity>
-</ScrollView>
+                <TouchableOpacity
+                    style={[styles.tab, activeTab === 'archived' && styles.activeTab]}
+                    onPress={() => {
+                        console.log('Нажат таб ARCHIVED');
+                        dispatch(setStatusFilter(['ARCHIVED']));
+                        dispatch(setActiveTab('archived'));
+                        dispatch(fetchGoalsRequest());
+                    }}
+                >
+                    <Text>Архив ({archivedCount})</Text>
+                </TouchableOpacity>
+            </ScrollView>
 
-        {error && (
+            {/* Ошибка */}
+            {error && (
                 <View style={styles.errorContainer}>
                     <Text style={styles.errorText}>Не удалось загрузить цели</Text>
                     <TouchableOpacity style={styles.retryButton} onPress={() => dispatch(fetchGoalsRequest())}>
@@ -227,7 +221,7 @@ export const GoalsScreen = () => {
                 </View>
             )}
 
-        {/* список целей */}
+            {/* список целей */}
             {isLoading && goals.length === 0 ? (
                 <View style={styles.emptyContainer}>
                     <Text style={styles.emptyText}>Загрузка..</Text>
@@ -270,11 +264,15 @@ export const GoalsScreen = () => {
                 </View>
             )}
 
+            {/* Модалка создания цели */}
+            <CreateGoalModal
+                visible={modalVisible}
+                onClose={() => setModalVisible(false)}
+                onCreateGoal={handleCreateGoal}
+            />
+
+            {/* Модалка редактирования цели */}
             <GoalEditModal />
-                
-            
-                
         </SafeAreaView>
     );
 };
-

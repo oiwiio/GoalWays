@@ -7,6 +7,9 @@ import { DevelopersScreen } from '../pages/developers';
 import { GoalsScreen } from '../pages/goals';
 import { ConfirmScreen } from '../pages/confirm/ui/confirm.screen';
 import { ProfileScreen } from '../pages/profile/ui/profile.screen';
+import { GoalDetailScreen } from '../features/goals/ui/goal-detail/goal-detail-screen';
+import { GoalAPI } from '../types/goal';
+
 
 export type RootStackParamList = {
   Login: undefined;
@@ -18,6 +21,12 @@ export type RootStackParamList = {
   Developers: undefined;
   Goals: undefined;
   Profile: undefined;
+  
+  GoalDetail: {
+    goalId: string;
+    goal: GoalAPI;
+  };
+ 
 };
 
 export type TabParamList = {
@@ -49,6 +58,8 @@ export const RootNavigator = () => {
       <Stack.Screen name="Main" component={TabNavigator} options={{ headerShown: false }} />
       <Stack.Screen name="Settings" component={SettingsScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Developers" component={DevelopersScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="GoalDetail" component={GoalDetailScreen}options={{ headerShown: false }} />
+      
     </Stack.Navigator>
   );
 };

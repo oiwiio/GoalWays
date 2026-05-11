@@ -148,3 +148,44 @@ export interface ChangePasswordRequest {
   oldPassword: string;  
   newPassword: string;
 }
+
+export interface AIQuestion {
+  id: string;
+  text: string;
+}
+
+export interface AIPlanResponse {
+  status: 'ready' | 'clarification_needed';
+  data?: {
+    tasks?: Array<{
+      title: string;
+      description?: string;
+      priority?: 'LOW' | 'MEDIUM' | 'HIGH';
+      estimated_minutes?: number;
+    }>;
+  };
+  session_id?: string;
+  questions?: AIQuestion[];
+  error?: string;
+}
+
+export interface AIClarifyRequest {
+  goal_id: number;
+  session_id: string;
+  answers: Array<{
+    question_id: string;
+    answer: string;
+  }>;
+}
+
+export interface AIClarifyResponse {
+  status: 'ready';
+  data: {
+    tasks: Array<{
+      title: string;
+      description?: string;
+      priority?: 'LOW' | 'MEDIUM' | 'HIGH';
+      estimated_minutes?: number;
+    }>;
+  };
+}
