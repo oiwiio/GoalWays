@@ -1,15 +1,27 @@
+// features/register/ui/RegisterScreen.tsx
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, Button, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../app/navigation';
 import { registerRequest, clearStatus } from '../../../features/register/slice';
-import { 
-  selectRegisterIsLoading, 
-  selectRegisterError, 
-  selectRegisterSuccess 
+import {
+  selectRegisterIsLoading,
+  selectRegisterError,
+  selectRegisterSuccess
 } from '../../../features/register/selectors';
-import styles from '../styles';
+import { Input } from '../../../shared/ui/input';
+import { Button } from '../../../shared/ui/button';
+import { colors, spacing, typography, borderRadius } from '../../../shared/styles/theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Register'>;
 
@@ -41,7 +53,7 @@ export const RegisterScreen = ({ navigation }: Props) => {
 
   // Валидация пароля (12+ символов, цифры, спецсимволы) - ЗАКОММЕНТИРОВАНО
   const validatePassword = (password: string) => {
-    // Строгая валидация - раскомментируй когда будет готов бэкенд
+    // Строгая валидация 
     /*
     if (password.length < 12) {
       setPasswordError('Минимум 12 символов');
@@ -108,75 +120,169 @@ export const RegisterScreen = ({ navigation }: Props) => {
     }
   };
 
+  const handleBackToLogin = () => {
+    navigation.navigate('Login');
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Регистрация</Text>
-
-      <TextInput
-        style={[styles.input, { color: '#000000' }]}
-        placeholderTextColor="#999"
-        placeholder="Имя пользователя"
-        value={username}
-        onChangeText={setUsername}
-        autoCapitalize="none"
-      />
-
-      <TextInput
-        style={[styles.input, emailError ? styles.inputError : null, { color: '#000000' }]}
-        placeholderTextColor="#999"
-        placeholder="Email"
-        value={email}
-        onChangeText={(text) => {
-          setEmail(text);
-          validateEmail(text);
-        }}
-        onBlur={() => validateEmail(email)}
-        autoCapitalize="none"
-        keyboardType="email-address"
-      />
-      {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
-
-      <TextInput
-        style={[styles.input, passwordError ? styles.inputError : null, { color: '#000000' }]}
-        placeholderTextColor="#999"
-        placeholder="Пароль"
-        value={password}
-        onChangeText={(text) => {
-          setPassword(text);
-          validatePassword(text);
-          if (confirmPassword) validateConfirmPassword(confirmPassword);
-        }}
-        onBlur={() => validatePassword(password)}
-        secureTextEntry
-      />
-      {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
-
-      <TextInput
-        style={[styles.input, confirmPasswordError ? styles.inputError : null, { color: '#000000' }]}
-        placeholderTextColor="#999"
-        placeholder="Повторите пароль"
-        value={confirmPassword}
-        onChangeText={(text) => {
-          setConfirmPassword(text);
-          validateConfirmPassword(text);
-        }}
-        onBlur={() => validateConfirmPassword(confirmPassword)}
-        secureTextEntry
-      />
-      {confirmPasswordError ? <Text style={styles.errorText}>{confirmPasswordError}</Text> : null}
-
-      <Button
-        title={isLoading ? "Регистрация..." : "Зарегистрироваться"}
-        onPress={handleRegister}
-        disabled={isLoading}
-      />
-
-      <Text
-        style={styles.link}
-        onPress={() => navigation.navigate('Login')}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.keyboardView}
+    >
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
-        Уже есть аккаунт? Войти
-      </Text>
-    </View>
+        {/* Заголовок */}
+        <View style={styles.header}>
+          <View style={styles.iconCircle}>
+            <Text style={styles.icon}>📝</Text>
+          </View>
+          <Text style={styles.title}>Создать аккаунт</Text>
+          <Text style={styles.subtitle}>
+            Присоединяйся к GoalWays и достигай целей
+          </Text>
+        </View>
+
+        {/* Форма регистрации */}
+        <View style={styles.form}>
+          <Input
+            label="Имя пользователя"
+            value={username}
+            onChangeText={setUsername}
+            placeholder="Введите username"
+            autoCapitalize="none"
+          />
+
+          <Input
+            label="Email"
+            value={email}
+            onChangeText={(text) => {
+              setEmail(text);
+              validateEmail(text);
+            }}
+            onBlur={() => validateEmail(email)}
+            placeholder="example@mail.com"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            error={emailError}
+          />
+
+          <Input
+            label="Пароль"
+            value={password}
+            onChangeText={(text) => {
+              setPassword(text);
+              validatePassword(text);
+              if (confirmPassword) validateConfirmPassword(confirmPassword);
+            }}
+            onBlur={() => validatePassword(password)}
+            placeholder="••••••••"
+            secureTextEntry
+            error={passwordError}
+          />
+
+          <Input
+            label="Повторите пароль"
+            value={confirmPassword}
+            onChangeText={(text) => {
+              setConfirmPassword(text);
+              validateConfirmPassword(text);
+            }}
+            onBlur={() => validateConfirmPassword(confirmPassword)}
+            placeholder="••••••••"
+            secureTextEntry
+            error={confirmPasswordError}
+          />
+
+          <Button
+            title={isLoading ? "Регистрация..." : "Зарегистрироваться"}
+            onPress={handleRegister}
+            loading={isLoading}
+            style={styles.registerButton}
+          />
+
+          <TouchableOpacity onPress={handleBackToLogin} style={styles.loginContainer}>
+            <Text style={styles.loginText}>
+              Уже есть аккаунт?{' '}
+              <Text style={styles.loginHighlight}>Войти</Text>
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
+
+const styles = StyleSheet.create({
+  keyboardView: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingHorizontal: spacing.l,
+    paddingVertical: spacing.xl,
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: spacing.xl,
+  },
+  iconCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: colors.surface,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: spacing.l,
+    ...Platform.select({
+      ios: {
+        shadowColor: colors.shadow,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
+  },
+  icon: {
+    fontSize: 40,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: spacing.s,
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    paddingHorizontal: spacing.m,
+  },
+  form: {
+    width: '100%',
+  },
+  registerButton: {
+    marginTop: spacing.s,
+    marginBottom: spacing.m,
+  },
+  loginContainer: {
+    alignItems: 'center',
+    paddingVertical: spacing.m,
+  },
+  loginText: {
+    fontSize: 14,
+    color: colors.textSecondary,
+  },
+  loginHighlight: {
+    color: colors.primary,
+    fontWeight: '600',
+  },
+});
