@@ -11,7 +11,11 @@ import {
   ApiResponse,
   UserProfile,           
   UpdateProfileRequest,  
-  ChangePasswordRequest  
+  ChangePasswordRequest,  
+  UpdateEmailRequest,
+  UpdateNicknameRequest,
+  DeleteAccountRequest,
+  ApiSuccess,
 } from './types';
 
 export const authApi = {
@@ -52,4 +56,15 @@ export const authApi = {
   // Смена пароля
   changePassword: (data: ChangePasswordRequest) =>
     apiClient.post<ApiResponse<{ message: string }>>('/api/v1/auth/change-password', data),
+
+  // shared/api/auth.ts
+updateEmail: (data: UpdateEmailRequest) =>
+  apiClient.patch<ApiSuccess<UserProfile>>('/api/v1/users/email', data),
+
+updateNickname: (data: UpdateNicknameRequest) =>
+  apiClient.patch<ApiSuccess<UserProfile>>('/api/v1/users/username', data),
+
+deleteAccount: (data: DeleteAccountRequest) =>
+  apiClient.delete<ApiSuccess<{ message: string }>>('/api/v1/users', { data }),
 };
+

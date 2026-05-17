@@ -55,6 +55,6 @@ function* handleLogin(
   }
 }
 
-export function* authSaga(api: Api) { // 👈 полный Api
+export function* authSaga(api: Api) { 
   yield takeLatest(loginRequest.type, handleLogin, api);
 }

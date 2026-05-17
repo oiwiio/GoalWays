@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../../app/navigation';
+import { RootStackParamList } from '../../../app/navigation/navigation';
 import { resetPasswordRequest, clearStatus } from '../../../features/forgot-password/slice';
 import { 
   selectForgotPasswordIsLoading, 

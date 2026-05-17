@@ -11,7 +11,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../../app/navigation';
+import { RootStackParamList } from '../../../app/navigation/navigation';
 import { RootState } from '../../../app/store';
 import { GoalCard } from './goal.card';
 import { CreateGoalModal } from '../../../features/goals/ui/create-goal-modal';

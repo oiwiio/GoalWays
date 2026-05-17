@@ -75,6 +75,9 @@ export interface AuthApi {
   updateProfile: (data: UpdateProfileRequest) => Promise<AxiosResponse<ApiSuccess<UserProfile>>>;
   changePassword: (data: ChangePasswordRequest) => Promise<AxiosResponse<ApiSuccess<{ message: string }>>>;
   uploadAvatar: (formData: FormData) => Promise<AxiosResponse<ApiSuccess<{ avatarUrl: string }>>>; 
+  updateEmail: (data: UpdateEmailRequest) => Promise<AxiosResponse<ApiSuccess<UserProfile>>>;
+  updateNickname: (data: UpdateNicknameRequest) => Promise<AxiosResponse<ApiSuccess<UserProfile>>>;
+  deleteAccount: (data: DeleteAccountRequest) => Promise<AxiosResponse<ApiSuccess<{ message: string }>>>;
 }
 
 export interface GoalsApi {
@@ -206,4 +209,16 @@ export interface AIPlanData {
   description?: string;
   start_date?: string;
   daily_time_minutes?: number;
+}
+
+export interface UpdateEmailRequest {
+  email: string;
+}
+
+export interface UpdateNicknameRequest {
+  username: string;
+}
+
+export interface DeleteAccountRequest {
+  password: string;
 }

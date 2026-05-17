@@ -1,9 +1,20 @@
-import React, { useState } from "react";
-import { View, Text, ScrollView, Switch, Alert, Linking, Modal } from 'react-native';
+// features/settings/ui/SettingsScreen.tsx
+import React, { useState, useEffect } from "react";
+import { 
+  View, 
+  Text, 
+  ScrollView, 
+  Switch, 
+  Alert, 
+  Linking, 
+  SafeAreaView,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../../app/navigation';
+import { RootStackParamList } from '../../../app/navigation/navigation';
 import { SettingsSection, SettingsItem } from '../../../features/settings';
 import { 
   setNotifications, 
@@ -13,12 +24,13 @@ import {
   selectNotifications,
   selectSettingsError 
 } from '../../../features/settings/selectors';
+import { selectProfile } from '../../../features/profile/selectors';
+import { fetchProfileRequest } from '../../../features/profile/slice';
 import { ChangeEmailModal } from '../../../features/settings/ui/change.email.modal';
 import { ChangePasswordModal } from '../../../features/settings/ui/change.password.modal';
 import { ChangeNicknameModal } from '../../../features/settings/ui/change.nickname.modal';
 import { DeleteAccountModal } from '../../../features/settings/ui/delete.account.modal';
-
-
+import { colors, spacing, typography, borderRadius } from '../../../shared/styles/theme';
 
 type SettingsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Settings'>;
 
@@ -28,23 +40,33 @@ export const SettingsScreen = () => {
   
   const notifications = useSelector(selectNotifications);
   const error = useSelector(selectSettingsError);
-
+  const profile = useSelector(selectProfile);
+  
   // Состояния для модалок
   const [emailModalVisible, setEmailModalVisible] = useState(false);
   const [passwordModalVisible, setPasswordModalVisible] = useState(false);
   const [nicknameModalVisible, setNicknameModalVisible] = useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
-  // Временные данные пользователя (потом из Redux)
+  // Загружаем профиль при открытии
+  useEffect(() => {
+    dispatch(fetchProfileRequest());
+  }, [dispatch]);
+
+  // Реальные данные из профиля
   const userData = {
-    email: 'pochta@gmail.com',
-    nickname: 'Петька Иванов',
+    email: profile?.email || 'не указан',
+    nickname: profile?.username || 'Пользователь',
+    firstName: profile?.firstName || '',
+    lastName: profile?.lastName || '',
   };
 
   const handleChangeEmail = (newEmail: string) => {
     // TODO: dispatch смены email
-    Alert.alert('Успех', 'Email изменён');
+    Alert.alert('Успех', `Email изменён на ${newEmail}`);
     setEmailModalVisible(false);
+    // Обновляем профиль
+    dispatch(fetchProfileRequest());
   };
 
   const handleChangePassword = (oldPassword: string, newPassword: string) => {
@@ -55,8 +77,10 @@ export const SettingsScreen = () => {
 
   const handleChangeNickname = (newNickname: string) => {
     // TODO: dispatch смены никнейма
-    Alert.alert('Успех', 'Никнейм изменён');
+    Alert.alert('Успех', `Никнейм изменён на ${newNickname}`);
     setNicknameModalVisible(false);
+    // Обновляем профиль
+    dispatch(fetchProfileRequest());
   };
 
   const handleDeleteAccount = () => {
@@ -67,8 +91,19 @@ export const SettingsScreen = () => {
   };
 
   return (
-    <>
-      <ScrollView>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Text style={styles.backButtonText}>←</Text>
+        </TouchableOpacity>
+        <Text style={styles.title}>Настройки</Text>
+        <View style={styles.placeholder} />
+      </View>
+
+      <ScrollView 
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
         {/* данные аккаунта */}
         <SettingsSection title="Данные аккаунта">
           <SettingsItem
@@ -78,7 +113,7 @@ export const SettingsScreen = () => {
             showChevron
           />
           <SettingsItem
-            title="Никнейм"
+            title="Имя пользователя"
             subtitle={userData.nickname}
             onPress={() => setNicknameModalVisible(true)}
             showChevron
@@ -97,8 +132,10 @@ export const SettingsScreen = () => {
             title="Push-уведомления"
             rightElement={
               <Switch 
-                value={notifications} 
-                onValueChange={(value) => { dispatch(setNotifications(value))}}
+               value={notifications} 
+                onValueChange={(value) => {
+                  dispatch(setNotifications(value));
+                }}
               />
             }
           />
@@ -132,7 +169,7 @@ export const SettingsScreen = () => {
           <SettingsItem
             title="Удалить аккаунт"
             onPress={() => setDeleteModalVisible(true)}
-            color="red"
+            color={colors.danger}
             showChevron
           />
           <SettingsItem
@@ -143,48 +180,75 @@ export const SettingsScreen = () => {
                 { text: 'Выйти', onPress: () => dispatch(logoutRequest()) }
               ]);
             }}
-            color="red"
+            color={colors.danger}
           />
         </SettingsSection>
       </ScrollView>
 
-      {/* модалка смены email */}
-      <Modal visible={emailModalVisible} transparent animationType="slide">
-        <ChangeEmailModal
-          visible={emailModalVisible}  
-          onClose={() => setEmailModalVisible(false)}
-          onSave={handleChangeEmail}
-          currentEmail={userData.email}
-        />
-      </Modal>
+      {/* модалки */}
+      <ChangeEmailModal
+        visible={emailModalVisible}
+        onClose={() => setEmailModalVisible(false)}
+        onSave={handleChangeEmail}
+        currentEmail={userData.email}
+      />
 
-      {/* модалка смены пароля */}
-      <Modal visible={passwordModalVisible} transparent animationType="slide">
-        <ChangePasswordModal
-          visible={passwordModalVisible}
-          onClose={() => setPasswordModalVisible(false)}
-          onSave={handleChangePassword}
-        />
-      </Modal>
+      <ChangePasswordModal
+        visible={passwordModalVisible}
+        onClose={() => setPasswordModalVisible(false)}
+        onSave={handleChangePassword}
+      />
 
-      {/* модалка смены никнейма */}
-      <Modal visible={nicknameModalVisible} transparent animationType="slide">
-        <ChangeNicknameModal
-          visible={nicknameModalVisible} 
-            onClose={() => setNicknameModalVisible(false)}
-            onSave={handleChangeNickname}
-          currentNickname={userData.nickname}
-        />
-      </Modal>
+      <ChangeNicknameModal
+        visible={nicknameModalVisible}
+        onClose={() => setNicknameModalVisible(false)}
+        onSave={handleChangeNickname}
+        currentNickname={userData.nickname}
+      />
 
-      {/* модалка удаления аккаунта */}
-      <Modal visible={deleteModalVisible} transparent animationType="fade">
-        <DeleteAccountModal
-          visible={deleteModalVisible} 
-          onClose={() => setDeleteModalVisible(false)}
-          onConfirm={handleDeleteAccount}
-        />
-      </Modal>
-    </>
+      <DeleteAccountModal
+        visible={deleteModalVisible}
+        onClose={() => setDeleteModalVisible(false)}
+        onConfirm={handleDeleteAccount}
+      />
+    </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: spacing.l,
+    paddingVertical: spacing.m,
+    paddingTop: spacing.xl,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: borderRadius.round,
+    backgroundColor: colors.surface,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  backButtonText: {
+    fontSize: 24,
+    color: colors.text,
+  },
+  title: {
+    ...typography.h1,
+    fontSize: 28,
+    color: colors.text,
+  },
+  placeholder: {
+    width: 40,
+  },
+  scrollContent: {
+    paddingBottom: spacing.xl,
+  },
+});

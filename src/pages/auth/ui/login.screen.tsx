@@ -11,7 +11,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../../app/navigation';
+import { RootStackParamList } from '../../../app/navigation/navigation';
 import { loginRequest } from '../../../features/auth/slice';
 import { useSelector, useDispatch } from 'react-redux';
 import { 
@@ -42,7 +42,7 @@ export const LoginScreen = ({ navigation }: Props) => {
 
   useEffect(() => {
     if (user) {
-      navigation.navigate('Main');
+      navigation.navigate('MainTabs');
     }
   }, [user, navigation]);
 
