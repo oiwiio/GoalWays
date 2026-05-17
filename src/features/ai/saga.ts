@@ -1,4 +1,4 @@
-import { call, put, takeLatest } from 'redux-saga/effects';
+import { call, put, takeLatest, delay, race, } from 'redux-saga/effects';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { 
   generatePlanRequest,
@@ -22,60 +22,66 @@ import { Alert } from 'react-native';
 type GeneratePlanResponse = AxiosResponse<AIPlanResponse>;
 type ClarifyPlanResponse = AxiosResponse<AIClarifyResponse>;
 
+// features/ai/ai.saga.ts
+
 function* handleGeneratePlan(action: PayloadAction<{ goalId: number; prompt: string }>) {
   try {
     const { goalId, prompt } = action.payload;
     console.log('Сага вызвана, goalId:', goalId, 'prompt:', prompt);
     
-    const response: GeneratePlanResponse = yield call(() => 
-      aiApi.generatePlan({ goalId, prompt })
-    );
+    const { response, timeout } = yield race({
+      response: call(aiApi.generatePlan, { goalId, prompt }),
+      timeout: delay(30000),
+    });
     
-    console.log('Ответ сервера:', response.data);
+    if (timeout) {
+      yield put(generatePlanFailure('Превышено время ожидания. Попробуйте позже'));
+      return;
+    }
     
-    // Получаем данные из ответа
-    const responseData = response.data as any;
+    const responseData = response.data;
     
-    // Успешный ответ от бэкенда
+    // Успешный ответ
     if (responseData.status === 'success' && responseData.data?.stages) {
-      const stages = responseData.data.stages;
-      console.log('Получены этапы:', stages.length);
-      
-      // Преобразуем в формат для модалки
-      const tasks = stages.map((stage: any) => ({
+      const tasks = responseData.data.stages.map((stage: any) => ({
         title: stage.title,
         description: stage.description || '',
         priority: stage.priority || 'MEDIUM',
         estimated_minutes: stage.estimatedMinutes || 60,
         selected: true,
       }));
-      
       yield put(generatePlanSuccess(tasks));
     } 
-    // Если нужны уточнения
+    // Нужны уточнения
     else if (responseData.status === 'clarification_needed' && responseData.questions) {
-      console.log('Нужны уточнения:', responseData.questions);
       yield put(generatePlanClarification({
         sessionId: responseData.session_id || Date.now().toString(),
         questions: responseData.questions,
       }));
     }
-    // Ошибка от бэкенда
+    // Ошибка
     else {
-      console.log('Неожиданный ответ:', responseData);
       yield put(generatePlanFailure(responseData.error || 'Не удалось сгенерировать план'));
     }
-    
   } catch (error: any) {
-    console.log('Ошибка в саге:', error?.message);
+    console.log('Ошибка в саге:', error);
     
-    // Простая обработка ошибок
     let errorMessage = 'Ошибка генерации плана';
     
     if (error?.response?.status === 403) {
       errorMessage = 'Нет доступа к AI функциям';
     } else if (error?.response?.status === 400) {
-      errorMessage = error?.response?.data?.error?.message || 'Некорректный запрос';
+      if (error?.response?.data?.error?.includes('сессия')) {
+        errorMessage = 'Сессия уточнений истекла. Сгенерируйте план заново';
+      } else {
+        errorMessage = error?.response?.data?.error?.message || 'Некорректный запрос';
+      }
+    } else if (error?.response?.status === 404) {
+      errorMessage = 'Цель не найдена';
+    } else if (error?.response?.status === 502) {
+      errorMessage = 'Ошибка генерации плана. Попробуйте позже';
+    } else if (error?.response?.status === 504) {
+      errorMessage = 'Превышено время ожидания. Попробуйте позже';
     } else if (error?.response?.status === 500) {
       errorMessage = 'Ошибка на сервере. Попробуйте позже';
     }
@@ -83,6 +89,8 @@ function* handleGeneratePlan(action: PayloadAction<{ goalId: number; prompt: str
     yield put(generatePlanFailure(errorMessage));
   }
 }
+
+
 function* handleClarifyPlan(action: PayloadAction<{ goalId: number; sessionId: string; answers: { question_id: string; answer: string }[] }>): Generator<any, void, ClarifyPlanResponse> {
   try {
     const { goalId, sessionId, answers } = action.payload;
