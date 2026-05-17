@@ -60,7 +60,7 @@ type Api = {
 const normalizeGoal = (goal: any): GoalAPI => ({
   ...goal,
   priority: goal.priority?.toLowerCase(),
-  status: goal.status?.toLowerCase(),
+  status: goal.status?.toUpperCase(),
   startdate: goal.start_date,
 
 });
@@ -230,20 +230,23 @@ function* handleArchiveGoal(api: Api, action: PayloadAction<number>): SagaIterat
 };
 
 function* handleRestoreGoal(api: Api, action: PayloadAction<number>): SagaIterator {
+  console.log('САГА ВОССТАНОВЛЕНИЯ получила ID:', action.payload);
   try {
-    const response = yield call(() => api.goalsApi.updateGoal(Number(action.payload), { status: 'IN_PROGRESS' }));
+    const response = yield call(() => api.goalsApi.updateGoal(action.payload, { status: 'IN_PROGRESS' }));
+    console.log('Ответ от сервера:', response.data);
     
     if (response.data.status === 'success') {
+      console.log('Успех, диспатчим restoreGoalSuccess');
       yield put(restoreGoalSuccess(action.payload));
       yield put(fetchGoalsRequest());
     } else {
       yield put(restoreGoalFailure(response.data.error || 'Ошибка восстановления'));
     }
   } catch (error: any) {
+    console.log('Ошибка в restoreGoal:', error.message);
     yield put(restoreGoalFailure(error.message || 'Ошибка сети'));
   }
 }
-
 function* handleDeleteGoal(api: Api, action: PayloadAction<number>): SagaIterator {
   try {
     const response = yield call(() =>
@@ -273,4 +276,5 @@ export function* goalsSaga(api: Api): SagaIterator {
   yield takeLatest(archiveGoalRequest.type, handleArchiveGoal, api);  
   yield takeLatest(restoreGoalRequest.type, handleRestoreGoal, api);  
   yield takeLatest(deleteGoalRequest.type, handleDeleteGoal, api);
+  
 }

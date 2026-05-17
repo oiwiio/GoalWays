@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
+import { colors } from '../../../shared/styles/theme';
 import {
     Modal,
     View,
     Text,
     TextInput,
     TouchableOpacity,
-    StyleSheet,
     ScrollView,
-    Alert
+    Alert,
 } from 'react-native';
 import { styles } from "./task-modal.style";
 
@@ -29,15 +29,15 @@ export const TaskModal = ({ visible, mode, task, goalId, onClose, onSave }: Task
     const [progress, setProgress] = useState('0');
 
     useEffect(() => {
-    if (task && mode === 'edit') {
-        setTitle(task.title || '');
-        setDescription(task.description || '');
-        setPriority(task.priority || 'MEDIUM');
-        setDeadline(task.deadline || '');
-        setEstimatedMinutes(task.estimatedMinutes?.toString() || '');
-        setProgress(task.progress?.toString() || '0');
-    }
-    }, [task]); 
+        if (task && mode === 'edit') {
+            setTitle(task.title || '');
+            setDescription(task.description || '');
+            setPriority(task.priority || 'MEDIUM');
+            setDeadline(task.deadline || '');
+            setEstimatedMinutes(task.estimatedMinutes?.toString() || '');
+            setProgress(task.progress?.toString() || '0');
+        }
+    }, [task, mode]);
 
     const handleClose = () => {
         setTitle('');
@@ -48,7 +48,6 @@ export const TaskModal = ({ visible, mode, task, goalId, onClose, onSave }: Task
         setProgress('0');
         onClose();
     };
-
 
     const handleSave = () => {
         if (!title.trim()) {
@@ -84,7 +83,7 @@ export const TaskModal = ({ visible, mode, task, goalId, onClose, onSave }: Task
         } else {
             onSave(goalId, taskData);
         }
-        onClose();
+        handleClose();
     };
 
     const priorityOptions = [
@@ -115,6 +114,7 @@ export const TaskModal = ({ visible, mode, task, goalId, onClose, onSave }: Task
                                 value={title}
                                 onChangeText={setTitle}
                                 placeholder="Введите название задачи"
+                                placeholderTextColor={colors.textSecondary}
                                 maxLength={50}
                             />
                         </View>
@@ -127,6 +127,7 @@ export const TaskModal = ({ visible, mode, task, goalId, onClose, onSave }: Task
                                 value={description}
                                 onChangeText={setDescription}
                                 placeholder="Опишите задачу"
+                                placeholderTextColor={colors.textSecondary}
                                 multiline
                                 numberOfLines={3}
                             />
@@ -164,6 +165,7 @@ export const TaskModal = ({ visible, mode, task, goalId, onClose, onSave }: Task
                                 value={deadline}
                                 onChangeText={setDeadline}
                                 placeholder="ГГГГ-ММ-ДД"
+                                placeholderTextColor={colors.textSecondary}
                             />
                             <Text style={styles.hint}>Формат: 2026-12-31</Text>
                         </View>
@@ -176,6 +178,7 @@ export const TaskModal = ({ visible, mode, task, goalId, onClose, onSave }: Task
                                 value={estimatedMinutes}
                                 onChangeText={setEstimatedMinutes}
                                 placeholder="60"
+                                placeholderTextColor={colors.textSecondary}
                                 keyboardType="numeric"
                             />
                         </View>
@@ -188,13 +191,14 @@ export const TaskModal = ({ visible, mode, task, goalId, onClose, onSave }: Task
                                 value={progress}
                                 onChangeText={setProgress}
                                 placeholder="0"
+                                placeholderTextColor={colors.textSecondary}
                                 keyboardType="numeric"
                             />
                         </View>
                     </ScrollView>
 
                     <View style={styles.buttonsContainer}>
-                        <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={onClose}>
+                        <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={handleClose}>
                             <Text style={styles.cancelButtonText}>Отмена</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={[styles.button, styles.saveButton]} onPress={handleSave}>
@@ -206,4 +210,3 @@ export const TaskModal = ({ visible, mode, task, goalId, onClose, onSave }: Task
         </Modal>
     );
 };
-

@@ -12,34 +12,46 @@ export const selectFilteredGoals = createSelector(
   (items, activeTab) => {
     
     const statusMap: Record<string, string> = {
-      'in_progress': 'IN_PROGRESS',
-      'completed': 'COMPLETED',
-      'frozen': 'FROZEN',
-      'archived': 'ARCHIVED',
+      in_progress: 'IN_PROGRESS',
+      completed: 'COMPLETED',
+      frozen: 'FROZEN',
+      archived: 'ARCHIVED',
     };
+    
     const targetStatus = statusMap[activeTab];
-    return items.filter(goal => goal.status === targetStatus);
+    
+    const filtered = items.filter(goal => 
+      goal.status?.toUpperCase() === targetStatus
+    );
+    
+    console.log('selectFilteredGoals:', {
+      activeTab,
+      targetStatus,
+      allCount: items.length,
+      filteredCount: filtered.length,
+    });
+    
+    return filtered;
   }
 );
-
 export const selectInProgressCount = createSelector(
   [selectGoalsItems],
-  (items) => items.filter(g => g.status === 'IN_PROGRESS').length
+  (items) => items.filter(g => g.status?.toUpperCase() === 'IN_PROGRESS').length
 );
 
 export const selectCompletedCount = createSelector(
   [selectGoalsItems],
-  (items) => items.filter(g => g.status === 'COMPLETED').length
+  (items) => items.filter(g => g.status?.toUpperCase() === 'COMPLETED').length
 );
 
 export const selectFrozenCount = createSelector(
   [selectGoalsItems],
-  (items) => items.filter(g => g.status === 'FROZEN').length
+  (items) => items.filter(g => g.status?.toUpperCase() === 'FROZEN').length
 );
 
 export const selectArchivedCount = createSelector(
   [selectGoalsItems],
-  (items) => items.filter(g => g.status === 'ARCHIVED').length
+  (items) => items.filter(g => g.status?.toUpperCase() === 'ARCHIVED').length
 );
 
 // сортировка по приоритету (важные сверху)
