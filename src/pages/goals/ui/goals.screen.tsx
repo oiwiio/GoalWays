@@ -69,8 +69,20 @@ export const GoalsScreen = () => {
   const error = useSelector(selectGoalsError);
   
   useEffect(() => {
-    dispatch(fetchGoalsRequest());
-  }, [dispatch]);
+  // При загрузке синхронизируем фильтр с активным табом
+  const getStatusFromTab = () => {
+    switch (activeTab) {
+      case 'in_progress': return ['IN_PROGRESS'];
+      case 'completed': return ['COMPLETED'];
+      case 'frozen': return ['FROZEN'];
+      case 'archived': return ['ARCHIVED'];
+      default: return ['IN_PROGRESS'];
+    }
+  };
+  
+  dispatch(setStatusFilter(getStatusFromTab()));
+  dispatch(fetchGoalsRequest());
+}, [dispatch]);
 
   useEffect(() => {
     if (error) {
@@ -91,7 +103,6 @@ export const GoalsScreen = () => {
     dispatch(openEditModal(goal));
   };
 
-  // ✅ Новые обработчики с модалкой
   const handleArchiveGoal = (goal: GoalAPI) => {
     setConfirmModal({
       visible: true,
