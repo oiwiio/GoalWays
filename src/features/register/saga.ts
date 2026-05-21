@@ -1,14 +1,23 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { registerRequest, registerSuccess, registerFailure } from './slice';
+import { AuthApi, ApiSuccess, ApiError, RegisterRequest } from '../../shared/api/types';
+import { AxiosResponse } from 'axios';
 
-function* handleRegister(api: any, action: PayloadAction<{ username: string; email: string; password: string }>): any {
+type RegisterApiResponse = AxiosResponse<ApiSuccess<{ message: string }> | ApiError>;
+
+function* handleRegister(
+  api: { authApi: AuthApi }, 
+  action: PayloadAction<RegisterRequest> 
+): Generator<any, void, RegisterApiResponse> {
   try {
     const { username, email, password } = action.payload;
     
     console.log('Регистрация:', { username, email });
     
-    const response = yield call(() => api.authApi.register({ username, email, password }));
+    const response: RegisterApiResponse = yield call(() => 
+      api.authApi.register({ username, email, password })
+    );
     
     console.log('Ответ регистрации:', response.data);
     
@@ -17,12 +26,13 @@ function* handleRegister(api: any, action: PayloadAction<{ username: string; ema
     } else {
       yield put(registerFailure(response.data.error || 'Ошибка регистрации'));
     }
-  } catch (error: any) {
-    console.log('Ошибка регистрации:', error.message);
-    yield put(registerFailure(error.message || 'Ошибка сети'));
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Ошибка сети';
+    console.log('Ошибка регистрации:', errorMessage);
+    yield put(registerFailure(errorMessage));
   }
 }
 
-export function* registerSaga(api: any) {
+export function* registerSaga(api: { authApi: AuthApi }) {
   yield takeLatest(registerRequest.type, handleRegister, api);
 }

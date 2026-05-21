@@ -31,11 +31,14 @@ const goalsSlice = createSlice({
       state.isLoading = false;
       state.error = action.payload;
     },
-    createGoalRequest: (state, action: PayloadAction<Omit<GoalAPI, 'id'>>) => {
+    createGoalRequest: (state, action: PayloadAction<any>) => {
+      console.log('createGoalRequest РЕДЮСЕР вызван');
       state.isLoading = true;
       state.error = null;
-    },
+  },  
     createGoalSuccess: (state, action: PayloadAction<GoalAPI>) => {
+      console.log('createGoalSuccess РЕДЮСЕР сработал');
+      console.log('Новая цель:', action.payload);
       state.isLoading = false;
       state.items = [action.payload, ...state.items];
     },
@@ -57,11 +60,12 @@ const goalsSlice = createSlice({
       state.isLoading = false;
       state.error = action.payload;
     },
-    archiveGoalRequest: (state, action: PayloadAction<string>) => {
+    archiveGoalRequest: (state, action: PayloadAction<number>) => {
     state.isLoading = true;
     state.error = null;
     },
-    archiveGoalSuccess: (state, action: PayloadAction<string>) => {
+    archiveGoalSuccess: (state, action: PayloadAction<number>) => {
+      console.log('archiveGoalSuccess, id:', action.payload);
       state.isLoading = false;
       state.items = state.items.map(goal =>
         goal.id === action.payload ? { ...goal, status: 'ARCHIVED' } : goal
@@ -71,25 +75,28 @@ const goalsSlice = createSlice({
       state.isLoading = false;
       state.error = action.payload;
     },
-    restoreGoalRequest: (state, action: PayloadAction<string>) => {
+    restoreGoalRequest: (state, action: PayloadAction<number>) => {
+      console.log('restoreGoalRequest редюсер, id:', action.payload);
       state.isLoading = true;
       state.error = null;
     },
-    restoreGoalSuccess: (state, action: PayloadAction<string>) => {
+    restoreGoalSuccess: (state, action: PayloadAction<number>) => {
+      console.log('restoreGoalSuccess редюсер, обновляем цель с id:', action.payload);
       state.isLoading = false;
       state.items = state.items.map(goal =>
         goal.id === action.payload ? { ...goal, status: 'IN_PROGRESS' } : goal
       );
+      console.log('Новый статус цели:', state.items.find(g => g.id === action.payload)?.status);
     },
     restoreGoalFailure: (state, action: PayloadAction<string>) => {
       state.isLoading = false;
       state.error = action.payload;
     },
-    deleteGoalRequest: (state, action: PayloadAction<string>) => {
+    deleteGoalRequest: (state, action: PayloadAction<number>) => {
       state.isLoading = true;
       state.error = null;
     },
-    deleteGoalSuccess: (state, action: PayloadAction<string>) => {
+    deleteGoalSuccess: (state, action: PayloadAction<number>) => {
       state.isLoading = false;
       state.items = state.items.filter(goal => goal.id !== action.payload);
     },

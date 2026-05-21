@@ -1,51 +1,70 @@
 import { StyleSheet } from 'react-native';
+import { colors, spacing, borderRadius, typography } from '../../../shared/styles/theme';
+import { Platform } from 'react-native';
 
 export const taskItemStyles = StyleSheet.create({
   container: {
-    backgroundColor: '#fff',
-    padding: 12,
-    marginHorizontal: 16,
-    marginVertical: 6,
-    borderRadius: 10,
+    backgroundColor: colors.surface,
+    padding: spacing.m,
+    marginHorizontal: spacing.m,
+    marginVertical: spacing.xs,
+    borderRadius: borderRadius.m,
     borderWidth: 1,
-    borderColor: '#eee',
+    borderColor: colors.border,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 6,
+    marginBottom: spacing.xs,
   },
   priorityIcon: {
-    fontSize: 14,
-    marginRight: 8,
+    fontSize: 16,
+    marginRight: spacing.xs,
   },
   title: {
-    fontSize: 16,
+    ...typography.body,
     fontWeight: '600',
-    color: '#000',
+    color: colors.text,
     flex: 1,
   },
   description: {
+    ...typography.caption,
     fontSize: 13,
-    color: '#666',
-    marginBottom: 8,
+    color: colors.textSecondary,
+    marginBottom: spacing.xs,
+    lineHeight: 18,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginTop: spacing.xs,
   },
   date: {
+    ...typography.caption,
     fontSize: 11,
-    color: '#999',
+    color: colors.textSecondary,
   },
   time: {
+    ...typography.caption,
     fontSize: 11,
-    color: '#999',
+    color: colors.textSecondary,
   },
   progress: {
-    fontSize: 13,
-    fontWeight: '500',
-    color: '#007AFF',
+    ...typography.caption,
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.primary,
   },
 });

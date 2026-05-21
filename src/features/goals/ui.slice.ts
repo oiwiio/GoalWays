@@ -21,6 +21,7 @@ const uiSlice = createSlice({
   initialState,
   reducers: {
     setStatusFilter: (state, action: PayloadAction<string[]>) => {
+      console.log('setStatusFilter вызван, новый статус:', action.payload);
       state.goalFilters.status = action.payload;
     },
     setSort: (state, action: PayloadAction<string>) => {

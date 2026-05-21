@@ -1,3 +1,5 @@
+import { AxiosResponse } from 'axios';
+
 export interface RegisterRequest {
   username: string;
   email: string;
@@ -48,15 +50,6 @@ export interface ApiError {
   error: string;
 }
 
-export interface ConfirmRequest {
-  username: string;
-  code: string;
-}
-
-export interface ConfirmResponse {
-  message: string;
-}
-
 export interface PageResponse<T> {
   content: T[];
   totalPages: number;
@@ -69,3 +62,163 @@ export interface PageResponse<T> {
 }
 
 export type ApiResponse<T> = ApiSuccess<T> | ApiError;
+
+export interface AuthApi {
+  register: (data: RegisterRequest) => Promise<AxiosResponse<ApiSuccess<RegisterResponse>>>;
+  confirm: (data: ConfirmRequest) => Promise<AxiosResponse<ApiSuccess<ConfirmResponse>>>;
+  login: (data: LoginRequest) => Promise<AxiosResponse<ApiSuccess<LoginResponse>>>;
+  refresh: (data: RefreshRequest) => Promise<AxiosResponse<ApiSuccess<{ access_token: string }>>>;
+  logout: (data: LogoutRequest) => Promise<AxiosResponse<ApiSuccess<{ message: string }>>>;
+  forgotPassword: (data: { email: string }) => Promise<AxiosResponse<ApiSuccess<{ message: string }>>>;
+   sendPasswordResetCode: (email: string) => Promise<AxiosResponse<ApiSuccess<{ message: string }>>>;
+  getProfile: () => Promise<AxiosResponse<ApiSuccess<UserProfile>>>;
+  updateProfile: (data: UpdateProfileRequest) => Promise<AxiosResponse<ApiSuccess<UserProfile>>>;
+  changePassword: (data: ChangePasswordRequest) => Promise<AxiosResponse<ApiSuccess<{ message: string }>>>;
+  uploadAvatar: (formData: FormData) => Promise<AxiosResponse<ApiSuccess<{ avatarUrl: string }>>>; 
+  updateEmail: (data: UpdateEmailRequest) => Promise<AxiosResponse<ApiSuccess<UserProfile>>>;
+  updateNickname: (data: UpdateNicknameRequest) => Promise<AxiosResponse<ApiSuccess<UserProfile>>>;
+  deleteAccount: (data: DeleteAccountRequest) => Promise<AxiosResponse<ApiSuccess<{ message: string }>>>;
+}
+
+export interface GoalsApi {
+  fetchGoals: (params: {
+    page?: number;
+    size?: number;
+    status?: string;
+    sort?: string;
+    order?: string;
+  }) => Promise<AxiosResponse<ApiSuccess<PageResponse<any>>>>;
+  createGoal: (data: any) => Promise<AxiosResponse<ApiSuccess<any>>>;
+  updateGoal: (id: number, data: any) => Promise<AxiosResponse<ApiSuccess<any>>>;
+  deleteGoal: (id: number) => Promise<AxiosResponse<ApiSuccess<{ message: string }>>>;
+}
+
+export interface TasksApi {
+  getTasks: (goalId: number) => Promise<AxiosResponse<ApiSuccess<any[]>>>;
+  createTask: (goalId: number, data: any) => Promise<AxiosResponse<ApiSuccess<any>>>;
+  updateTask: (goalId: number, taskId: number, data: any) => Promise<AxiosResponse<ApiSuccess<any>>>;
+  deleteTask: (goalId: number, taskId: number) => Promise<AxiosResponse<ApiSuccess<{ message: string }>>>;
+}
+
+export interface Api {
+  authApi: AuthApi;
+  goalsApi: GoalsApi;
+  tasksApi?: TasksApi;
+}
+
+export interface UserProfile {
+  id: number;
+  username: string;
+  email: string;
+  status?: 'ACTIVE' | 'INACTIVE' | 'BLOCKED';
+  firstName?: string;
+  lastName?: string;
+  avatar?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface UpdateProfileRequest {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  avatar?: string;
+  username?: string;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+  oldPassword: string;  
+  
+}
+
+export interface AIPlanResponse {
+  status: 'success' | 'error' | 'clarification_needed';
+  data?: {
+    tasks?: Array<{
+      title: string;
+      description?: string;
+      priority?: 'LOW' | 'MEDIUM' | 'HIGH';
+      estimated_minutes?: number;
+    }>;
+  };
+  questions?: AIQuestion[];
+  session_id?: string;
+  priority?: 'HIGH' | 'MEDIUM' | 'LOW';
+  deadline?: string;
+  title?: string;
+  description?: string;
+  start_date?: string;
+  daily_time_minutes?: number;
+  error?: string;
+  message?: string;
+}
+
+export interface AIClarifyResponse {
+  status: 'success';
+  data: {
+    tasks: Array<{
+      title: string;
+      description?: string;
+      priority?: 'LOW' | 'MEDIUM' | 'HIGH';
+      estimated_minutes?: number;
+    }>;
+  };
+}
+
+export interface AIClarifyRequest {
+  goal_id: number;
+  session_id: string;
+  answers: Array<{
+    question_id: string;
+    answer: string;
+  }>;
+}
+
+export interface AiHelpGoalRequest {
+  goalId: number;
+  prompt?: string;
+}
+
+export interface AIQuestion {
+  id: string;
+  text: string;
+}
+
+export interface AIGeneratedTask {
+  id?: number;
+  title: string;
+  description?: string;
+  priority?: 'HIGH' | 'MEDIUM' | 'LOW';
+  estimated_minutes?: number;
+  deadline?: string;
+  startsAt?: string;
+  sortOrder?: number;
+  status?: string;
+}
+
+export interface AIPlanData {
+  tasks?: AIGeneratedTask[];
+  stages?: AIGeneratedTask[];
+  questions?: AIQuestion[];
+  session_id?: string;
+  priority?: 'HIGH' | 'MEDIUM' | 'LOW';
+  deadline?: string;
+  title?: string;
+  description?: string;
+  start_date?: string;
+  daily_time_minutes?: number;
+}
+
+export interface UpdateEmailRequest {
+  email: string;
+}
+
+export interface UpdateNicknameRequest {
+  username: string;
+}
+
+export interface DeleteAccountRequest {
+  password: string;
+}

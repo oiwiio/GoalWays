@@ -1,29 +1,20 @@
+import { TextStyle, ViewStyle } from 'react-native';
+
 export const colors = {
-  // основа
-  primary: '#007AFF',
-  secondary: '#5856D6',
-  success: '#34C759',
+  background: '#19191E',
+  surface: '#27282F',
+  surfaceLight: '#32333D',
+  text: '#F1F8FF',
+  textSecondary: '#8C8C96',
+  primary: '#6572CE',
+  primaryGradient: ['#6572CE', '#7B5BB5'] as const,
   danger: '#FF3B30',
   warning: '#FF9500',
-  
-  // фон
-  background: '#F2F2F7',
-  surface: '#FFFFFF',
-  card: '#FFFFFF',
-  
-  // текст
-  text: '#000000',
-  textSecondary: '#8E8E93',
-  textTertiary: '#C6C6C8',
-  
-  // граница
-  border: '#C6C6C8',
-  borderLight: '#E5E5EA',
-  
-  // прогресс
-  progressLow: '#FF3B30',
-  progressMedium: '#FF9500',
-  progressHigh: '#34C759',
+  success: '#34C759',
+  border: '#3A3B44',
+  borderLight: '#2C2D35',
+  overlay: 'rgba(0, 0, 0, 0.5)',
+  shadow: 'rgba(0, 0, 0, 0.3)',
 };
 
 export const spacing = {
@@ -35,65 +26,46 @@ export const spacing = {
   xxl: 48,
 };
 
-export const borderRadius = {
-  s: 8,
-  m: 12,
-  l: 16,
-  xl: 20,
-  round: 999,
+export const typography = {
+  h1: { fontSize: 32, fontWeight: '700' as const, color: colors.text },
+  h2: { fontSize: 24, fontWeight: '700' as const, color: colors.text },
+  h3: { fontSize: 20, fontWeight: '600' as const, color: colors.text },
+  body: { fontSize: 16, fontWeight: '400' as const, color: colors.text },
+  bodySecondary: { fontSize: 16, fontWeight: '400' as const, color: colors.textSecondary },
+  caption: { fontSize: 12, fontWeight: '400' as const, color: colors.textSecondary },
+  button: { fontSize: 16, fontWeight: '600' as const, color: colors.text },
+  buttonSmall: { fontSize: 14, fontWeight: '600' as const, color: colors.text },
 };
 
-export const typography = {
-  h1: {
-    fontSize: 28,
-    fontWeight: '700' as const,
-    color: colors.text,
-  },
-  h2: {
-    fontSize: 24,
-    fontWeight: '600' as const,
-    color: colors.text,
-  },
-  h3: {
-    fontSize: 20,
-    fontWeight: '600' as const,
-    color: colors.text,
-  },
-  body: {
-    fontSize: 16,
-    fontWeight: '400' as const,
-    color: colors.text,
-  },
-  bodySmall: {
-    fontSize: 14,
-    fontWeight: '400' as const,
-    color: colors.textSecondary,
-  },
-  caption: {
-    fontSize: 12,
-    fontWeight: '400' as const,
-    color: colors.textTertiary,
-  },
-  button: {
-    fontSize: 16,
-    fontWeight: '600' as const,
-    color: colors.surface,
-  },
+export const borderRadius = {
+  xs: 8,
+  s: 12,
+  m: 16,
+  l: 24,
+  xl: 32,
+  round: 999,
 };
 
 export const shadows = {
   small: {
-    shadowColor: colors.text,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
     elevation: 3,
   },
   medium: {
-    shadowColor: colors.text,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
     elevation: 5,
+  },
+  large: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.35,
+    shadowRadius: 16,
+    elevation: 8,
   },
 };
