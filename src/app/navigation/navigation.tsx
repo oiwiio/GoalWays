@@ -17,13 +17,20 @@ export type RootStackParamList = {
   Register: undefined;
   ForgotPassword: undefined;
   Confirm: { username: string };
-  MainTabs: undefined;  // 👈 изменил название
+  MainTabs: undefined;       
+  Goals: undefined;         
+  Profile: undefined;        
   Settings: undefined;
   Developers: undefined;
   GoalDetail: {
     goalId: string;
     goal: GoalAPI;
   };
+};
+
+export type TabParamList = {
+  Цели: undefined;
+  Вы: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
