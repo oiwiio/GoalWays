@@ -1,73 +1,72 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { TouchableOpacity, Text, View, StyleSheet } from 'react-native';
+import { colors, spacing, typography } from '../../../shared/styles/theme';
 
 interface SettingsItemProps {
   title: string;
-  subtitle?: string;  
+  subtitle?: string;
   onPress?: () => void;
   rightElement?: React.ReactNode;
-  color?: string;
   showChevron?: boolean;
+  color?: string;
 }
 
 export const SettingsItem = ({ 
   title, 
-  subtitle,  
+  subtitle, 
   onPress, 
   rightElement, 
-  color = '#000',
-  showChevron = true 
-}: SettingsItemProps) => {
-  const Content = () => (
-    <View style={styles.container}>
-      <View style={styles.textContainer}>
-        <Text style={[styles.title, { color }]}>{title}</Text>
-        {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}  
-      </View>
-      <View style={styles.rightContainer}>
-        {rightElement}
-        {showChevron && !rightElement && <Text style={styles.chevron}>›</Text>}
-      </View>
+  showChevron = true,
+  color = colors.text 
+}: SettingsItemProps) => (
+  <TouchableOpacity 
+    style={styles.item} 
+    onPress={onPress} 
+    activeOpacity={0.7}
+    disabled={!onPress}
+  >
+    <View style={styles.itemContent}>
+      <Text style={[styles.itemTitle, { color }]}>{title}</Text>
+      {subtitle && <Text style={styles.itemSubtitle}>{subtitle}</Text>}
     </View>
-  );
-
-  if (onPress) {
-    return (
-      <TouchableOpacity onPress={onPress}>
-        <Content />
-      </TouchableOpacity>
-    );
-  }
-
-  return <Content />;
-};
+    <View style={styles.itemRight}>
+      {rightElement}
+      {showChevron && onPress && (
+        <Text style={styles.chevron}>›</Text>
+      )}
+    </View>
+  </TouchableOpacity>
+);
 
 const styles = StyleSheet.create({
-  container: {
-    paddingVertical: 16,
-    paddingHorizontal: 20,
+  item: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingHorizontal: spacing.l,
+    paddingVertical: spacing.m,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: colors.border,
   },
-  textContainer: {
+  itemContent: {
     flex: 1,
   },
-  title: {
-    fontSize: 16,
+  itemTitle: {
+    ...typography.body,
+    color: colors.text,
   },
-  subtitle: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 4,
+  itemSubtitle: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    marginTop: spacing.xs,
   },
-  rightContainer: {
-    marginLeft: 10,
+  itemRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.s,
   },
   chevron: {
-    color: '#999',
-    fontSize: 18,
+    fontSize: 20,
+    color: colors.textSecondary,
   },
 });

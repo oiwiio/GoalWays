@@ -1,4 +1,3 @@
-// features/goals/ui/goal-edit-modal/GoalEditModal.tsx
 import React, { useEffect } from "react";
 import {
     Modal,
@@ -22,14 +21,14 @@ import {
 } from '../../../tasks/tasks.slice';
 import { styles } from './styles';
 
-// 👇 Импортируем селекторы из правильного места
+// Импортируем селекторы из правильного места
 import { 
     selectTasksItems, 
     selectTasksIsLoading, 
     selectTasksError 
 } from '../../../tasks/tasks.selectors';
 
-// 👇 Импортируем селекторы и экшены модалки
+// Импортируем селекторы и экшены модалки
 import {
     selectGoalEditModalVisible,
     selectGoalEditModalTitle,
@@ -69,7 +68,7 @@ import { updateGoalRequest } from '../../slice';
 export const GoalEditModal: React.FC = () => {
     const dispatch = useDispatch();
     
-    // ✅ Используем импортированные селекторы
+    // Используем импортированные селекторы
     const visible = useSelector(selectGoalEditModalVisible);
     const title = useSelector(selectGoalEditModalTitle);
     const description = useSelector(selectGoalEditModalDescription);
@@ -85,7 +84,7 @@ export const GoalEditModal: React.FC = () => {
     const resultModalVisible = useSelector(selectGoalEditModalResultModalVisible);
     const resultText = useSelector(selectGoalEditModalResultText);
     
-    // ✅ Используем импортированные селекторы задач
+    // Используем импортированные селекторы задач
     const tasks = useSelector(selectTasksItems);
     const tasksLoading = useSelector(selectTasksIsLoading);
     const tasksError = useSelector(selectTasksError);

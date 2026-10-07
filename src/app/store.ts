@@ -12,8 +12,11 @@ import { goalsApi } from '../shared/api/goals';
 import { tasksReducer } from '../features/tasks/index';
 import uiReducer from '../features/goals/ui.slice';
 import goalEditModalReducer from '../features/goals/ui/goal-edit-modal/slice';
+import profileReducer from '../features/profile/slice';
+import { tasksApi } from '../shared/api/tasks';
+import aiReducer from '../features/ai/slice';
 
-const api = { authApi, goalsApi };
+const api = { authApi, goalsApi, tasksApi };
 
 const sagaMiddleware = createSagaMiddleware();
 
@@ -27,7 +30,9 @@ export const store = configureStore({
     tasks: tasksReducer,
     settings: settingsReducer,
     ui: uiReducer,
-    GoalEditModal: goalEditModalReducer
+    GoalEditModal: goalEditModalReducer,
+    profile: profileReducer,
+    ai: aiReducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -40,3 +45,4 @@ sagaMiddleware.run(rootSaga, api);
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
+

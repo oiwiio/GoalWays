@@ -5,11 +5,13 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
-    StyleSheet,
     ScrollView,
-    Alert
+    Alert,
+    Platform,
+    StyleSheet,
 } from 'react-native';
 import { GoalAPI } from '../../../types/goal';
+import { colors, spacing, borderRadius, typography } from '../../../shared/styles/theme';
 
 interface CreateGoalModalProps {
     visible: boolean;
@@ -27,38 +29,44 @@ export const CreateGoalModal = ({ visible, onClose, onCreateGoal }: CreateGoalMo
     const handleCreate = () => {
         if (!title.trim()) {
             Alert.alert('Ошибка', 'Введите название цели');
-    return;
-  }
+            return;
+        }
 
-   const goalData = {
-        title: title.trim(),
-        description: description.trim(),
-        priority: priority,
-        startdate: new Date().toISOString().split('T')[0],
-        deadline: deadline || null,
-        daily_time_minutes: 60,
-        progress: 0,
-        status: 'IN_PROGRESS',
-        stages: [  
-            {
-                title: 'Базовая задача',
-                priority: priority?.toUpperCase() || 'MEDIUM',
-                estimatedMinutes: 60,
-                deadline: new Date().toISOString().split('T')[0],
-                startsAt: new Date().toISOString().split('T')[0],
-                sortOrder: 0,
-            }
-        ],
+        const priorityUpperCase = priority === 'high' ? 'HIGH' : priority === 'medium' ? 'MEDIUM' : 'LOW';
+
+        const goalData: any = {
+            title: title.trim(),
+            description: description.trim(),
+            priority: priorityUpperCase,
+            start_date: new Date().toISOString().split('T')[0],
+            deadline: deadline || null,
+            daily_time_minutes: 60,
+            progress: 0,
+            status: 'IN_PROGRESS',
+            category: category.trim() || 'Без категории',
+            stages: [  
+                {
+                    title: 'Базовая задача',
+                    priority: priorityUpperCase,
+                    estimatedMinutes: 60,
+                    deadline: new Date().toISOString().split('T')[0],
+                    startsAt: new Date().toISOString().split('T')[0],
+                    sortOrder: 0,
+                }
+            ],
+        };
+        
+        onCreateGoal(goalData);
+        
+        // очистка
+        setTitle('');
+        setDescription('');
+        setCategory('');
+        setDeadline('');
+        setPriority('medium');
+        onClose();
     };
-   
-    // очистка
-    setTitle('');
-    setDescription('');
-    setCategory('');
-    setDeadline('');
-    setPriority('medium');
-    onClose();
-    };
+
     const suggestedCategories = ['Работа', 'Учеба', 'Здоровье', 'Личное', 'Финансы'];
 
     return (
@@ -70,17 +78,26 @@ export const CreateGoalModal = ({ visible, onClose, onCreateGoal }: CreateGoalMo
         >
             <View style={styles.modalOverlay}>
                 <View style={styles.modalContent}>
-                    <Text style={styles.modalTitle}>Новая цель</Text>
+                    <View style={styles.header}>
+                        <Text style={styles.modalTitle}>Создать новую цель</Text>
+                        <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+                            <Text style={styles.closeButtonText}>✕</Text>
+                        </TouchableOpacity>
+                    </View>
 
-                    <ScrollView showsVerticalScrollIndicator={false}>
+                    <ScrollView 
+                        showsVerticalScrollIndicator={false}
+                        contentContainerStyle={styles.scrollContent}
+                    >
                         {/* Название */}
                         <View style={styles.inputGroup}>
-                            <Text style={styles.label}>Название *</Text>
+                            <Text style={styles.label}>Название <Text style={styles.required}>*</Text></Text>
                             <TextInput
                                 style={styles.input}
                                 value={title}
                                 onChangeText={setTitle}
                                 placeholder="Введите название цели"
+                                placeholderTextColor={colors.textSecondary}
                                 maxLength={50}
                             />
                         </View>
@@ -93,6 +110,7 @@ export const CreateGoalModal = ({ visible, onClose, onCreateGoal }: CreateGoalMo
                                 value={description}
                                 onChangeText={setDescription}
                                 placeholder="Опишите вашу цель"
+                                placeholderTextColor={colors.textSecondary}
                                 multiline
                                 numberOfLines={3}
                                 maxLength={200}
@@ -107,6 +125,7 @@ export const CreateGoalModal = ({ visible, onClose, onCreateGoal }: CreateGoalMo
                                 value={category}
                                 onChangeText={setCategory}
                                 placeholder="Выберите или введите категорию"
+                                placeholderTextColor={colors.textSecondary}
                             />
 
                             <View style={styles.categoriesContainer}>
@@ -183,8 +202,9 @@ export const CreateGoalModal = ({ visible, onClose, onCreateGoal }: CreateGoalMo
                                 value={deadline}
                                 onChangeText={setDeadline}
                                 placeholder="ГГГГ-ММ-ДД"
+                                placeholderTextColor={colors.textSecondary}
                             />
-                            <Text style={styles.hint}>Формат: 2026-12-31</Text>
+                            <Text style={styles.hint}>Формат: 2025-12-31</Text>
                         </View>
                     </ScrollView>
 
@@ -208,130 +228,167 @@ export const CreateGoalModal = ({ visible, onClose, onCreateGoal }: CreateGoalMo
             </View>
         </Modal>
     );
-}
+};
 
 const styles = StyleSheet.create({
     modalOverlay: {
         flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        backgroundColor: colors.overlay,
         justifyContent: 'flex-end',
     },
     modalContent: {
-        backgroundColor: '#fff',
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-        padding: 20,
-        minHeight: '70%',
+        backgroundColor: colors.surface,
+        borderTopLeftRadius: borderRadius.xl,
+        borderTopRightRadius: borderRadius.xl,
+        paddingHorizontal: spacing.l,
+        paddingBottom: spacing.xl,
         maxHeight: '90%',
+        minHeight: '70%',
+    },
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: spacing.l,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.border,
     },
     modalTitle: {
+        ...typography.h2,
         fontSize: 24,
-        fontWeight: 'bold',
-        color: '#1a1a1a',
-        marginBottom: 20,
-        textAlign: 'center',
+        color: colors.text,
+    },
+    closeButton: {
+        width: 32,
+        height: 32,
+        borderRadius: borderRadius.round,
+        backgroundColor: colors.surfaceLight,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    closeButtonText: {
+        fontSize: 18,
+        color: colors.textSecondary,
+    },
+    scrollContent: {
+        paddingVertical: spacing.m,
     },
     inputGroup: {
-        marginBottom: 20,
+        marginBottom: spacing.l,
     },
     label: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#333',
-        marginBottom: 8,
+        ...typography.caption,
+        color: colors.textSecondary,
+        marginBottom: spacing.xs,
+    },
+    required: {
+        color: colors.danger,
     },
     input: {
+        ...typography.body,
+        backgroundColor: colors.surfaceLight,
+        color: colors.text,
+        paddingHorizontal: spacing.m,
+        paddingVertical: spacing.s,
+        borderRadius: borderRadius.s,
         borderWidth: 1,
-        borderColor: '#ddd',
-        borderRadius: 10,
-        padding: 12,
-        fontSize: 16,
-        backgroundColor: '#f9f9f9',
+        borderColor: colors.border,
     },
     textArea: {
         minHeight: 80,
         textAlignVertical: 'top',
     },
     hint: {
-        fontSize: 12,
-        color: '#999',
-        marginTop: 4,
+        ...typography.caption,
+        color: colors.textSecondary,
+        marginTop: spacing.xs,
     },
     categoriesContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        marginTop: 10,
+        marginTop: spacing.s,
+        gap: spacing.s,
     },
     categoryChip: {
-        backgroundColor: '#f0f0f0',
-        paddingHorizontal: 15,
-        paddingVertical: 8,
-        borderRadius: 20,
-        marginRight: 10,
-        marginBottom: 10,
+        backgroundColor: colors.surfaceLight,
+        paddingHorizontal: spacing.m,
+        paddingVertical: spacing.s,
+        borderRadius: borderRadius.round,
     },
     categoryChipSelected: {
-        backgroundColor: '#007AFF',
+        backgroundColor: colors.primary,
     },
     categoryChipText: {
-        color: '#666',
-        fontSize: 14,
+        ...typography.caption,
+        color: colors.textSecondary,
     },
     categoryChipTextSelected: {
-        color: '#fff',
+        color: colors.text,
+        fontWeight: '600',
     },
     priorityContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginTop: 8,
+        gap: spacing.s,
     },
     priorityButton: {
         flex: 1,
-        paddingVertical: 12,
-        backgroundColor: '#f0f0f0',
-        borderRadius: 8,
-        marginHorizontal: 4,
+        paddingVertical: spacing.s,
+        backgroundColor: colors.surfaceLight,
+        borderRadius: borderRadius.s,
         alignItems: 'center',
     },
     priorityButtonActive: {
-        backgroundColor: '#007AFF',
+        backgroundColor: colors.primary,
     },
     priorityButtonText: {
+        ...typography.body,
         fontSize: 14,
-        color: '#333',
+        color: colors.textSecondary,
     },
     priorityButtonTextActive: {
-        color: '#fff',
+        color: colors.text,
+        fontWeight: '600',
     },
     buttonsContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginTop: 20,
-        paddingTop: 20,
+        gap: spacing.m,
+        paddingTop: spacing.m,
         borderTopWidth: 1,
-        borderTopColor: '#eee',
+        borderTopColor: colors.border,
     },
     button: {
         flex: 1,
-        paddingVertical: 15,
-        borderRadius: 10,
+        paddingVertical: spacing.m,
+        borderRadius: borderRadius.m,
         alignItems: 'center',
-        marginHorizontal: 5,
     },
     cancelButton: {
-        backgroundColor: '#f0f0f0',
-    },
-    createButton: {
-        backgroundColor: '#007AFF',
+        backgroundColor: colors.surfaceLight,
     },
     cancelButtonText: {
-        color: '#666',
-        fontSize: 16,
+        ...typography.body,
+        color: colors.textSecondary,
         fontWeight: '600',
     },
+    createButton: {
+        backgroundColor: colors.primary,
+        ...Platform.select({
+            ios: {
+                shadowColor: colors.primary,
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.3,
+                shadowRadius: 8,
+            },
+            android: {
+                elevation: 4,
+            },
+        }),
+    },
     createButtonText: {
-        color: '#fff',
-        fontSize: 16,
+        ...typography.body,
+        color: colors.text,
         fontWeight: '600',
     },
 });

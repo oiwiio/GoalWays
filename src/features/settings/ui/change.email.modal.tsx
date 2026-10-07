@@ -1,5 +1,15 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Modal, StyleSheet, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Modal,
+  Alert,
+  StyleSheet,
+  Platform,
+} from 'react-native';
+import { colors, spacing, borderRadius, typography } from '../../../shared/styles/theme';
 
 interface Props {
   visible: boolean;
@@ -12,6 +22,14 @@ export const ChangeEmailModal = ({ visible, onClose, onSave, currentEmail }: Pro
   const [email, setEmail] = useState(currentEmail);
   const [confirmEmail, setConfirmEmail] = useState('');
 
+  // Сбрасываем поля при открытии/закрытии
+  useEffect(() => {
+    if (visible) {
+      setEmail(currentEmail);
+      setConfirmEmail('');
+    }
+  }, [visible, currentEmail]);
+
   const handleSave = () => {
     if (!email || !confirmEmail) {
       Alert.alert('Ошибка', 'Заполните все поля');
@@ -21,18 +39,28 @@ export const ChangeEmailModal = ({ visible, onClose, onSave, currentEmail }: Pro
       Alert.alert('Ошибка', 'Email не совпадают');
       return;
     }
+    if (email === currentEmail) {
+      Alert.alert('Ошибка', 'Email не изменён');
+      return;
+    }
     onSave(email);
   };
 
   return (
-    <Modal visible={visible} transparent animationType="slide">
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.overlay}>
         <View style={styles.modal}>
-          <Text style={styles.title}>Сменить email</Text>
-          
+          <View style={styles.header}>
+            <Text style={styles.title}>Сменить email</Text>
+            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+              <Text style={styles.closeButtonText}>✕</Text>
+            </TouchableOpacity>
+          </View>
+
           <TextInput
             style={styles.input}
             placeholder="Новый email"
+            placeholderTextColor={colors.textSecondary}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -42,6 +70,7 @@ export const ChangeEmailModal = ({ visible, onClose, onSave, currentEmail }: Pro
           <TextInput
             style={styles.input}
             placeholder="Подтвердите email"
+            placeholderTextColor={colors.textSecondary}
             value={confirmEmail}
             onChangeText={setConfirmEmail}
             keyboardType="email-address"
@@ -50,10 +79,10 @@ export const ChangeEmailModal = ({ visible, onClose, onSave, currentEmail }: Pro
           
           <View style={styles.buttons}>
             <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
-              <Text>Отмена</Text>
+              <Text style={styles.cancelButtonText}>Отмена</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-              <Text style={styles.saveText}>Сохранить</Text>
+              <Text style={styles.saveButtonText}>Сохранить</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -65,48 +94,100 @@ export const ChangeEmailModal = ({ visible, onClose, onSave, currentEmail }: Pro
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: colors.overlay,
     justifyContent: 'center',
     alignItems: 'center',
   },
   modal: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 12,
-    width: '80%',
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.l,
+    padding: spacing.l,
+    width: '85%',
+    maxWidth: 400,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 5,
+      },
+    }),
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.l,
   },
   title: {
+    ...typography.h3,
+    fontSize: 20,
+    color: colors.text,
+  },
+  closeButton: {
+    width: 32,
+    height: 32,
+    borderRadius: borderRadius.round,
+    backgroundColor: colors.surfaceLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  closeButtonText: {
     fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 20,
-    textAlign: 'center',
+    color: colors.textSecondary,
   },
   input: {
+    ...typography.body,
+    backgroundColor: colors.surfaceLight,
+    color: colors.text,
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 12,
+    borderColor: colors.border,
+    borderRadius: borderRadius.s,
+    padding: spacing.s,
+    marginBottom: spacing.m,
   },
   buttons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 20,
+    gap: spacing.s,
+    marginTop: spacing.s,
   },
   cancelButton: {
-    padding: 12,
     flex: 1,
+    paddingVertical: spacing.m,
+    borderRadius: borderRadius.m,
     alignItems: 'center',
+    backgroundColor: colors.surfaceLight,
+  },
+  cancelButtonText: {
+    ...typography.body,
+    color: colors.textSecondary,
+    fontWeight: '600',
   },
   saveButton: {
-    backgroundColor: '#007AFF',
-    padding: 12,
-    borderRadius: 8,
     flex: 1,
+    paddingVertical: spacing.m,
+    borderRadius: borderRadius.m,
     alignItems: 'center',
+    backgroundColor: colors.primary,
+    ...Platform.select({
+      ios: {
+        shadowColor: colors.primary,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
   },
-  saveText: {
-    color: '#fff',
+  saveButtonText: {
+    ...typography.body,
+    color: colors.text,
     fontWeight: '600',
   },
 });
