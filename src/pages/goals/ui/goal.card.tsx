@@ -1,4 +1,3 @@
-// features/goals/ui/GoalCard.tsx
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { GoalAPI } from '../../../types/goal';

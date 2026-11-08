@@ -7,7 +7,7 @@ import DeviceInfo from 'react-native-device-info';
 const SESSION_ID = '11111111-1111-4111-8111-111111111111';
 
 export const apiClient = axios.create({
-    baseURL: 'http://185.246.223.132:8080',   
+    baseURL: 'http://177.202.73.254:8080',   
     headers: {
         'Content-Type': 'application/json',
         'Platform': Platform.OS.toUpperCase(),

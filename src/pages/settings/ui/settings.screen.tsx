@@ -1,71 +1,60 @@
-// features/settings/ui/SettingsScreen.tsx
-import React, { useState, useEffect } from "react";
-import { 
-  View, 
-  Text, 
-  ScrollView, 
-  Switch, 
-  Alert, 
-  Linking, 
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  Alert,
   SafeAreaView,
   StyleSheet,
   TouchableOpacity,
+  StatusBar,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../app/navigation/navigation';
-import { SettingsSection, SettingsItem } from '../../../features/settings';
-import { 
-  setNotifications, 
-  logoutRequest 
-} from '../../../features/settings/slice';
-import { 
-  selectNotifications,
-  selectSettingsError 
-} from '../../../features/settings/selectors';
 import { selectProfile } from '../../../features/profile/selectors';
 import { fetchProfileRequest } from '../../../features/profile/slice';
 import { ChangeEmailModal } from '../../../features/settings/ui/change.email.modal';
 import { ChangePasswordModal } from '../../../features/settings/ui/change.password.modal';
 import { ChangeNicknameModal } from '../../../features/settings/ui/change.nickname.modal';
 import { DeleteAccountModal } from '../../../features/settings/ui/delete.account.modal';
-import { colors, spacing, typography, borderRadius } from '../../../shared/styles/theme';
 
 type SettingsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Settings'>;
+
+// Цвета из макета. Когда будем трогать остальные экраны — перенесём в shared/styles/theme
+const ui = {
+  background: '#1B1B1D',
+  field: '#2A2A30',
+  text: '#FFFFFF',
+  textMuted: '#A8A8AD',
+  danger: '#E83A3A',
+};
 
 export const SettingsScreen = () => {
   const navigation = useNavigation<SettingsScreenNavigationProp>();
   const dispatch = useDispatch();
-  
-  const notifications = useSelector(selectNotifications);
-  const error = useSelector(selectSettingsError);
+
   const profile = useSelector(selectProfile);
-  
-  // Состояния для модалок
+
   const [emailModalVisible, setEmailModalVisible] = useState(false);
   const [passwordModalVisible, setPasswordModalVisible] = useState(false);
   const [nicknameModalVisible, setNicknameModalVisible] = useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
-  // Загружаем профиль при открытии
   useEffect(() => {
     dispatch(fetchProfileRequest());
   }, [dispatch]);
 
-  // Реальные данные из профиля
   const userData = {
     email: profile?.email || 'не указан',
     nickname: profile?.username || 'Пользователь',
-    firstName: profile?.firstName || '',
-    lastName: profile?.lastName || '',
   };
 
   const handleChangeEmail = (newEmail: string) => {
     // TODO: dispatch смены email
     Alert.alert('Успех', `Email изменён на ${newEmail}`);
     setEmailModalVisible(false);
-    // Обновляем профиль
     dispatch(fetchProfileRequest());
   };
 
@@ -79,7 +68,6 @@ export const SettingsScreen = () => {
     // TODO: dispatch смены никнейма
     Alert.alert('Успех', `Никнейм изменён на ${newNickname}`);
     setNicknameModalVisible(false);
-    // Обновляем профиль
     dispatch(fetchProfileRequest());
   };
 
@@ -92,120 +80,64 @@ export const SettingsScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor={ui.background} />
+
+      {/* Шапка: ← Аккаунт */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Text style={styles.backButtonText}>←</Text>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <Text style={styles.backIcon}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>Настройки</Text>
-        <View style={styles.placeholder} />
+        <Text style={styles.title}>Аккаунт</Text>
       </View>
 
-      <ScrollView 
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        {/* данные аккаунта */}
-        <SettingsSection title="Данные аккаунта">
-          <SettingsItem
-            title="Email"
-            subtitle={userData.email}
-            onPress={() => setEmailModalVisible(true)}
-            showChevron
-          />
-          <SettingsItem
-            title="Имя пользователя"
-            subtitle={userData.nickname}
-            onPress={() => setNicknameModalVisible(true)}
-            showChevron
-          />
-          <SettingsItem
-            title="Пароль"
-            subtitle="••••••••"
-            onPress={() => setPasswordModalVisible(true)}
-            showChevron
-          />
-        </SettingsSection>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+        <Field
+          label="Ваше имя"
+          value={userData.nickname}
+          onEdit={() => setNicknameModalVisible(true)}
+        />
+        <Field
+          label="Ваша почта"
+          value={userData.email}
+          onEdit={() => setEmailModalVisible(true)}
+        />
+        <Field
+          label="Ваш пароль"
+          value={'*'.repeat(18)}
+          onEdit={() => setPasswordModalVisible(true)}
+        />
 
-        {/* уведомления */}
-        <SettingsSection title="Уведомления">
-          <SettingsItem
-            title="Push-уведомления"
-            rightElement={
-              <Switch 
-               value={notifications} 
-                onValueChange={(value) => {
-                  dispatch(setNotifications(value));
-                }}
-              />
-            }
-          />
-        </SettingsSection>
-
-        {/* поддержка */}
-        <SettingsSection title="Поддержка">
-          <SettingsItem
-            title="Обратиться в поддержку"
-            onPress={() => Linking.openURL('mailto:support@goalways.com')}
-            showChevron
-          />
-        </SettingsSection>
-
-        {/* о приложении */}
-        <SettingsSection title="О приложении">
-          <SettingsItem
-            title="Разработчики"
-            onPress={() => navigation.navigate('Developers')}
-            showChevron
-          />
-          <SettingsItem
-            title="Версия"
-            subtitle="v1.0.1"
-            showChevron={false}
-          />
-        </SettingsSection>
-
-        {/* опасная зона */}
-        <SettingsSection title="Опасная зона">
-          <SettingsItem
-            title="Удалить аккаунт"
-            onPress={() => setDeleteModalVisible(true)}
-            color={colors.danger}
-            showChevron
-          />
-          <SettingsItem
-            title="Выйти"
-            onPress={() => {
-              Alert.alert('Выход', 'Вы уверены?', [
-                { text: 'Отмена', style: 'cancel' },
-                { text: 'Выйти', onPress: () => dispatch(logoutRequest()) }
-              ]);
-            }}
-            color={colors.danger}
-          />
-        </SettingsSection>
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={() => setDeleteModalVisible(true)}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.deleteButtonText}>Удалить аккаунт</Text>
+        </TouchableOpacity>
       </ScrollView>
 
-      {/* модалки */}
+      {/* Модалки */}
       <ChangeEmailModal
         visible={emailModalVisible}
         onClose={() => setEmailModalVisible(false)}
         onSave={handleChangeEmail}
         currentEmail={userData.email}
       />
-
       <ChangePasswordModal
         visible={passwordModalVisible}
         onClose={() => setPasswordModalVisible(false)}
         onSave={handleChangePassword}
       />
-
       <ChangeNicknameModal
         visible={nicknameModalVisible}
         onClose={() => setNicknameModalVisible(false)}
         onSave={handleChangeNickname}
         currentNickname={userData.nickname}
       />
-
       <DeleteAccountModal
         visible={deleteModalVisible}
         onClose={() => setDeleteModalVisible(false)}
@@ -215,40 +147,105 @@ export const SettingsScreen = () => {
   );
 };
 
+// Поле: подпись сверху, карточка со значением и карандашом справа
+const Field = ({
+  label,
+  value,
+  onEdit,
+}: {
+  label: string;
+  value: string;
+  onEdit: () => void;
+}) => (
+  <View style={styles.fieldBlock}>
+    <Text style={styles.fieldLabel}>{label}</Text>
+    <TouchableOpacity style={styles.fieldCard} onPress={onEdit} activeOpacity={0.7}>
+      <Text style={styles.fieldValue} numberOfLines={1}>
+        {value}
+      </Text>
+      <Text style={styles.editIcon}>✎</Text>
+    </TouchableOpacity>
+  </View>
+);
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: ui.background,
   },
+  content: {
+    paddingHorizontal: 24,
+    paddingBottom: 24,
+  },
+
+  // Шапка
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: spacing.l,
-    paddingVertical: spacing.m,
-    paddingTop: spacing.xl,
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    height: 80,
+    marginBottom: 16,
   },
   backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: borderRadius.round,
-    backgroundColor: colors.surface,
+    width: 32,
+    height: 32,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  backButtonText: {
+  backIcon: {
     fontSize: 24,
-    color: colors.text,
+    color: ui.text,
   },
   title: {
-    ...typography.h1,
-    fontSize: 28,
-    color: colors.text,
+    marginLeft: 20,
+    fontSize: 20,
+    fontWeight: '600',
+    color: ui.text,
   },
-  placeholder: {
-    width: 40,
+
+  // Поля
+  fieldBlock: {
+    marginBottom: 20,
   },
-  scrollContent: {
-    paddingBottom: spacing.xl,
+  fieldLabel: {
+    fontSize: 10,
+    color: ui.text,
+    marginBottom: 8,
+  },
+  fieldCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    height: 56,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    backgroundColor: ui.field,
+  },
+  fieldValue: {
+    flex: 1,
+    marginRight: 12,
+    fontSize: 14,
+    fontWeight: '600',
+    color: ui.text,
+  },
+  editIcon: {
+    fontSize: 22,
+    color: ui.text,
+  },
+
+  // Удаление
+  deleteButton: {
+    marginTop: 12,
+    height: 50,
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    backgroundColor: ui.danger,
+  },
+  deleteButtonText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: ui.text,
   },
 });
