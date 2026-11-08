@@ -1,11 +1,16 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Target, User } from 'lucide-react-native';
 import { GoalsScreen } from '../../pages/goals/ui/goals.screen';
 import { ProfileScreen } from '../../pages/profile/ui/profile.screen';
-import { colors, typography, spacing } from '../../shared/styles/theme';
-import { Text } from 'react-native';
 
 const Tab = createBottomTabNavigator();
+
+const ui = {
+  tabBar: '#222226',
+  active: '#FFFFFF',
+  inactive: '#6E6E75',
+};
 
 export const TabNavigator = () => {
   return (
@@ -13,44 +18,35 @@ export const TabNavigator = () => {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: colors.surface,
-          borderTopColor: colors.border,
-          borderTopWidth: 1,
-          height: 60,
-          paddingBottom: spacing.xs,
-          paddingTop: spacing.xs,
+          backgroundColor: ui.tabBar,
+          borderTopWidth: 0,
+          elevation: 0,
+          height: 64,
+          paddingTop: 8,
+          paddingBottom: 8,
         },
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.textSecondary,
+        tabBarActiveTintColor: ui.active,
+        tabBarInactiveTintColor: ui.inactive,
         tabBarLabelStyle: {
-          ...typography.caption,
-          fontSize: 12,
-          marginTop: 4,
+          fontSize: 10,
+          marginTop: 2,
         },
       }}
     >
-      <Tab.Screen 
-        name="Goals" 
-        component={GoalsScreen} 
+      <Tab.Screen
+        name="Goals"
+        component={GoalsScreen}
         options={{
           title: 'Цели',
-          tabBarIcon: ({ focused, color, size }) => (
-            <Text style={{ fontSize: size, color }}>
-              {focused ? '🎯' : '🎯'}
-            </Text>
-          ),
+          tabBarIcon: ({ color }) => <Target color={color} size={24} strokeWidth={1.75} />,
         }}
       />
-      <Tab.Screen 
-        name="Profile" 
-        component={ProfileScreen} 
+      <Tab.Screen
+        name="Profile"
+        component={ProfileScreen}
         options={{
-          title: 'Профиль',
-          tabBarIcon: ({ focused, color, size }) => (
-            <Text style={{ fontSize: size, color }}>
-              {focused ? '👤' : '👤'}
-            </Text>
-          ),
+          title: 'Вы',
+          tabBarIcon: ({ color }) => <User color={color} size={24} strokeWidth={1.75} />,
         }}
       />
     </Tab.Navigator>
