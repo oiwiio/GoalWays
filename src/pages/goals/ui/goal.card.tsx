@@ -1,7 +1,18 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import {
+  Pencil,
+  Archive,
+  ArchiveRestore,
+  Trash2,
+  Calendar,
+  Flame,
+  Circle,
+  Moon,
+  Pin,
+} from 'lucide-react-native';
 import { GoalAPI } from '../../../types/goal';
-import { colors, spacing, borderRadius, typography } from '../../../shared/styles/theme';
+import { ui } from '../../../shared/styles/ui';
 
 interface GoalCardProps {
   goal: GoalAPI;
@@ -12,109 +23,144 @@ interface GoalCardProps {
   onDelete?: (goal: GoalAPI) => void;
 }
 
-export const GoalCard = ({ goal, onPress, onEdit, onArchive, onRestore, onDelete }: GoalCardProps) => {
+const ICON_PROPS = { size: 18, strokeWidth: 1.75, color: ui.text } as const;
+
+export const GoalCard = ({
+  goal,
+  onPress,
+  onEdit,
+  onArchive,
+  onRestore,
+  onDelete,
+}: GoalCardProps) => {
   const statusUpper = goal.status?.toUpperCase();
   const isArchived = statusUpper === 'ARCHIVED';
-  
-  console.log('GoalCard рендер:', {
-    title: goal.title,
-    status: goal.status,
-    statusUpper,
-    isArchived
-  });
 
-  const getPriorityIcon = () => {
+  const renderPriorityIcon = () => {
+    const props = { size: 16, strokeWidth: 1.75, color: ui.textMuted };
     switch (goal.priority) {
-      case 'HIGH': return '🔥';
-      case 'MEDIUM': return '⚪';
-      case 'LOW': return '💤';
-      default: return '📌';
+      case 'HIGH':
+        return <Flame {...props} color={ui.warning} />;
+      case 'MEDIUM':
+        return <Circle {...props} />;
+      case 'LOW':
+        return <Moon {...props} />;
+      default:
+        return <Pin {...props} />;
     }
   };
 
   const getStatusColor = () => {
-    switch (goal.status) {
-      case 'IN_PROGRESS': return colors.primary;
-      case 'COMPLETED': return colors.success;
-      case 'FROZEN': return colors.warning;
-      case 'ARCHIVED': return colors.textSecondary;
-      default: return colors.textSecondary;
+    switch (statusUpper) {
+      case 'IN_PROGRESS':
+        return ui.accentLight;
+      case 'COMPLETED':
+        return ui.success;
+      case 'FROZEN':
+        return ui.warning;
+      default:
+        return ui.textMuted;
     }
   };
 
+  const getStatusLabel = () => {
+    switch (statusUpper) {
+      case 'IN_PROGRESS':
+        return 'В процессе';
+      case 'COMPLETED':
+        return 'Завершено';
+      case 'FROZEN':
+        return 'Заморожено';
+      default:
+        return 'В архиве';
+    }
+  };
+
+  const statusColor = getStatusColor();
+
   return (
     <TouchableOpacity style={styles.card} onPress={() => onPress(goal)} activeOpacity={0.7}>
-      <View style={styles.cardContent}>
-        {/* Заголовок и действия */}
-        <View style={styles.header}>
-          <View style={styles.titleContainer}>
-            <Text style={styles.priorityIcon}>{getPriorityIcon()}</Text>
-            <Text style={[styles.title, isArchived && styles.archivedTitle]} numberOfLines={1}>
-              {goal.title}
-            </Text>
-          </View>
-          <View style={styles.actions}>
-            <TouchableOpacity onPress={() => onEdit(goal)} style={styles.actionButton}>
-              <Text style={styles.actionIcon}>✏️</Text>
-            </TouchableOpacity>
-            
-            {/* Условный рендеринг: если в архиве — показываем кнопку восстановления */}
-            {isArchived ? (
-                  onRestore && (
-                    <TouchableOpacity onPress={() => onRestore(goal)} style={styles.actionButton}>
-                      <Text style={styles.actionIcon}>↩️</Text>
-                    </TouchableOpacity>
-                  )
-                ) : (
-                  <TouchableOpacity onPress={() => onArchive(goal)} style={styles.actionButton}>
-                    <Text style={styles.actionIcon}>📦</Text>
-                  </TouchableOpacity>
-                )}
-            
-            {onDelete && (
-              <TouchableOpacity onPress={() => onDelete(goal)} style={styles.actionButton}>
-                <Text style={[styles.actionIcon, styles.deleteIcon]}>🗑️</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        </View>
-
-        {/* Описание */}
-        {goal.description ? (
-          <Text style={[styles.description, isArchived && styles.archivedText]} numberOfLines={2}>
-            {goal.description}
+      {/* Заголовок и действия */}
+      <View style={styles.header}>
+        <View style={styles.titleContainer}>
+          <View style={styles.priorityIcon}>{renderPriorityIcon()}</View>
+          <Text style={[styles.title, isArchived && styles.archivedTitle]} numberOfLines={1}>
+            {goal.title}
           </Text>
-        ) : null}
+        </View>
+        <View style={styles.actions}>
+          <TouchableOpacity
+            onPress={() => onEdit(goal)}
+            style={styles.actionButton}
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+          >
+            <Pencil {...ICON_PROPS} />
+          </TouchableOpacity>
 
-        {/* Прогресс (скрываем для архивных целей) */}
-        {!isArchived && (
-          <View style={styles.progressSection}>
-            <View style={styles.progressBar}>
-              <View style={[styles.progressFill, { width: `${goal.progress}%` }]} />
-            </View>
-            <Text style={styles.progressText}>{goal.progress}%</Text>
-          </View>
-        )}
+          {/* В архиве — кнопка восстановления, иначе — архивирования */}
+          {isArchived ? (
+            onRestore && (
+              <TouchableOpacity
+                onPress={() => onRestore(goal)}
+                style={styles.actionButton}
+                hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+              >
+                <ArchiveRestore {...ICON_PROPS} />
+              </TouchableOpacity>
+            )
+          ) : (
+            <TouchableOpacity
+              onPress={() => onArchive(goal)}
+              style={styles.actionButton}
+              hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+            >
+              <Archive {...ICON_PROPS} />
+            </TouchableOpacity>
+          )}
 
-        {/* Дополнительная информация */}
-        <View style={styles.footer}>
-          <View style={[styles.statusBadge, { backgroundColor: getStatusColor() + '20' }]}>
-            <View style={[styles.statusDot, { backgroundColor: getStatusColor() }]} />
-            <Text style={[styles.statusText, { color: getStatusColor() }]}>
-              {goal.status === 'IN_PROGRESS' ? 'В процессе' :
-               goal.status === 'COMPLETED' ? 'Завершено' :
-               goal.status === 'FROZEN' ? 'Заморожено' : 'В архиве'}
-            </Text>
-          </View>
-          {goal.deadline && !isArchived && (
-            <View style={styles.deadline}>
-              <Text style={styles.deadlineIcon}>📅</Text>
-              <Text style={styles.deadlineText}>
-                {new Date(goal.deadline).toLocaleDateString('ru-RU')}
-              </Text>
-            </View>
+          {onDelete && (
+            <TouchableOpacity
+              onPress={() => onDelete(goal)}
+              style={styles.actionButton}
+              hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+            >
+              <Trash2 {...ICON_PROPS} color={ui.danger} />
+            </TouchableOpacity>
           )}
         </View>
+      </View>
+
+      {/* Описание */}
+      {goal.description ? (
+        <Text style={[styles.description, isArchived && styles.archivedText]} numberOfLines={2}>
+          {goal.description}
+        </Text>
+      ) : null}
+
+      {/* Прогресс (скрываем для архивных целей) */}
+      {!isArchived && (
+        <View style={styles.progressSection}>
+          <View style={styles.progressBar}>
+            <View style={[styles.progressFill, { width: `${goal.progress}%` }]} />
+          </View>
+          <Text style={styles.progressText}>{goal.progress}%</Text>
+        </View>
+      )}
+
+      {/* Статус и дедлайн */}
+      <View style={styles.footer}>
+        <View style={[styles.statusBadge, { backgroundColor: statusColor + '26' }]}>
+          <View style={[styles.statusDot, { backgroundColor: statusColor }]} />
+          <Text style={[styles.statusText, { color: statusColor }]}>{getStatusLabel()}</Text>
+        </View>
+        {goal.deadline && !isArchived && (
+          <View style={styles.deadline}>
+            <Calendar size={12} strokeWidth={1.75} color={ui.textMuted} />
+            <Text style={styles.deadlineText}>
+              {new Date(goal.deadline).toLocaleDateString('ru-RU')}
+            </Text>
+          </View>
+        )}
       </View>
     </TouchableOpacity>
   );
@@ -122,30 +168,16 @@ export const GoalCard = ({ goal, onPress, onEdit, onArchive, onRestore, onDelete
 
 const styles = StyleSheet.create({
   card: {
-    marginHorizontal: spacing.m,
-    marginVertical: spacing.s,
-    borderRadius: borderRadius.l,
-    backgroundColor: colors.surface,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 8,
-      },
-      android: {
-        elevation: 3,
-      },
-    }),
-  },
-  cardContent: {
-    padding: spacing.m,
+    marginBottom: 12,
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: ui.card,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.s,
+    marginBottom: 8,
   },
   titleContainer: {
     flexDirection: 'row',
@@ -153,13 +185,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   priorityIcon: {
-    fontSize: 18,
-    marginRight: spacing.xs,
+    marginRight: 8,
   },
   title: {
-    ...typography.h3,
-    fontSize: 18,
     flex: 1,
+    fontSize: 14,
+    fontWeight: '700',
+    color: ui.text,
   },
   archivedTitle: {
     textDecorationLine: 'line-through',
@@ -167,22 +199,17 @@ const styles = StyleSheet.create({
   },
   actions: {
     flexDirection: 'row',
-    gap: spacing.s,
+    gap: 12,
+    marginLeft: 12,
   },
   actionButton: {
-    padding: spacing.xs,
-  },
-  actionIcon: {
-    fontSize: 18,
-  },
-  deleteIcon: {
-    opacity: 0.6,
+    padding: 2,
   },
   description: {
-    ...typography.bodySecondary,
-    fontSize: 14,
-    marginBottom: spacing.m,
-    lineHeight: 20,
+    marginBottom: 12,
+    fontSize: 12,
+    lineHeight: 18,
+    color: ui.textMuted,
   },
   archivedText: {
     opacity: 0.6,
@@ -190,28 +217,27 @@ const styles = StyleSheet.create({
   progressSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: spacing.m,
+    marginBottom: 12,
   },
   progressBar: {
     flex: 1,
-    height: 8,
-    backgroundColor: colors.borderLight,
-    borderRadius: borderRadius.round,
+    height: 6,
+    marginRight: 12,
+    borderRadius: 3,
     overflow: 'hidden',
-    marginRight: spacing.s,
+    backgroundColor: ui.border,
   },
   progressFill: {
     height: '100%',
-    backgroundColor: colors.primary,
-    borderRadius: borderRadius.round,
+    borderRadius: 3,
+    backgroundColor: ui.text,
   },
   progressText: {
-    ...typography.caption,
-    fontSize: 12,
-    fontWeight: '600',
-    color: colors.text,
-    minWidth: 40,
+    minWidth: 36,
     textAlign: 'right',
+    fontSize: 10,
+    fontWeight: '700',
+    color: ui.text,
   },
   footer: {
     flexDirection: 'row',
@@ -221,32 +247,27 @@ const styles = StyleSheet.create({
   statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: spacing.s,
-    paddingVertical: spacing.xs,
-    borderRadius: borderRadius.round,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
   },
   statusDot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    marginRight: spacing.xs,
+    marginRight: 6,
   },
   statusText: {
-    ...typography.caption,
-    fontSize: 11,
-    fontWeight: '500',
+    fontSize: 10,
+    fontWeight: '600',
   },
   deadline: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  deadlineIcon: {
-    fontSize: 12,
-    marginRight: 4,
+    gap: 4,
   },
   deadlineText: {
-    ...typography.caption,
-    fontSize: 11,
-    color: colors.textSecondary,
+    fontSize: 10,
+    color: ui.textMuted,
   },
 });

@@ -22,7 +22,6 @@ import { DeleteAccountModal } from '../../../features/settings/ui/delete.account
 
 type SettingsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Settings'>;
 
-// Цвета из макета. Когда будем трогать остальные экраны — перенесём в shared/styles/theme
 const ui = {
   background: '#1B1B1D',
   field: '#2A2A30',

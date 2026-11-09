@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, Modal, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Modal } from 'react-native';
 import { GoalAPI } from '../../../types/goal';
+import { colors } from '../../../shared/styles/theme';
 import { styles } from './goal-card.styles';
 
 interface GoalCardProps {
@@ -41,25 +42,30 @@ export const GoalCard = ({
         }
     };
 
-    const getStatusColor = (status: string) => {
+    const getStatusColor = (status: string): string => {
         switch (status) {
-            case 'in_progress': return '#007AFF';
-            case 'completed': return '#34C759';
-            case 'frozen': return '#FF9500';
-            case 'archived': return '#8E8E93';
-            default: return '#666';
+            case 'in_progress': return colors.primary;
+            case 'completed': return colors.success;
+            case 'frozen': return colors.warning;
+            case 'archived': return colors.textSecondary;
+            default: return colors.textSecondary;
         }
     };
 
+    const statusColor = getStatusColor(goal.status);
+
     return (
         <>
-            <TouchableOpacity style={styles.card} onPress={() => onPress(goal)}>
+            <TouchableOpacity style={styles.card} activeOpacity={0.8} onPress={() => onPress(goal)}>
                 <View style={styles.header}>
                     <View style={styles.titleContainer}>
                         <Text style={styles.priorityIcon}>{getPriorityIcon(goal.priority)}</Text>
                         <Text style={styles.title} numberOfLines={1}>{goal.title}</Text>
                     </View>
-                    <TouchableOpacity onPress={() => setMenuVisible(true)}>
+                    <TouchableOpacity
+                        onPress={() => setMenuVisible(true)}
+                        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    >
                         <Text style={styles.menuButton}>⋯</Text>
                     </TouchableOpacity>
                 </View>
@@ -71,16 +77,16 @@ export const GoalCard = ({
                 )}
 
                 <View style={styles.footer}>
-                     <View style={styles.leftFooter}>
+                    <View style={styles.leftFooter}>
                         {goal.startdate && (
-                        <Text style={styles.date}>📅 {new Date(goal.startdate).toLocaleDateString('ru-RU')}</Text>
+                            <Text style={styles.date}>📅 {new Date(goal.startdate).toLocaleDateString('ru-RU')}</Text>
                         )}
-                            {goal.deadline && (
-                        <Text style={styles.date}>→ {new Date(goal.deadline).toLocaleDateString('ru-RU')}</Text>
+                        {goal.deadline && (
+                            <Text style={styles.date}>→ {new Date(goal.deadline).toLocaleDateString('ru-RU')}</Text>
                         )}
-                </View>
+                    </View>
                     <View style={styles.rightFooter}>
-                        <Text style={[styles.statusBadge, { backgroundColor: getStatusColor(goal.status) + '20' }]}>
+                        <Text style={[styles.statusBadge, { backgroundColor: statusColor + '26', color: statusColor }]}>
                             {getStatusText(goal.status)}
                         </Text>
                         <Text style={styles.progress}>{goal.progress}%</Text>
