@@ -1,33 +1,35 @@
-import React, { useState, useEffect } from "react";
-import { 
-  View, 
-  Text, 
-  Alert, 
-  KeyboardAvoidingView, 
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  Alert,
+  KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
+  StatusBar,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../app/navigation/navigation';
 import { resetPasswordRequest, clearStatus } from '../../../features/forgot-password/slice';
-import { 
-  selectForgotPasswordIsLoading, 
-  selectForgotPasswordError, 
-  selectForgotPasswordSuccess 
+import {
+  selectForgotPasswordIsLoading,
+  selectForgotPasswordError,
+  selectForgotPasswordSuccess,
 } from '../../../features/forgot-password/selectors';
 import { Input } from '../../../shared/ui/input';
 import { Button } from '../../../shared/ui/button';
-import { colors, spacing, typography, borderRadius } from '../../../shared/styles/theme';
+import { Logo } from '../../../shared/ui/logo';
+import { ui } from '../../../shared/styles/ui';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ForgotPassword'>;
 
 export const ForgotPasswordScreen = ({ navigation }: Props) => {
   const [email, setEmail] = useState('');
   const dispatch = useDispatch();
-  
+
   const isLoading = useSelector(selectForgotPasswordIsLoading);
   const error = useSelector(selectForgotPasswordError);
   const success = useSelector(selectForgotPasswordSuccess);
@@ -41,7 +43,10 @@ export const ForgotPasswordScreen = ({ navigation }: Props) => {
 
   useEffect(() => {
     if (success) {
-      Alert.alert('Письмо отправлено', `На ${email} отправлена инструкция по восстановлению пароля.`);
+      Alert.alert(
+        'Письмо отправлено',
+        `На ${email} отправлена инструкция по восстановлению пароля.`
+      );
       dispatch(clearStatus());
       navigation.navigate('Login');
     }
@@ -55,29 +60,22 @@ export const ForgotPasswordScreen = ({ navigation }: Props) => {
     dispatch(resetPasswordRequest({ email: email.trim() }));
   };
 
-  const handleBackToLogin = () => {
-    navigation.navigate('Login');
-  };
-
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.keyboardView}
     >
+      <StatusBar barStyle="light-content" backgroundColor={ui.background} />
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Иконка / Заголовок */}
+        {/* Заголовок */}
         <View style={styles.header}>
-          <View style={styles.iconCircle}>
-            <Text style={styles.icon}>🔐</Text>
-          </View>
+          <Logo size={56} />
           <Text style={styles.title}>Восстановление пароля</Text>
-          <Text style={styles.subtitle}>
-            Введите email, указанный при регистрации
-          </Text>
+          <Text style={styles.subtitle}>Введите email, указанный при регистрации</Text>
         </View>
 
         {/* Форма */}
@@ -92,13 +90,16 @@ export const ForgotPasswordScreen = ({ navigation }: Props) => {
           />
 
           <Button
-            title={isLoading ? "Отправка..." : "Отправить инструкцию"}
+            title="Отправить инструкцию"
             onPress={handleResetPassword}
             loading={isLoading}
             style={styles.resetButton}
           />
 
-          <TouchableOpacity onPress={handleBackToLogin} style={styles.backContainer}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Login')}
+            style={styles.backContainer}
+          >
             <Text style={styles.backIcon}>←</Text>
             <Text style={styles.backText}>Вернуться к входу</Text>
           </TouchableOpacity>
@@ -111,75 +112,53 @@ export const ForgotPasswordScreen = ({ navigation }: Props) => {
 const styles = StyleSheet.create({
   keyboardView: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: ui.background,
   },
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
-    paddingHorizontal: spacing.l,
-    paddingVertical: spacing.xl,
+    paddingHorizontal: 24,
+    paddingVertical: 32,
   },
   header: {
     alignItems: 'center',
-    marginBottom: spacing.xxl,
-  },
-  iconCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: colors.surface,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: spacing.l,
-    ...Platform.select({
-      ios: {
-        shadowColor: colors.shadow,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-      },
-      android: {
-        elevation: 4,
-      },
-    }),
-  },
-  icon: {
-    fontSize: 40,
+    marginBottom: 32,
   },
   title: {
-    fontSize: 28,
+    marginTop: 16,
+    fontSize: 24,
     fontWeight: '700',
-    color: colors.text,
-    marginBottom: spacing.s,
+    color: ui.text,
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: 14,
-    color: colors.textSecondary,
+    marginTop: 4,
+    fontSize: 12,
+    color: ui.textMuted,
     textAlign: 'center',
-    paddingHorizontal: spacing.m,
+    paddingHorizontal: 16,
   },
   form: {
     width: '100%',
   },
   resetButton: {
-    marginTop: spacing.s,
-    marginBottom: spacing.m,
+    marginTop: 8,
+    marginBottom: 16,
   },
   backContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: spacing.m,
+    paddingVertical: 8,
   },
   backIcon: {
-    fontSize: 18,
-    color: colors.primary,
-    marginRight: spacing.xs,
+    fontSize: 16,
+    color: ui.text,
+    marginRight: 6,
   },
   backText: {
-    fontSize: 16,
-    color: colors.primary,
-    fontWeight: '500',
+    fontSize: 12,
+    fontWeight: '700',
+    color: ui.text,
   },
 });

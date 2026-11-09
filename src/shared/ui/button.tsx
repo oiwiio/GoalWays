@@ -7,7 +7,7 @@ import {
   ViewStyle,
   TextStyle,
 } from 'react-native';
-import { colors, spacing, borderRadius, typography } from '../styles/theme';
+import { ui } from '../styles/ui';
 
 interface ButtonProps {
   title: string;
@@ -30,44 +30,29 @@ export const Button = ({
 }: ButtonProps) => {
   const getButtonStyle = () => {
     switch (variant) {
-      case 'primary':
-        return styles.primaryButton;
       case 'secondary':
         return styles.secondaryButton;
       case 'danger':
         return styles.dangerButton;
       case 'outline':
         return styles.outlineButton;
+      case 'primary':
       default:
         return styles.primaryButton;
     }
   };
 
-  const getTextStyle = () => {
-    switch (variant) {
-      case 'outline':
-        return styles.outlineText;
-      default:
-        return styles.buttonText;
-    }
-  };
-
   return (
     <TouchableOpacity
-      style={[
-        styles.button,
-        getButtonStyle(),
-        (disabled || loading) && styles.disabled,
-        style,
-      ]}
+      style={[styles.button, getButtonStyle(), (disabled || loading) && styles.disabled, style]}
       onPress={onPress}
       disabled={disabled || loading}
       activeOpacity={0.8}
     >
       {loading ? (
-        <ActivityIndicator size="small" color="#fff" />
+        <ActivityIndicator size="small" color={ui.text} />
       ) : (
-        <Text style={[getTextStyle(), textStyle]}>{title}</Text>
+        <Text style={[styles.buttonText, textStyle]}>{title}</Text>
       )}
     </TouchableOpacity>
   );
@@ -75,33 +60,30 @@ export const Button = ({
 
 const styles = StyleSheet.create({
   button: {
-    paddingVertical: spacing.m,
-    paddingHorizontal: spacing.l,
-    borderRadius: borderRadius.m,
+    minHeight: 50,
+    paddingHorizontal: 16,
+    borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
   },
   primaryButton: {
-    backgroundColor: colors.primary,
+    backgroundColor: ui.accent,
   },
   secondaryButton: {
-    backgroundColor: colors.surface,
+    backgroundColor: ui.card,
   },
   dangerButton: {
-    backgroundColor: colors.danger,
+    backgroundColor: ui.danger,
   },
   outlineButton: {
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: colors.primary,
+    borderColor: ui.border,
   },
   buttonText: {
-    ...typography.button,
-    color: colors.text,
-  },
-  outlineText: {
-    ...typography.button,
-    color: colors.primary,
+    fontSize: 14,
+    fontWeight: '700',
+    color: ui.text,
   },
   disabled: {
     opacity: 0.5,

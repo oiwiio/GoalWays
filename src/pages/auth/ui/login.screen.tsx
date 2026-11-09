@@ -1,27 +1,28 @@
-import React, { useState, useEffect } from "react";
-import { 
-  View, 
-  Text, 
-  TouchableOpacity, 
-  Alert, 
-  KeyboardAvoidingView, 
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Alert,
+  KeyboardAvoidingView,
   Platform,
   ScrollView,
-  ActivityIndicator,
   StyleSheet,
+  StatusBar,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../app/navigation/navigation';
 import { loginRequest } from '../../../features/auth/slice';
 import { useSelector, useDispatch } from 'react-redux';
-import { 
-  selectAuthIsLoading, 
-  selectAuthError, 
-  selectAuthUser 
+import {
+  selectAuthIsLoading,
+  selectAuthError,
+  selectAuthUser,
 } from '../../../features/auth/selectors';
 import { Input } from '../../../shared/ui/input';
 import { Button } from '../../../shared/ui/button';
-import { colors, spacing, typography, borderRadius } from '../../../shared/styles/theme';
+import { Logo } from '../../../shared/ui/logo';
+import { ui } from '../../../shared/styles/ui';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
@@ -29,7 +30,7 @@ export const LoginScreen = ({ navigation }: Props) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const dispatch = useDispatch();
-  
+
   const isLoading = useSelector(selectAuthIsLoading);
   const error = useSelector(selectAuthError);
   const user = useSelector(selectAuthUser);
@@ -47,19 +48,11 @@ export const LoginScreen = ({ navigation }: Props) => {
   }, [user, navigation]);
 
   const handleLogin = () => {
-    if (!username?.trim() || !password?.trim()) { 
+    if (!username?.trim() || !password?.trim()) {
       Alert.alert('Ошибка', 'Заполните все поля');
       return;
     }
     dispatch(loginRequest({ username: username.trim(), password: password.trim() }));
-  };
-
-  const handleForgotPassword = () => {
-    navigation.navigate('ForgotPassword');
-  };
-
-  const handleRegister = () => {
-    navigation.navigate('Register');
   };
 
   return (
@@ -67,14 +60,15 @@ export const LoginScreen = ({ navigation }: Props) => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.keyboardView}
     >
+      <StatusBar barStyle="light-content" backgroundColor={ui.background} />
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Логотип / Заголовок */}
+        {/* Логотип / заголовок */}
         <View style={styles.header}>
-          <Text style={styles.logo}>🎯</Text>
+          <Logo size={72} />
           <Text style={styles.title}>GoalWays</Text>
           <Text style={styles.subtitle}>Твой путь к целям</Text>
         </View>
@@ -86,6 +80,7 @@ export const LoginScreen = ({ navigation }: Props) => {
             value={username}
             onChangeText={setUsername}
             placeholder="Введите username"
+            autoCapitalize="none"
           />
 
           <Input
@@ -97,21 +92,26 @@ export const LoginScreen = ({ navigation }: Props) => {
           />
 
           <Button
-            title={isLoading ? "Вход..." : "Войти"}
+            title="Войти"
             onPress={handleLogin}
             loading={isLoading}
             style={styles.loginButton}
           />
 
-          <TouchableOpacity onPress={handleRegister} style={styles.linkContainer}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Register')}
+            style={styles.linkContainer}
+          >
             <Text style={styles.linkText}>
-              Нет аккаунта?{' '}
-              <Text style={styles.linkHighlight}>Зарегистрироваться</Text>
+              Нет аккаунта? <Text style={styles.linkHighlight}>Зарегистрироваться</Text>
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={handleForgotPassword} style={styles.forgotContainer}>
-            <Text style={styles.forgotText}>Забыли пароль?</Text>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('ForgotPassword')}
+            style={styles.linkContainer}
+          >
+            <Text style={styles.linkText}>Забыли пароль?</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -122,56 +122,47 @@ export const LoginScreen = ({ navigation }: Props) => {
 const styles = StyleSheet.create({
   keyboardView: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: ui.background,
   },
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
-    paddingHorizontal: spacing.l,
-    paddingVertical: spacing.xl,
+    paddingHorizontal: 24,
+    paddingVertical: 32,
   },
   header: {
     alignItems: 'center',
-    marginBottom: spacing.xxl,
-  },
-  logo: {
-    fontSize: 64,
-    marginBottom: spacing.s,
+    marginBottom: 40,
   },
   title: {
-    ...typography.h1,
-    color: colors.primary,
-    marginBottom: spacing.xs,
+    marginTop: 16,
+    fontSize: 24,
+    fontWeight: '700',
+    color: ui.text,
   },
   subtitle: {
-    ...typography.bodySecondary,
-    fontSize: 14,
+    marginTop: 4,
+    fontSize: 12,
+    color: ui.textMuted,
+    textAlign: 'center',
   },
   form: {
     width: '100%',
   },
   loginButton: {
-    marginTop: spacing.s,
-    marginBottom: spacing.m,
+    marginTop: 8,
+    marginBottom: 16,
   },
   linkContainer: {
     alignItems: 'center',
-    paddingVertical: spacing.s,
+    paddingVertical: 8,
   },
   linkText: {
-    ...typography.bodySecondary,
-    fontSize: 14,
+    fontSize: 12,
+    color: ui.textMuted,
   },
   linkHighlight: {
-    color: colors.primary,
-    fontWeight: '600',
-  },
-  forgotContainer: {
-    alignItems: 'center',
-    paddingVertical: spacing.s,
-  },
-  forgotText: {
-    ...typography.caption,
-    color: colors.textSecondary,
+    color: ui.text,
+    fontWeight: '700',
   },
 });

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
+  StatusBar,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -16,11 +17,12 @@ import { registerRequest, clearStatus } from '../../../features/register/slice';
 import {
   selectRegisterIsLoading,
   selectRegisterError,
-  selectRegisterSuccess
+  selectRegisterSuccess,
 } from '../../../features/register/selectors';
 import { Input } from '../../../shared/ui/input';
 import { Button } from '../../../shared/ui/button';
-import { colors, spacing, typography, borderRadius } from '../../../shared/styles/theme';
+import { Logo } from '../../../shared/ui/logo';
+import { ui } from '../../../shared/styles/ui';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Register'>;
 
@@ -52,7 +54,7 @@ export const RegisterScreen = ({ navigation }: Props) => {
 
   // Валидация пароля (12+ символов, цифры, спецсимволы) - ЗАКОММЕНТИРОВАНО
   const validatePassword = (password: string) => {
-    // Строгая валидация 
+    // Строгая валидация
     /*
     if (password.length < 12) {
       setPasswordError('Минимум 12 символов');
@@ -68,7 +70,7 @@ export const RegisterScreen = ({ navigation }: Props) => {
       return true;
     }
     */
-    
+
     // Простая валидация для тестов
     if (password.length < 3) {
       setPasswordError('Минимум 3 символа');
@@ -119,15 +121,12 @@ export const RegisterScreen = ({ navigation }: Props) => {
     }
   };
 
-  const handleBackToLogin = () => {
-    navigation.navigate('Login');
-  };
-
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.keyboardView}
     >
+      <StatusBar barStyle="light-content" backgroundColor={ui.background} />
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -135,13 +134,9 @@ export const RegisterScreen = ({ navigation }: Props) => {
       >
         {/* Заголовок */}
         <View style={styles.header}>
-          <View style={styles.iconCircle}>
-            <Text style={styles.icon}>📝</Text>
-          </View>
+          <Logo size={56} />
           <Text style={styles.title}>Создать аккаунт</Text>
-          <Text style={styles.subtitle}>
-            Присоединяйся к GoalWays и достигай целей
-          </Text>
+          <Text style={styles.subtitle}>Присоединяйся к GoalWays и достигай целей</Text>
         </View>
 
         {/* Форма регистрации */}
@@ -196,16 +191,18 @@ export const RegisterScreen = ({ navigation }: Props) => {
           />
 
           <Button
-            title={isLoading ? "Регистрация..." : "Зарегистрироваться"}
+            title="Зарегистрироваться"
             onPress={handleRegister}
             loading={isLoading}
             style={styles.registerButton}
           />
 
-          <TouchableOpacity onPress={handleBackToLogin} style={styles.loginContainer}>
-            <Text style={styles.loginText}>
-              Уже есть аккаунт?{' '}
-              <Text style={styles.loginHighlight}>Войти</Text>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Login')}
+            style={styles.linkContainer}
+          >
+            <Text style={styles.linkText}>
+              Уже есть аккаунт? <Text style={styles.linkHighlight}>Войти</Text>
             </Text>
           </TouchableOpacity>
         </View>
@@ -217,71 +214,49 @@ export const RegisterScreen = ({ navigation }: Props) => {
 const styles = StyleSheet.create({
   keyboardView: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: ui.background,
   },
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
-    paddingHorizontal: spacing.l,
-    paddingVertical: spacing.xl,
+    paddingHorizontal: 24,
+    paddingVertical: 32,
   },
   header: {
     alignItems: 'center',
-    marginBottom: spacing.xl,
-  },
-  iconCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: colors.surface,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: spacing.l,
-    ...Platform.select({
-      ios: {
-        shadowColor: colors.shadow,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-      },
-      android: {
-        elevation: 4,
-      },
-    }),
-  },
-  icon: {
-    fontSize: 40,
+    marginBottom: 32,
   },
   title: {
-    fontSize: 28,
+    marginTop: 16,
+    fontSize: 24,
     fontWeight: '700',
-    color: colors.text,
-    marginBottom: spacing.s,
+    color: ui.text,
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: 14,
-    color: colors.textSecondary,
+    marginTop: 4,
+    fontSize: 12,
+    color: ui.textMuted,
     textAlign: 'center',
-    paddingHorizontal: spacing.m,
+    paddingHorizontal: 16,
   },
   form: {
     width: '100%',
   },
   registerButton: {
-    marginTop: spacing.s,
-    marginBottom: spacing.m,
+    marginTop: 8,
+    marginBottom: 16,
   },
-  loginContainer: {
+  linkContainer: {
     alignItems: 'center',
-    paddingVertical: spacing.m,
+    paddingVertical: 8,
   },
-  loginText: {
-    fontSize: 14,
-    color: colors.textSecondary,
+  linkText: {
+    fontSize: 12,
+    color: ui.textMuted,
   },
-  loginHighlight: {
-    color: colors.primary,
-    fontWeight: '600',
+  linkHighlight: {
+    color: ui.text,
+    fontWeight: '700',
   },
 });
