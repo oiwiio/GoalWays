@@ -1,218 +1,163 @@
-import { StyleSheet } from "react-native";
-import { colors, spacing, borderRadius, typography } from '../../../../shared/styles/theme';
+import { StyleSheet } from 'react-native';
+import { ui } from '../../../../shared/styles/ui';
 
 export const styles = StyleSheet.create({
-    modalOverlay: {
-        flex: 1,
-        backgroundColor: colors.overlay,
-        justifyContent: 'flex-end',
-    },
-    modalContent: {
-        backgroundColor: colors.surface,
-        borderTopLeftRadius: borderRadius.xl,
-        borderTopRightRadius: borderRadius.xl,
-        padding: spacing.l,
-        minHeight: '80%',
-        maxHeight: '90%',
-    },
-    modalTitle: {
-        ...typography.h2,
-        fontSize: 24,
-        color: colors.text,
-        marginBottom: spacing.m,
-        textAlign: 'center',
-    },
-    inputGroup: {
-        marginBottom: spacing.m,
-    },
-    label: {
-        ...typography.caption,
-        color: colors.textSecondary,
-        marginBottom: spacing.xs,
-    },
-    input: {
-        ...typography.body,
-        backgroundColor: colors.surfaceLight,
-        color: colors.text,
-        borderWidth: 1,
-        borderColor: colors.border,
-        borderRadius: borderRadius.s,
-        padding: spacing.s,
-    },
-    textArea: {
-        minHeight: 80,
-        textAlignVertical: 'top',
-    },
-    hint: {
-        ...typography.caption,
-        color: colors.textSecondary,
-        marginTop: spacing.xs,
-    },
-    categoriesContainer: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        marginTop: spacing.s,
-        gap: spacing.s,
-    },
-    categoryChip: {
-        backgroundColor: colors.surfaceLight,
-        paddingHorizontal: spacing.m,
-        paddingVertical: spacing.xs,
-        borderRadius: borderRadius.round,
-    },
-    categoryChipSelected: {
-        backgroundColor: colors.primary,
-    },
-    categoryChipText: {
-        ...typography.caption,
-        color: colors.textSecondary,
-    },
-    categoryChipTextSelected: {
-        color: colors.text,
-        fontWeight: '600',
-    },
-    priorityContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginTop: spacing.xs,
-        gap: spacing.s,
-    },
-    priorityButton: {
-        flex: 1,
-        paddingVertical: spacing.s,
-        backgroundColor: colors.surfaceLight,
-        borderRadius: borderRadius.s,
-        alignItems: 'center',
-    },
-    priorityButtonActive: {
-        backgroundColor: colors.primary,
-    },
-    priorityButtonText: {
-        ...typography.body,
-        fontSize: 14,
-        color: colors.textSecondary,
-    },
-    priorityButtonTextActive: {
-        color: colors.text,
-        fontWeight: '600',
-    },
-    statusContainer: {
-        marginTop: spacing.xs,
-        gap: spacing.s,
-    },
-    statusButton: {
-        paddingVertical: spacing.s,
-        backgroundColor: colors.surfaceLight,
-        borderRadius: borderRadius.s,
-        alignItems: 'center',
-    },
-    statusButtonActive: {
-        backgroundColor: colors.primary,
-    },
-    statusButtonText: {
-        ...typography.body,
-        fontSize: 14,
-        color: colors.textSecondary,
-    },
-    statusButtonTextActive: {
-        color: colors.text,
-        fontWeight: '600',
-    },
-    tasksHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: spacing.s,
-    },
-    addButton: {
-        color: colors.primary,
-        fontSize: 14,
-        fontWeight: '600',
-    },
-    emptyText: {
-        ...typography.caption,
-        color: colors.textSecondary,
-        textAlign: 'center',
-        paddingVertical: spacing.l,
-    },
-    resultItem: {
-        ...typography.body,
-        fontSize: 14,
-        color: colors.text,
-        paddingVertical: spacing.xs,
-        paddingHorizontal: spacing.s,
-        backgroundColor: colors.surfaceLight,
-        borderRadius: borderRadius.xs,
-        marginBottom: spacing.xs,
-    },
-    resultButtons: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        marginTop: spacing.s,
-        gap: spacing.s,
-    },
-    resultButton: {
-        flex: 1,
-        paddingVertical: spacing.s,
-        backgroundColor: colors.surfaceLight,
-        borderRadius: borderRadius.s,
-        alignItems: 'center',
-    },
-    resultButtonText: {
-        ...typography.body,
-        fontSize: 14,
-        color: colors.textSecondary,
-        fontWeight: '500',
-    },
-    buttonsContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginTop: spacing.l,
-        paddingTop: spacing.l,
-        borderTopWidth: 1,
-        borderTopColor: colors.border,
-        gap: spacing.s,
-    },
-    button: {
-        flex: 1,
-        paddingVertical: spacing.m,
-        borderRadius: borderRadius.m,
-        alignItems: 'center',
-    },
-    cancelButton: {
-        backgroundColor: colors.surfaceLight,
-    },
-    saveButton: {
-        backgroundColor: colors.primary,
-    },
-    cancelButtonText: {
-        ...typography.body,
-        color: colors.textSecondary,
-        fontWeight: '600',
-    },
-    saveButtonText: {
-        ...typography.body,
-        color: colors.text,
-        fontWeight: '600',
-    },
-    errorText: {
-        ...typography.caption,
-        color: colors.danger,
-        marginTop: spacing.xs,
-    },
-    serverErrorText: {
-        ...typography.caption,
-        color: colors.danger,
-        textAlign: 'center',
-        marginVertical: spacing.s,
-    },
-    disabledButton: {
-        opacity: 0.6,
-    },
-    row: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginTop: spacing.m,
-        gap: spacing.s,
-    },
+  // Шторка
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: ui.background,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    paddingBottom: 24,
+    minHeight: '80%',
+    maxHeight: '90%',
+  },
+  modalContentCompact: {
+    minHeight: undefined,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: ui.text,
+    marginBottom: 24,
+  },
+
+  // Группы без Input (подпись как у Input)
+  inputGroup: {
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 10,
+    color: ui.text,
+    marginBottom: 8,
+  },
+  inputTight: {
+    marginBottom: 8,
+  },
+
+  // Выбор приоритета / статуса
+  optionsRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  optionsColumn: {
+    gap: 8,
+  },
+  option: {
+    height: 44,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+    backgroundColor: ui.card,
+  },
+  optionFlex: {
+    flex: 1,
+  },
+  optionActive: {
+    backgroundColor: ui.accent,
+  },
+  optionText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: ui.textMuted,
+  },
+  optionTextActive: {
+    fontWeight: '700',
+    color: ui.text,
+  },
+
+  // Категории
+  categoriesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  categoryChip: {
+    height: 32,
+    paddingHorizontal: 14,
+    borderRadius: 16,
+    justifyContent: 'center',
+    backgroundColor: ui.card,
+  },
+  categoryChipSelected: {
+    backgroundColor: ui.accent,
+  },
+  categoryChipText: {
+    fontSize: 12,
+    color: ui.textMuted,
+  },
+  categoryChipTextSelected: {
+    fontWeight: '700',
+    color: ui.text,
+  },
+
+  // Задачи
+  tasksHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  tasksHeaderLabel: {
+    fontSize: 10,
+    color: ui.text,
+  },
+  addLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  addLinkText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: ui.text,
+  },
+  emptyText: {
+    fontSize: 12,
+    textAlign: 'center',
+    color: ui.textMuted,
+    paddingVertical: 16,
+  },
+
+  // Результаты
+  resultItem: {
+    fontSize: 12,
+    color: ui.text,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    backgroundColor: ui.card,
+    marginBottom: 8,
+    overflow: 'hidden',
+  },
+  resultButtons: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 4,
+  },
+
+  // Нижние кнопки
+  buttonsContainer: {
+    flexDirection: 'row',
+    gap: 12,
+    paddingTop: 16,
+  },
+  buttonFlex: {
+    flex: 1,
+  },
+  serverErrorText: {
+    fontSize: 10,
+    textAlign: 'center',
+    color: ui.danger,
+    marginTop: 8,
+  },
 });

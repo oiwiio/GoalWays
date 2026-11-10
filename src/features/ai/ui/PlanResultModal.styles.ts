@@ -1,151 +1,119 @@
-import { colors, spacing, borderRadius, typography } from '../../../shared/styles/theme';
 import { StyleSheet } from 'react-native';
+import { ui } from '../../../shared/styles/ui';
 
 export const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0,0,0,0.6)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: colors?.surface || '#fff',
-    borderRadius: borderRadius?.l || 20,
-    padding: spacing?.l || 20,
     width: '90%',
+    maxWidth: 400,
     maxHeight: '85%',
+    padding: 24,
+    borderRadius: 24,
+    backgroundColor: ui.background,
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: colors?.text || '#1a1a1a',
-    marginBottom: spacing?.xs || 8,
-    textAlign: 'center',
+    fontWeight: '600',
+    color: ui.text,
+    marginBottom: 8,
   },
   subtitle: {
-    fontSize: 14,
-    color: colors?.textSecondary || '#666',
-    marginBottom: spacing?.l || 20,
-    textAlign: 'center',
+    fontSize: 12,
+    lineHeight: 18,
+    color: ui.textMuted,
+    marginBottom: 20,
   },
+
+  // Строка задачи
   taskItem: {
     flexDirection: 'row',
-    paddingVertical: spacing?.s || 12,
-    paddingHorizontal: spacing?.s || 12,
-    borderBottomWidth: 1,
-    borderBottomColor: colors?.borderLight || '#eee',
+    padding: 12,
+    marginBottom: 8,
+    borderRadius: 12,
+    backgroundColor: ui.card,
   },
   checkboxContainer: {
-    marginRight: spacing?.s || 12,
+    marginRight: 12,
     justifyContent: 'center',
   },
   checkbox: {
     width: 24,
     height: 24,
     borderRadius: 6,
-    borderWidth: 2,
-    borderColor: colors?.primary || '#007AFF',
+    borderWidth: 1.5,
+    borderColor: ui.border,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
   },
   checkboxSelected: {
-    backgroundColor: colors?.primary || '#007AFF',
-  },
-  checkmark: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
+    borderColor: ui.accent,
+    backgroundColor: ui.accent,
   },
   taskContent: {
     flex: 1,
   },
   taskTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors?.text || '#1a1a1a',
-    marginBottom: spacing?.xs || 4,
+    fontSize: 14,
+    fontWeight: '700',
+    color: ui.text,
+    marginBottom: 4,
   },
   taskDescription: {
-    fontSize: 14,
-    color: colors?.textSecondary || '#666',
-    marginBottom: spacing?.xs || 4,
+    fontSize: 12,
+    lineHeight: 18,
+    color: ui.textMuted,
+    marginBottom: 8,
   },
   taskMeta: {
     flexDirection: 'row',
-    gap: spacing?.s || 12,
+    alignItems: 'center',
+    gap: 12,
   },
   priority: {
-    fontSize: 12,
-    paddingHorizontal: spacing?.xs || 8,
-    paddingVertical: 2,
-    borderRadius: borderRadius?.s || 4,
-    overflow: 'hidden',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
   },
-  priorityHigh: {
-    backgroundColor: '#FFE5E5',
-    color: '#FF3B30',
-  },
-  priorityMedium: {
-    backgroundColor: '#FFF0E5',
-    color: '#FF9500',
-  },
-  priorityLow: {
-    backgroundColor: '#E5F5E5',
-    color: '#34C759',
+  priorityText: {
+    fontSize: 10,
+    fontWeight: '600',
   },
   estimated: {
-    fontSize: 12,
-    color: '#666',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
+  estimatedText: {
+    fontSize: 10,
+    color: ui.textMuted,
+  },
+
   statsContainer: {
-    paddingVertical: spacing?.s || 12,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: colors?.borderLight || '#eee',
-    marginVertical: spacing?.s || 12,
+    marginVertical: 12,
   },
   statsText: {
-    fontSize: 14,
-    color: colors?.textSecondary || '#666',
+    fontSize: 12,
     textAlign: 'center',
+    color: ui.textMuted,
   },
+
+  // Кнопки: «Добавить выбранные» сверху, «Отмена» и «Добавить все» под ней
   buttonsContainer: {
+    gap: 12,
+  },
+  buttonsRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: spacing?.s || 8,
+    gap: 12,
   },
-  button: {
+  buttonFlex: {
     flex: 1,
-    paddingVertical: spacing?.m || 12,
-    borderRadius: borderRadius?.m || 10,
-    alignItems: 'center',
-  },
-  cancelButton: {
-    backgroundColor: colors?.borderLight || '#f0f0f0',
-  },
-  cancelButtonText: {
-    color: colors?.textSecondary || '#666',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  addAllButton: {
-    backgroundColor: colors?.borderLight || '#f0f0f0',
-  },
-  addAllButtonText: {
-    color: colors?.textSecondary || '#666',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  addButton: {
-    backgroundColor: colors?.primary || '#007AFF',
-  },
-  addButtonText: {
-    color: colors?.surface || '#fff',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  disabledButton: {
-    opacity: 0.5,
   },
 });

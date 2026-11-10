@@ -48,9 +48,7 @@ const renderPriorityIcon = (priority?: string) => {
       return <Moon {...props} />;
     default:
   return (
-    <Text style={{ color: 'yellow' }}>
-      {String(priority)}|{typeof priority}
-    </Text>
+    <Pin {...props} color={ui.textMuted} />
   );
   }
 };

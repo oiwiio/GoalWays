@@ -1,88 +1,59 @@
-import { StyleSheet } from "react-native";
-import { colors, spacing, borderRadius, typography } from '../../../shared/styles/theme';
+import { StyleSheet } from 'react-native';
+import { ui } from '../../../shared/styles/ui';
 
 export const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0,0,0,0.6)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: colors?.surface || '#fff',
-    borderRadius: borderRadius?.l || 20,
-    padding: spacing?.l || 20,
     width: '90%',
+    maxWidth: 400,
     maxHeight: '80%',
+    padding: 24,
+    borderRadius: 24,
+    backgroundColor: ui.background,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 8,
   },
   title: {
+    flex: 1,
     fontSize: 20,
-    fontWeight: 'bold',
-    color: colors?.text || '#1a1a1a',
-    marginBottom: spacing?.xs || 8,
-    textAlign: 'center',
+    fontWeight: '600',
+    color: ui.text,
   },
   subtitle: {
-    fontSize: 14,
-    color: colors?.textSecondary || '#666',
-    marginBottom: spacing?.l || 20,
-    textAlign: 'center',
+    fontSize: 12,
+    lineHeight: 18,
+    color: ui.textMuted,
+    marginBottom: 20,
   },
   questionContainer: {
-    marginBottom: spacing?.l || 20,
+    marginBottom: 0,
   },
   questionLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors?.primary || '#007AFF',
-    marginBottom: spacing?.xs || 4,
+    fontSize: 10,
+    color: ui.textMuted,
+    marginBottom: 4,
   },
   questionText: {
-    fontSize: 16,
-    color: colors?.text || '#1a1a1a',
-    marginBottom: spacing?.s || 12,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: colors?.borderLight || '#ddd',
-    borderRadius: borderRadius?.m || 10,
-    padding: spacing?.s || 12,
-    fontSize: 16,
-    backgroundColor: colors?.background || '#f9f9f9',
-  },
-  textArea: {
-    minHeight: 80,
-    textAlignVertical: 'top',
+    fontSize: 14,
+    fontWeight: '600',
+    color: ui.text,
+    marginBottom: 8,
   },
   buttonsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: spacing?.l || 20,
-    gap: spacing?.s || 12,
+    gap: 12,
+    marginTop: 4,
   },
-  button: {
+  buttonFlex: {
     flex: 1,
-    paddingVertical: spacing?.m || 15,
-    borderRadius: borderRadius?.m || 10,
-    alignItems: 'center',
-  },
-  cancelButton: {
-    backgroundColor: colors?.borderLight || '#f0f0f0',
-  },
-  cancelButtonText: {
-    color: colors?.textSecondary || '#666',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  submitButton: {
-    backgroundColor: colors?.primary || '#007AFF',
-  },
-  submitButtonText: {
-    color: colors?.surface || '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  disabledButton: {
-    opacity: 0.6,
   },
 });

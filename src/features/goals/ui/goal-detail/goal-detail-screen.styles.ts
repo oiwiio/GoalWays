@@ -1,109 +1,105 @@
 import { StyleSheet } from 'react-native';
-import { colors, spacing, borderRadius, typography } from '../../../../shared/styles/theme';
+import { ui } from '../../../../shared/styles/ui';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors?.background || '#f5f5f5',
+    backgroundColor: ui.background,
   },
   centered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors?.background || '#f5f5f5',
+    backgroundColor: ui.background,
   },
+  content: {
+    paddingBottom: 24,
+  },
+
+  // Шапка: ← Название ✎
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: spacing?.l || 16,
-    paddingVertical: spacing?.m || 12,
-    backgroundColor: colors?.surface || '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: colors?.borderLight || '#eee',
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    height: 80,
   },
-  backButton: {
-    fontSize: 28,
-    color: colors?.primary || '#007AFF',
-    padding: 4,
+  headerButton: {
+    width: 32,
+    height: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors?.text || '#1a1a1a',
     flex: 1,
-    textAlign: 'center',
+    marginHorizontal: 20,
+    fontSize: 20,
+    fontWeight: '600',
+    color: ui.text,
   },
-  editButton: {
-    fontSize: 24,
-    color: colors?.primary || '#007AFF',
-    padding: 4,
-  },
+
   description: {
-    fontSize: 16,
-    color: colors?.textSecondary || '#666',
-    paddingHorizontal: spacing?.l || 16,
-    paddingVertical: spacing?.m || 12,
-    lineHeight: 22,
+    paddingHorizontal: 24,
+    marginTop: 16,
+    fontSize: 14,
+    lineHeight: 20,
+    color: ui.textMuted,
   },
+
+  // Прогресс
   progressContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: spacing?.l || 16,
-    paddingVertical: spacing?.s || 8,
+    paddingHorizontal: 24,
+    marginTop: 24,
   },
   progressBar: {
     flex: 1,
-    height: 8,
-    backgroundColor: colors?.borderLight || '#e0e0e0',
-    borderRadius: 4,
+    height: 6,
+    marginRight: 12,
+    borderRadius: 3,
     overflow: 'hidden',
-    marginRight: spacing?.s || 8,
+    backgroundColor: ui.border,
   },
   progressFill: {
     height: '100%',
-    backgroundColor: colors?.primary || '#007AFF',
-    borderRadius: 4,
+    borderRadius: 3,
+    backgroundColor: ui.text,
   },
   progressText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors?.text || '#1a1a1a',
-    minWidth: 45,
+    minWidth: 36,
+    textAlign: 'right',
+    fontSize: 10,
+    fontWeight: '700',
+    color: ui.text,
   },
+
+  // Кнопки действий
   actionsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing?.l || 16,
-    paddingVertical: spacing?.m || 12,
+    alignItems: 'center',
     gap: 12,
+    paddingHorizontal: 24,
+    marginTop: 24,
   },
   actionButton: {
     flex: 1,
-    backgroundColor: colors?.primary || '#007AFF',
-    paddingVertical: spacing?.s || 10,
-    borderRadius: borderRadius?.m || 8,
-    alignItems: 'center',
   },
-  actionButtonText: {
-    color: colors?.surface || '#fff',
-    fontSize: 14,
-    fontWeight: '600',
-  },
+
+  // Задачи
   tasksContainer: {
-    paddingHorizontal: spacing?.l || 16,
-    paddingVertical: spacing?.s || 8,
+    paddingHorizontal: 24,
+    marginTop: 32,
   },
   tasksTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors?.text || '#1a1a1a',
-    marginBottom: spacing?.s || 12,
+    fontSize: 10,
+    color: ui.text,
+    marginBottom: 8,
   },
   emptyText: {
-    fontSize: 14,
-    color: colors?.textSecondary || '#999',
+    fontSize: 12,
     textAlign: 'center',
-    paddingVertical: spacing?.xl || 32,
+    color: ui.textMuted,
+    paddingVertical: 32,
   },
 });

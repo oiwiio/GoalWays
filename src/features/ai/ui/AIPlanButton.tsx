@@ -1,21 +1,22 @@
 import React, { useState } from 'react';
-import { TouchableOpacity, Text, ActivityIndicator, StyleSheet } from 'react-native';
+import { ViewStyle } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../app/store';
 import { generatePlanRequest } from '../slice';
 import { AIPromptModal } from './AIPromptModal';
-import { colors, spacing, borderRadius, typography } from '../../../shared/styles/theme';
+import { Button } from '../../../shared/ui/button';
 
 interface AIPlanButtonProps {
   goalId: number;
+  style?: ViewStyle;
 }
 
-export const AIPlanButton = ({ goalId }: AIPlanButtonProps) => {
+export const AIPlanButton = ({ goalId, style }: AIPlanButtonProps) => {
   const dispatch = useDispatch();
   const [modalVisible, setModalVisible] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
-  
+
   const isLoading = useSelector((state: RootState) => state.ai.isLoading);
   const error = useSelector((state: RootState) => state.ai.error);
 
@@ -26,41 +27,26 @@ export const AIPlanButton = ({ goalId }: AIPlanButtonProps) => {
     }
   }, [error]);
 
-  const handleOpenModal = () => {
-    console.log('Открываем модалку AI');
-    setModalVisible(true);
-  };
-
   const handleSubmitPrompt = (prompt: string) => {
-    console.log('Отправка запроса, goalId:', goalId, 'prompt:', prompt);
     dispatch(generatePlanRequest({ goalId, prompt }));
     setModalVisible(false);
   };
 
-  console.log('AIPlanButton рендер, modalVisible:', modalVisible, 'isLoading:', isLoading);
-
   return (
     <>
-      <TouchableOpacity
-        style={styles.button}
-        onPress={handleOpenModal}
-        disabled={isLoading}
-      >
-        {isLoading ? (
-          <ActivityIndicator size="small" color={colors.text} />
-        ) : (
-          <Text style={styles.text}>AI план</Text>
-        )}
-      </TouchableOpacity>
+      <Button
+        title="AI план"
+        variant="secondary"
+        onPress={() => setModalVisible(true)}
+        loading={isLoading}
+        style={style}
+      />
 
       <AIPromptModal
         visible={modalVisible}
         isLoading={isLoading}
         onSubmit={handleSubmitPrompt}
-        onClose={() => {
-          console.log('Закрываем модалку');
-          setModalVisible(false);
-        }}
+        onClose={() => setModalVisible(false)}
       />
 
       {/* Toast временно уберём для теста */}
@@ -73,17 +59,3 @@ export const AIPlanButton = ({ goalId }: AIPlanButtonProps) => {
     </>
   );
 };
-
-const styles = StyleSheet.create({
-  button: {
-    backgroundColor: colors.primary,
-    paddingHorizontal: spacing.m,
-    paddingVertical: spacing.s,
-    borderRadius: borderRadius.round,
-    marginLeft: spacing.s,
-  },
-  text: {
-    ...typography.buttonSmall,
-    color: colors.text,
-  },
-});

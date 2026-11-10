@@ -1,15 +1,9 @@
 import React, { useState } from 'react';
-import {
-  Modal,
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  ActivityIndicator,
-  StyleSheet,
-  Platform,
-} from 'react-native';
-import { colors, spacing, borderRadius, typography } from '../../../shared/styles/theme';
+import { Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { X } from 'lucide-react-native';
+import { Input } from '../../../shared/ui/input';
+import { Button } from '../../../shared/ui/button';
+import { ui } from '../../../shared/styles/ui';
 
 interface AIPromptModalProps {
   visible: boolean;
@@ -27,8 +21,6 @@ export const AIPromptModal = ({ visible, isLoading, onSubmit, onClose }: AIPromp
     setPrompt('');
   };
 
-  console.log('AIPromptModal рендер, visible:', visible);
-
   return (
     <Modal
       visible={visible}
@@ -41,51 +33,43 @@ export const AIPromptModal = ({ visible, isLoading, onSubmit, onClose }: AIPromp
         <View style={styles.modalContent}>
           <View style={styles.header}>
             <Text style={styles.title}>AI помощник</Text>
-            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <Text style={styles.closeButtonText}>✕</Text>
+            <TouchableOpacity
+              onPress={onClose}
+              style={styles.closeButton}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <X size={18} strokeWidth={1.75} color={ui.text} />
             </TouchableOpacity>
           </View>
-          
+
           <Text style={styles.subtitle}>
             Опишите, что вы хотите сделать или улучшить в этой цели
           </Text>
 
-          <TextInput
-            style={[styles.input, styles.textArea]}
+          <Input
             value={prompt}
             onChangeText={setPrompt}
             placeholder="Например: помоги мне сварить пельмени..."
-            placeholderTextColor={colors.textSecondary}
             multiline
             numberOfLines={4}
-            textAlignVertical="top"
             autoFocus={true}
           />
 
           <View style={styles.buttonsContainer}>
-            <TouchableOpacity
-              style={[styles.button, styles.cancelButton]}
+            <Button
+              title="Отмена"
+              variant="secondary"
               onPress={onClose}
               disabled={isLoading}
-            >
-              <Text style={styles.cancelButtonText}>Отмена</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                styles.button,
-                styles.submitButton,
-                (!prompt.trim() || isLoading) && styles.disabledButton,
-              ]}
+              style={styles.buttonFlex}
+            />
+            <Button
+              title="Отправить"
               onPress={handleSubmit}
-              disabled={!prompt.trim() || isLoading}
-            >
-              {isLoading ? (
-                <ActivityIndicator size="small" color={colors.text} />
-              ) : (
-                <Text style={styles.submitButtonText}>Отправить</Text>
-              )}
-            </TouchableOpacity>
+              loading={isLoading}
+              disabled={!prompt.trim()}
+              style={styles.buttonFlex}
+            />
           </View>
         </View>
       </View>
@@ -96,99 +80,47 @@ export const AIPromptModal = ({ visible, isLoading, onSubmit, onClose }: AIPromp
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    backgroundColor: 'rgba(0,0,0,0.6)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.l,
-    padding: spacing.l,
     width: '90%',
     maxWidth: 400,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-      },
-      android: {
-        elevation: 5,
-      },
-    }),
+    padding: 24,
+    borderRadius: 24,
+    backgroundColor: ui.background,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.m,
+    marginBottom: 8,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: ui.text,
   },
   closeButton: {
     width: 32,
     height: 32,
-    borderRadius: borderRadius.round,
-    backgroundColor: colors.surfaceLight,
+    borderRadius: 16,
+    backgroundColor: ui.card,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  closeButtonText: {
-    fontSize: 18,
-    color: colors.textSecondary,
-  },
-  title: {
-    ...typography.h3,
-    fontSize: 20,
-    color: colors.text,
-  },
   subtitle: {
-    ...typography.bodySecondary,
-    fontSize: 14,
-    marginBottom: spacing.l,
-    color: colors.textSecondary,
-  },
-  input: {
-    ...typography.body,
-    backgroundColor: colors.surfaceLight,
-    color: colors.text,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: borderRadius.s,
-    padding: spacing.s,
-    minHeight: 100,
-  },
-  textArea: {
-    textAlignVertical: 'top',
+    fontSize: 12,
+    lineHeight: 18,
+    color: ui.textMuted,
+    marginBottom: 20,
   },
   buttonsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: spacing.l,
-    gap: spacing.s,
+    gap: 12,
   },
-  button: {
+  buttonFlex: {
     flex: 1,
-    paddingVertical: spacing.m,
-    borderRadius: borderRadius.m,
-    alignItems: 'center',
-  },
-  cancelButton: {
-    backgroundColor: colors.surfaceLight,
-  },
-  cancelButtonText: {
-    ...typography.body,
-    color: colors.textSecondary,
-    fontWeight: '600',
-  },
-  submitButton: {
-    backgroundColor: colors.primary,
-  },
-  submitButtonText: {
-    ...typography.body,
-    color: colors.text,
-    fontWeight: '600',
-  },
-  disabledButton: {
-    opacity: 0.6,
   },
 });
