@@ -13,6 +13,8 @@ interface GoalCardProps {
     onDelete: (goal: GoalAPI) => void;      
 }
 
+
+
 export const GoalCard = ({ 
     goal, 
     onPress, 
@@ -23,31 +25,33 @@ export const GoalCard = ({
 }: GoalCardProps) => {
     const [menuVisible, setMenuVisible] = useState(false);
 
+    console.log('goal debug:', goal.status, goal.priority);
+
     const getPriorityIcon = (priority: string) => {
         switch (priority) {
-            case 'high': return '🔥';
-            case 'medium': return '⚪';
-            case 'low': return '💤';
-            default: return '⚪';
+            case 'HIGH': return '🔥';
+            case 'MEDIUM': return '⚪';
+            case 'LOW': return '💤';
+            default: return '❓';
         }
     };
 
     const getStatusText = (status: string) => {
         switch (status) {
-            case 'in_progress': return 'В процессе';
-            case 'completed': return 'Завершено';
-            case 'frozen': return 'Заморожено';
-            case 'archived': return 'В архиве';
+            case 'IN_PROGRESS': return 'В процессе';
+            case 'COMPLETED': return 'Завершено';
+            case 'FROZEN': return 'Заморожено';
+            case 'ARCHIVED': return 'В архиве';
             default: return '';
         }
     };
 
     const getStatusColor = (status: string): string => {
         switch (status) {
-            case 'in_progress': return colors.primary;
-            case 'completed': return colors.success;
-            case 'frozen': return colors.warning;
-            case 'archived': return colors.textSecondary;
+            case 'IN_PROGRESS': return colors.primary;
+            case 'COMPLETED': return colors.success;
+            case 'FROZEN': return colors.warning;
+            case 'ARCHIVED': return colors.textSecondary;
             default: return colors.textSecondary;
         }
     };

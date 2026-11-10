@@ -87,9 +87,9 @@ export const TaskModal = ({ visible, mode, task, goalId, onClose, onSave }: Task
     };
 
     const priorityOptions = [
-        { value: 'LOW', label: '💤 Низкий' },
-        { value: 'MEDIUM', label: '⚪ Средний' },
         { value: 'HIGH', label: '🔥 Высокий' },
+        { value: 'MEDIUM', label: '⚪ Средний' },
+        { value: 'LOW', label: '💤 Низкий' },
     ];
 
     return (

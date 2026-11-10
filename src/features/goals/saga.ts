@@ -101,7 +101,7 @@ function* handleFetchGoals(api: Api): SagaIterator {
       dataLength: response.data.data?.content?.length,
       fullData: response.data
     });
-
+    
     if (response.data.status === 'success') {
       const normalized = response.data.data.content.map(normalizeGoal);
       console.log('Цели загружены:', {

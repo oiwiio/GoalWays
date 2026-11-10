@@ -15,7 +15,7 @@ export const TaskItem = ({ task, onPress }: TaskItemProps) => {
       case 'HIGH': return '🔥';
       case 'MEDIUM': return '⚪';
       case 'LOW': return '💤';
-      default: return '⚪';
+      default: return '❓';
     }
   };
 

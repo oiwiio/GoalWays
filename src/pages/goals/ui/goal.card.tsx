@@ -14,6 +14,7 @@ import {
 import { GoalAPI } from '../../../types/goal';
 import { ui } from '../../../shared/styles/ui';
 
+
 interface GoalCardProps {
   goal: GoalAPI;
   onPress: (goal: GoalAPI) => void;
@@ -36,19 +37,23 @@ export const GoalCard = ({
   const statusUpper = goal.status?.toUpperCase();
   const isArchived = statusUpper === 'ARCHIVED';
 
-  const renderPriorityIcon = () => {
-    const props = { size: 16, strokeWidth: 1.75, color: ui.textMuted };
-    switch (goal.priority) {
-      case 'HIGH':
-        return <Flame {...props} color={ui.warning} />;
-      case 'MEDIUM':
-        return <Circle {...props} />;
-      case 'LOW':
-        return <Moon {...props} />;
-      default:
-        return <Pin {...props} />;
-    }
-  };
+const renderPriorityIcon = (priority?: string) => {
+  const props = { size: 16, strokeWidth: 1.75, color: ui.textMuted };
+  switch (String(priority ?? '').trim().toUpperCase()) {
+    case 'HIGH':
+      return <Flame {...props} color={ui.warning} />;
+    case 'MEDIUM':
+      return <Circle {...props} />;
+    case 'LOW':
+      return <Moon {...props} />;
+    default:
+  return (
+    <Text style={{ color: 'yellow' }}>
+      {String(priority)}|{typeof priority}
+    </Text>
+  );
+  }
+};
 
   const getStatusColor = () => {
     switch (statusUpper) {
@@ -83,7 +88,7 @@ export const GoalCard = ({
       {/* Заголовок и действия */}
       <View style={styles.header}>
         <View style={styles.titleContainer}>
-          <View style={styles.priorityIcon}>{renderPriorityIcon()}</View>
+          <View style={styles.priorityIcon}>{renderPriorityIcon(goal.priority)}</View>
           <Text style={[styles.title, isArchived && styles.archivedTitle]} numberOfLines={1}>
             {goal.title}
           </Text>
