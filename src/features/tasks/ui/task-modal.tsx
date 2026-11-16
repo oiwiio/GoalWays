@@ -97,18 +97,26 @@ export const TaskModal = ({ visible, mode, task, goalId, onClose, onSave }: Task
             visible={visible}
             animationType="slide"
             transparent={true}
-            onRequestClose={onClose}
+            onRequestClose={handleClose}
         >
             <View style={styles.modalOverlay}>
                 <View style={styles.modalContent}>
-                    <Text style={styles.modalTitle}>
-                        {mode === 'create' ? 'Новая задача' : 'Редактировать задачу'}
-                    </Text>
+                    <View style={styles.header}>
+                        <Text style={styles.modalTitle}>
+                            {mode === 'create' ? 'Новая задача' : 'Редактировать задачу'}
+                        </Text>
+                        <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
+                            <Text style={styles.closeButtonText}>✕</Text>
+                        </TouchableOpacity>
+                    </View>
 
-                    <ScrollView showsVerticalScrollIndicator={false}>
+                    <ScrollView
+                        showsVerticalScrollIndicator={false}
+                        contentContainerStyle={styles.scrollContent}
+                    >
                         {/* название */}
                         <View style={styles.inputGroup}>
-                            <Text style={styles.label}>Название *</Text>
+                            <Text style={styles.label}>Название <Text style={styles.required}>*</Text></Text>
                             <TextInput
                                 style={styles.input}
                                 value={title}

@@ -11,33 +11,57 @@ export const styles = StyleSheet.create({
         backgroundColor: colors.surface,
         borderTopLeftRadius: borderRadius.xl,
         borderTopRightRadius: borderRadius.xl,
-        padding: spacing.l,
+        paddingHorizontal: spacing.l,
+        paddingBottom: spacing.xl,
         minHeight: '60%',
         maxHeight: '90%',
     },
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: spacing.l,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.border,
+    },
     modalTitle: {
         ...typography.h2,
-        fontSize: 24,
-        color: colors.text,
-        marginBottom: spacing.m,
-        textAlign: 'center',
+        flex: 1,
+        marginRight: spacing.s,
+    },
+    closeButton: {
+        width: 32,
+        height: 32,
+        borderRadius: borderRadius.round,
+        backgroundColor: colors.surfaceLight,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    closeButtonText: {
+        fontSize: 18,
+        color: colors.textSecondary,
+    },
+    scrollContent: {
+        paddingVertical: spacing.m,
     },
     inputGroup: {
-        marginBottom: spacing.m,
+        marginBottom: spacing.l,
     },
     label: {
         ...typography.caption,
-        color: colors.textSecondary,
         marginBottom: spacing.xs,
+    },
+    required: {
+        color: colors.danger,
     },
     input: {
         ...typography.body,
         backgroundColor: colors.surfaceLight,
-        color: colors.text,
         borderWidth: 1,
         borderColor: colors.border,
         borderRadius: borderRadius.s,
-        padding: spacing.s,
+        paddingHorizontal: spacing.m,
+        paddingVertical: spacing.s,
     },
     textArea: {
         minHeight: 80,
@@ -45,14 +69,12 @@ export const styles = StyleSheet.create({
     },
     hint: {
         ...typography.caption,
-        color: colors.textSecondary,
         marginTop: spacing.xs,
     },
     priorityContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         gap: spacing.s,
-        marginTop: spacing.xs,
     },
     priorityButton: {
         flex: 1,
@@ -65,9 +87,8 @@ export const styles = StyleSheet.create({
         backgroundColor: colors.primary,
     },
     priorityButtonText: {
-        ...typography.body,
+        ...typography.bodySecondary,
         fontSize: 14,
-        color: colors.textSecondary,
     },
     priorityButtonTextActive: {
         color: colors.text,
@@ -76,11 +97,10 @@ export const styles = StyleSheet.create({
     buttonsContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginTop: spacing.l,
-        paddingTop: spacing.l,
+        gap: spacing.m,
+        paddingTop: spacing.m,
         borderTopWidth: 1,
         borderTopColor: colors.border,
-        gap: spacing.s,
     },
     button: {
         flex: 1,
@@ -106,13 +126,10 @@ export const styles = StyleSheet.create({
         }),
     },
     cancelButtonText: {
-        ...typography.body,
+        ...typography.button,
         color: colors.textSecondary,
-        fontWeight: '600',
     },
     saveButtonText: {
-        ...typography.body,
-        color: colors.text,
-        fontWeight: '600',
+        ...typography.button,
     },
 });

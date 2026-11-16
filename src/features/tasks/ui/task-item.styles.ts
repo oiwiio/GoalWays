@@ -1,6 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { colors, spacing, borderRadius, typography } from '../../../shared/styles/theme';
-import { Platform } from 'react-native';
+import { colors, spacing, borderRadius, typography, shadows } from '../../../shared/styles/theme';
 
 export const taskItemStyles = StyleSheet.create({
   container: {
@@ -10,18 +9,8 @@ export const taskItemStyles = StyleSheet.create({
     marginVertical: spacing.xs,
     borderRadius: borderRadius.m,
     borderWidth: 1,
-    borderColor: colors.border,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 2,
-      },
-    }),
+    borderColor: colors.borderLight,
+    ...shadows.small,
   },
   header: {
     flexDirection: 'row',
@@ -30,20 +19,18 @@ export const taskItemStyles = StyleSheet.create({
   },
   priorityIcon: {
     fontSize: 16,
-    marginRight: spacing.xs,
+    marginRight: spacing.s,
   },
   title: {
     ...typography.body,
     fontWeight: '600',
-    color: colors.text,
     flex: 1,
   },
   description: {
-    ...typography.caption,
+    ...typography.bodySecondary,
     fontSize: 13,
-    color: colors.textSecondary,
-    marginBottom: spacing.xs,
     lineHeight: 18,
+    marginBottom: spacing.s,
   },
   footer: {
     flexDirection: 'row',
@@ -53,18 +40,13 @@ export const taskItemStyles = StyleSheet.create({
   },
   date: {
     ...typography.caption,
-    fontSize: 11,
-    color: colors.textSecondary,
   },
   time: {
     ...typography.caption,
-    fontSize: 11,
-    color: colors.textSecondary,
   },
   progress: {
-    ...typography.caption,
+    ...typography.buttonSmall,
     fontSize: 12,
-    fontWeight: '600',
     color: colors.primary,
   },
 });

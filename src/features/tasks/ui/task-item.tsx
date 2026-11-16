@@ -1,8 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { taskItemStyles as styles } from './task-item.styles';
-import { Task } from '../../../types/goal';
-import { taskItemStyles } from './task-item.styles';
 
 interface TaskItemProps {
   task: any;
@@ -10,17 +8,17 @@ interface TaskItemProps {
 }
 
 export const TaskItem = ({ task, onPress }: TaskItemProps) => {
-  const getPriorityIcon = (priority: string) => {
-    switch (priority) {
+  const getPriorityIcon = (priority?: string) => {
+    switch (String(priority ?? '').trim().toUpperCase()) {
       case 'HIGH': return '🔥';
       case 'MEDIUM': return '⚪';
       case 'LOW': return '💤';
-      default: return '❓';
+      default: return '⚪';
     }
   };
 
   return (
-    <TouchableOpacity style={styles.container} onPress={() => onPress(task)}>
+    <TouchableOpacity style={styles.container} activeOpacity={0.8} onPress={() => onPress(task)}>
       <View style={styles.header}>
         <Text style={styles.priorityIcon}>{getPriorityIcon(task.priority)}</Text>
         <Text style={styles.title} numberOfLines={1}>{task.title}</Text>
